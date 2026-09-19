@@ -3,6 +3,9 @@
   "version": "2.0.0",
   "private": true,
   "description": "ResumeXpert — client-side resume builder with ATS score checker (no backend, data stays in the browser)",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "install-all": "cd frontend && npm install",
     "dev": "cd frontend && npm run dev",
