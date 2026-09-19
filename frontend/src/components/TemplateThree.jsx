@@ -80,7 +80,7 @@ const TemplateThree = ({ resumeData = {}, containerWidth }) => {
         <aside className="col-span-5 space-y-5 pr-4 border-r border-gray-300">
           {/* Contact */}
           <section>
-            <h2 className="text-sm font-bold uppercase text-gray-800 mb-2 tracking-wider">CONTACT</h2>
+            <h2 className="text-sm font-bold uppercase text-[#0b282e] mb-2 tracking-wider border-b border-[#1e7280]/40 pb-1">CONTACT</h2>
             <ul className="text-xs text-gray-700 space-y-2 pb-2">
               <li className="flex items-start">
                 <span className="font-semibold min-w-[65px]">Location:</span>
@@ -132,7 +132,7 @@ const TemplateThree = ({ resumeData = {}, containerWidth }) => {
 
           {/* Skills */}
           <section>
-            <h2 className="text-sm font-bold uppercase text-gray-800 mb-2 tracking-wider">SKILLS</h2>
+            <h2 className="text-sm font-bold uppercase text-[#0b282e] mb-2 tracking-wider border-b border-[#1e7280]/40 pb-1">SKILLS</h2>
             {Object.entries(groupedSkills).map(([category, skillsList]) => (
               skillsList.length > 0 && (
                 <div key={category} className="mb-2">
@@ -167,7 +167,7 @@ const TemplateThree = ({ resumeData = {}, containerWidth }) => {
           {/* Certifications */}
           {certifications.length > 0 && (
             <section>
-              <h2 className="text-sm font-bold uppercase text-gray-800 mb-2 tracking-wider">CERTIFICATIONS</h2>
+              <h2 className="text-sm font-bold uppercase text-[#0b282e] mb-2 tracking-wider border-b border-[#1e7280]/40 pb-1">CERTIFICATIONS</h2>
               <ul className="text-xs text-gray-700 space-y-1">
                 {certifications.map((cert, idx) => (
                   <li key={idx}>{cert.title} ({cert.year})</li>
@@ -179,7 +179,7 @@ const TemplateThree = ({ resumeData = {}, containerWidth }) => {
           {/* Interests */}
           {interests.length > 0 && (
             <section>
-              <h2 className="text-sm font-bold uppercase text-gray-800 mb-2 tracking-wider">INTERESTS</h2>
+              <h2 className="text-sm font-bold uppercase text-[#0b282e] mb-2 tracking-wider border-b border-[#1e7280]/40 pb-1">INTERESTS</h2>
               <ul className="text-xs text-gray-700 space-y-1">
                 {interests.map((interest, idx) => (
                   <li key={idx}>• {interest}</li>

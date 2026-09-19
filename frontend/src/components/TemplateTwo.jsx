@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { LuExternalLink, LuGithub } from "react-icons/lu";
 import { formatYearMonth } from "../utils/helper";
 
-const sectionTitleClass = "text-base font-bold uppercase tracking-wide mb-1 pb-1 border-b border-gray-300";
+const sectionTitleClass = "text-base font-bold uppercase tracking-wide mb-1 pb-1 text-[#0b282e] border-b-2 border-[#1e7280]/50";
 
 const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
   const {
