@@ -7,7 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Eye, Palette, Trash2, ArrowLeft, Loader2, Save, Download, AlertCircle, Check, Gauge, FileText } from 'lucide-react'
 import { getResume, updateResume as persistResume, deleteResume as removeResume, setRecentResumeId } from '../lib/resumeStore'
 import { downloadResumeWord } from '../lib/exportWord'
-import { convertOklchInTree } from '../lib/colors'
+import { convertOklchInTree, convertOklchVarsInDocument } from '../lib/colors'
 import toast from 'react-hot-toast'
 import StepProgress from './StepProgress'
 import RenderResume from './RenderResume'
@@ -770,7 +770,7 @@ const EditResume = () => {
         useCORS: true,
         backgroundColor: "#FFFFFF",
         logging: false,
-        onclone: (doc) => convertOklchInTree(doc.body),
+        onclone: (doc) => { convertOklchVarsInDocument(doc); convertOklchInTree(doc.documentElement); convertOklchInTree(doc.body); },
       });
 
       // reset the fit scaling so the hidden section stays clean for next time

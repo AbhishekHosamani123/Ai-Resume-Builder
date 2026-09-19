@@ -50,6 +50,50 @@ export function convertOklchCall(colorValue) {
   });
 }
 
+// Convert every `--color-*: oklch(...)` custom property defined in the
+// document's stylesheets to rgb, and inject an override style. This fixes
+// oklch at the SOURCE — utilities, pseudo-elements and shadows all resolve
+// through these variables, so html2canvas never sees an oklch() again.
+export function convertOklchVarsInDocument(doc) {
+  const overrides = [];
+  const walkRules = (rules) => {
+    for (const rule of rules) {
+      if (rule.cssRules) {
+        try {
+          walkRules(rule.cssRules);
+        } catch {
+          /* nested access error */
+        }
+        continue;
+      }
+      if (rule.style) {
+        for (const prop of rule.style) {
+          if (!prop.startsWith("--")) continue;
+          const val = rule.style.getPropertyValue(prop);
+          if (val && val.includes("oklch")) {
+            overrides.push([prop, convertOklchCall(val)]);
+          }
+        }
+      }
+    }
+  };
+  for (const sheet of doc.styleSheets) {
+    try {
+      walkRules(sheet.cssRules);
+    } catch {
+      /* cross-origin stylesheet — skip */
+    }
+  }
+  if (overrides.length) {
+    const style = doc.createElement("style");
+    style.textContent = `:root, :host { ${overrides
+      .map(([p, v]) => `${p}: ${v};`)
+      .join(" ")} }`;
+    doc.head.appendChild(style);
+  }
+  return overrides.length;
+}
+
 // Walk a DOM subtree and replace every oklch() computed color with its rgb()
 // equivalent (inline styles on the tree — html2canvas can then parse it).
 export function convertOklchInTree(root) {
