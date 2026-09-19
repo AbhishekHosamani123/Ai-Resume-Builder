@@ -3,8 +3,9 @@
 // Two modes:
 //  - Without a job description: scores resume quality/structure the way ATS
 //    parsers see it (contact info, sections, depth, action verbs, ...).
-//  - With a job description: extracts keywords from the JD and measures how
-//    well the resume covers them, blended with the quality score.
+//  - With a job description: extracts keywords (dictionary skills first,
+//    then free-form terms) and measures resume coverage, blended with the
+//    quality score. Missing keywords are addable straight into the resume.
 
 import * as pdfjsLib from 'pdfjs-dist'
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
@@ -16,7 +17,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl
 const STOPWORDS = new Set(
   `a an and are as at be by for from has have how in is it its of on or that the to was were will with you your our we they their this these those what which who whom
   about above after again all also am any because been before being below between both but can cannot could did do does doing down during each few further had having he her here hers herself him himself his if into itself just me more most my myself no nor not now off once only other ought ours ourselves out over own same she should so some such than then there theirs them themselves through too under until up very via want wanting need needed able ability using use used work working works role roles job jobs position positions company companies candidate candidates applicant applicants must may might shall would like etc including include includes preferred required requirement requirements responsibilities responsibility qualification qualifications strong excellent good great plus year years experience experiences new
-  familiarity familiar knowledge hiring improve improved improving ensure ensuring ideal ideally join joining seeking seek looking look`
+  familiarity familiar knowledge hiring improve improved improving ensure ensuring ideal ideally join joining seeking seek looking look join us team teams helping help helpus`
     .split(/\s+/)
 )
 
@@ -36,6 +37,88 @@ function tokenize(text) {
     .filter(Boolean)
 }
 
+// ---------------------------------------------------------------- skill dictionary
+// canonical term -> aliases. Skills found in the JD via the dictionary are
+// high-confidence, actionable keywords a user can add to their resume.
+
+const SKILL_DICTIONARY = [
+  // languages & frameworks
+  { c: 'JavaScript', a: ['javascript', 'js', 'es6', 'ecmascript'] },
+  { c: 'TypeScript', a: ['typescript', 'ts'] },
+  { c: 'Python', a: ['python3'] },
+  { c: 'Java', a: ['core java', 'java 8'] },
+  { c: 'C++', a: ['cpp'] },
+  { c: 'C#', a: ['csharp', 'c sharp'] },
+  { c: '.NET', a: ['dotnet', 'asp.net', 'aspnet'] },
+  { c: 'PHP', a: ['php8'] },
+  { c: 'Go', a: ['golang'] },
+  { c: 'Rust', a: [] },
+  { c: 'Swift', a: [] },
+  { c: 'Kotlin', a: [] },
+  { c: 'Ruby', a: ['ruby on rails', 'rails'] },
+  { c: 'HTML', a: ['html5'] },
+  { c: 'CSS', a: ['css3'] },
+  // frontend
+  { c: 'React', a: ['reactjs', 'react.js'] },
+  { c: 'Next.js', a: ['nextjs', 'next js'] },
+  { c: 'Vue.js', a: ['vue', 'vuejs'] },
+  { c: 'Angular', a: ['angularjs'] },
+  { c: 'Tailwind CSS', a: ['tailwind', 'tailwindcss'] },
+  { c: 'Redux', a: [] },
+  { c: 'Flutter', a: [] },
+  // backend & data
+  { c: 'Node.js', a: ['nodejs', 'node js', 'node'] },
+  { c: 'Express.js', a: ['expressjs', 'express'] },
+  { c: 'Django', a: [] },
+  { c: 'Flask', a: [] },
+  { c: 'Spring Boot', a: ['spring', 'springboot'] },
+  { c: 'REST APIs', a: ['rest api', 'rest apis', 'restful', 'restful api', 'rest'] },
+  { c: 'GraphQL', a: ['apollo'] },
+  { c: 'MongoDB', a: ['mongo'] },
+  { c: 'PostgreSQL', a: ['postgres'] },
+  { c: 'MySQL', a: [] },
+  { c: 'SQL', a: [] },
+  { c: 'Redis', a: [] },
+  { c: 'Firebase', a: [] },
+  { c: 'Kafka', a: ['apache kafka'] },
+  { c: 'RabbitMQ', a: ['rabbit mq'] },
+  { c: 'Elasticsearch', a: ['elastic search'] },
+  // devops & cloud
+  { c: 'Docker', a: ['containerization', 'containers'] },
+  { c: 'Kubernetes', a: ['k8s'] },
+  { c: 'AWS', a: ['amazon web services', 'ec2', 's3', 'aws lambda'] },
+  { c: 'Azure', a: ['microsoft azure'] },
+  { c: 'GCP', a: ['google cloud'] },
+  { c: 'CI/CD', a: ['ci cd', 'cicd', 'continuous integration', 'continuous delivery', 'jenkins', 'github actions', 'gitlab ci'] },
+  { c: 'Terraform', a: [] },
+  { c: 'Git', a: ['github', 'gitlab', 'version control'] },
+  { c: 'Linux', a: ['unix'] },
+  { c: 'Nginx', a: [] },
+  // practices & soft
+  { c: 'Agile', a: ['scrum', 'kanban'] },
+  { c: 'System Design', a: ['system architecture', 'architecture design', 'distributed systems'] },
+  { c: 'JWT', a: ['json web token', 'oauth', 'authentication'] },
+  { c: 'Unit Testing', a: ['unit tests', 'jest', 'mocha', 'pytest'] },
+  { c: 'Machine Learning', a: ['ml', 'deep learning'] },
+  { c: 'Figma', a: [] },
+  { c: 'Jira', a: [] },
+  { c: 'Leadership', a: ['team lead', 'led teams'] },
+  { c: 'Mentoring', a: ['mentor', 'mentored', 'mentoring'] },
+  { c: 'Communication', a: ['communication skills'] },
+  { c: 'Problem Solving', a: ['problem-solving', 'analytical thinking'] },
+  { c: 'Scalability', a: ['scalable', 'scaling'] },
+  { c: 'Performance Optimization', a: ['performance optimization', 'latency', 'optimization'] },
+  { c: 'Reliability', a: ['reliable', 'high availability'] },
+  { c: 'Microservices', a: ['micro services', 'micro-services'] },
+]
+
+// normalized lookup: alias/canonical -> canonical
+const SKILL_LOOKUP = new Map()
+for (const skill of SKILL_DICTIONARY) {
+  SKILL_LOOKUP.set(normalize(skill.c), skill.c)
+  for (const alias of skill.a) SKILL_LOOKUP.set(normalize(alias), skill.c)
+}
+
 // ---------------------------------------------------------------- resume text
 
 export function resumeToText(resume) {
@@ -45,7 +128,7 @@ export function resumeToText(resume) {
 
   push(resume.title)
   const p = resume.profileInfo || {}
-  push(p.fullName); push(p.designation); push(p.summary); push(p.profilePreviewUrl === '' ? '' : '')
+  push(p.fullName); push(p.designation); push(p.summary)
   const c = resume.contactInfo || {}
   push(c.email); push(c.phone); push(c.location); push(c.linkedin); push(c.github); push(c.website)
 
@@ -70,66 +153,109 @@ export function resumeToText(resume) {
 
 // ---------------------------------------------------------------- JD keywords
 
-export function extractKeywords(jdText, limit = 24) {
-  const words = tokenize(jdText)
-  const unigrams = new Map()
-  words.forEach((w, i) => {
-    if (w.length < 3 || STOPWORDS.has(w) || /^\d+$/.test(w)) return
-    const entry = unigrams.get(w) || { term: w, count: 0, isBigram: false }
-    entry.count++
-    unigrams.set(w, entry)
-  })
+function countOccurrences(haystack, needle) {
+  if (!needle) return 0
+  let count = 0
+  let idx = haystack.indexOf(needle)
+  while (idx !== -1) {
+    count++
+    idx = haystack.indexOf(needle, idx + needle.length)
+  }
+  return count
+}
 
+// word-boundary match that tolerates plural/verb morphs on longer words
+function termRegex(term) {
+  const esc = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return new RegExp(`\\b${esc}(s|es|ing|ed)?\\b`, 'i')
+}
+
+export function extractKeywords(jdText, limit = 20) {
+  const norm = normalize(jdText)
+  const words = tokenize(jdText)
+  const keywords = []
+  const covered = new Set()
+
+  // 1) dictionary skills — high confidence, addable
+  for (const [aliasNorm, canonical] of SKILL_LOOKUP) {
+    if (covered.has(canonical)) continue
+    const count = countOccurrences(norm, aliasNorm)
+    if (count > 0) {
+      covered.add(canonical)
+      keywords.push({ term: canonical, count, isSkill: true })
+    }
+  }
+
+  // 2) free-form bigrams (multi-word requirements like "system design")
   const bigrams = new Map()
   for (let i = 0; i < words.length - 1; i++) {
     const a = words[i]
     const b = words[i + 1]
     if (a.length < 3 || b.length < 3 || STOPWORDS.has(a) || STOPWORDS.has(b)) continue
     const term = `${a} ${b}`
-    const entry = bigrams.get(term) || { term, count: 0, isBigram: true }
+    if (termRegex(term).test(norm) === false) continue
+    const entry = bigrams.get(term) || { term, count: 0, isSkill: false }
     entry.count++
     bigrams.set(term, entry)
   }
-
-  const all = [...unigrams.values(), ...bigrams.values().filter((b) => b.count >= 2)]
-  all.sort((x, y) => y.count - x.count || y.term.length - x.term.length)
-
-  // prefer longer terms: drop a unigram if a bigram containing it made the cut
-  const picked = []
-  const seen = new Set()
-  for (const entry of all) {
-    if (picked.length >= limit) break
-    if (entry.isBigram) {
-      const overlap = entry.term.split(' ').every((w) => picked.some((p) => p.term === w))
-      if (overlap) continue
-      picked.push(entry)
-      entry.term.split(' ').forEach((w) => seen.add(w))
-    } else {
-      if (seen.has(entry.term)) continue
-      picked.push(entry)
-    }
+  const topBigrams = [...bigrams.values()].filter((b) => b.count >= 2)
+  for (const b of topBigrams) {
+    covered.add(b.term)
+    for (const w of b.term.split(' ')) covered.add(w)
+    keywords.push(b)
   }
-  return picked
+
+  // 3) free-form unigrams not already covered
+  const unigrams = new Map()
+  for (const w of words) {
+    if (w.length < 3 || w.length > 24 || /^\d+$/.test(w)) continue
+    if (STOPWORDS.has(w) || covered.has(w)) continue
+    const entry = unigrams.get(w) || { term: w, count: 0, isSkill: false }
+    entry.count++
+    unigrams.set(w, entry)
+  }
+
+  keywords.push(...unigrams.values())
+  keywords.sort((x, y) => y.count - x.count || (y.isSkill ? 1 : 0) - (x.isSkill ? 1 : 0) || y.term.length - x.term.length)
+
+  // prefer a balanced list: keep all skills, then strongest terms, cap total
+  const skills = keywords.filter((k) => k.isSkill)
+  const rest = keywords.filter((k) => !k.isSkill)
+  const picked = [...skills, ...rest].slice(0, limit)
+  return picked.sort((x, y) => y.count - x.count)
 }
 
 function findMatches(resumeText, keywords) {
   const matched = []
   const missing = []
-  keywords.forEach((k) => {
-    const needle = k.isBigram ? k.term : `\\b${k.term.replace(/[.+*]/g, (m) => '\\' + m)}\\b`
-    const re = k.isBigram ? new RegExp(needle) : new RegExp(needle)
-    if (re.test(resumeText)) matched.push(k)
+  for (const k of keywords) {
+    let hit
+    if (k.isSkill && SKILL_LOOKUP.has(normalize(k.term))) {
+      hit = matchSkill(resumeText, k.term) // canonical skills: match via any alias
+    } else {
+      hit = termRegex(k.term).test(resumeText) || resumeText.includes(k.term)
+    }
+    if (hit) matched.push(k)
     else missing.push(k)
-  })
+  }
   return { matched, missing }
+}
+
+function matchSkill(resumeText, canonical) {
+  // canonical itself or any alias present in the resume counts as a match
+  for (const [aliasNorm, can] of SKILL_LOOKUP) {
+    if (can !== canonical) continue
+    if (resumeText.includes(aliasNorm)) return true
+  }
+  return false
 }
 
 // ------------------------------------------------------------ quality scoring
 
 const ACTION_VERBS = new Set(
-  `led built created designed developed implemented improved increased reduced managed launched built architected
+  `led built created designed developed implemented improved increased reduced managed launched architected
   automated optimized streamlined delivered drove owned spearheaded established mentored trained analyzed researched
-  scaled migrated integrated shipped negotiated coordinated executed achieved delivered grew saved generated`
+  scaled migrated integrated shipped negotiated coordinated executed achieved grew saved generated`
     .split(/\s+/)
 )
 
@@ -140,7 +266,7 @@ function hasQuantified(text) {
 export function analyzeQuality(resume) {
   const categories = []
   const suggestions = []
-  const stats = { words: 0, sections: 0 }
+  const stats = { words: 0 }
 
   const text = resumeToText(resume)
   stats.words = text ? text.split(' ').length : 0
@@ -199,8 +325,8 @@ export function analyzeQuality(resume) {
   // Skills — 15
   const skills = (resume.skills || []).filter((s) => (s.name || '').trim())
   const skillScore = skills.length >= 8 ? 15 : skills.length >= 5 ? 12 : skills.length >= 3 ? 8 : skills.length >= 1 ? 5 : 0
-  const skillIssues = skills.length >= 5 ? [] : skills.length ? `List at least 5 skills — you have ${skills.length}` : 'Add a skills section with your top 5–10 skills'
-  const skillIssuesArr = Array.isArray(skillIssues) ? skillIssues : [skillIssues]
+  const skillIssue = skills.length >= 5 ? [] : skills.length ? `List at least 5 skills — you have ${skills.length}` : 'Add a skills section with your top 5–10 skills'
+  const skillIssuesArr = Array.isArray(skillIssue) ? skillIssue : [skillIssue]
   add('skills', 'Skills', skillScore, 15, skillIssuesArr)
   skillIssuesArr.forEach((i) => suggestions.push(i))
 
@@ -224,7 +350,7 @@ export function analyzeQuality(resume) {
     (resume.languages || []).some((l) => (l.name || '').trim()),
     (resume.interests || []).some((i) => (i || '').trim()),
   ]
-  const extrasCount = [extras[0], extras[2], extras[3]].filter(Boolean).length + (extras[1] ? 1 : 0)
+  const extrasCount = extras.filter(Boolean).length
   const extrasScore = Math.min(extrasCount * 3 + (extrasCount >= 3 ? 1 : 0), 10)
   const extrasIssues = extrasCount >= 2 ? [] : ['Round out your resume with projects, certifications or languages']
   add('extras', 'Extras (projects, certifications…)', extrasScore, 10, extrasIssues)
@@ -234,17 +360,7 @@ export function analyzeQuality(resume) {
   return { score, categories, suggestions, stats }
 }
 
-// ------------------------------------------------------------------- report
-
-export function bandFor(score) {
-  if (score >= 80) return { label: 'Excellent', color: '#12B76A', tone: 'great' }
-  if (score >= 60) return { label: 'Good', color: '#F59E0B', tone: 'ok' }
-  if (score >= 40) return { label: 'Fair', color: '#FB7185', tone: 'meh' }
-  return { label: 'Needs work', color: '#EF4444', tone: 'bad' }
-}
-
-// Quality analysis for plain text (e.g. an uploaded PDF resume). Uses the same
-// category structure as analyzeQuality so both feed the same report UI.
+// quality analysis for plain text (uploaded PDF resumes)
 export function analyzePlainText(text) {
   const raw = String(text || '')
   const lower = normalize(raw)
@@ -329,6 +445,15 @@ export function analyzePlainText(text) {
   return { score, categories, suggestions, stats: { words } }
 }
 
+// ------------------------------------------------------------------- report
+
+export function bandFor(score) {
+  if (score >= 80) return { label: 'Excellent', color: '#12B76A', tone: 'great' }
+  if (score >= 60) return { label: 'Good', color: '#F59E0B', tone: 'ok' }
+  if (score >= 40) return { label: 'Fair', color: '#FB7185', tone: 'meh' }
+  return { label: 'Needs work', color: '#EF4444', tone: 'bad' }
+}
+
 export function computeTextAtsReport({ text, jdText }) {
   const quality = analyzePlainText(text)
   const resumeText = normalize(text)
@@ -365,6 +490,7 @@ export function computeTextAtsReport({ text, jdText }) {
       analyzed: keywords.length,
       matched: matched.map((k) => k.term),
       missing: missing.map((k) => k.term),
+      missingSkills: missing.filter((k) => k.isSkill).map((k) => k.term),
       coverage: Math.round(coverage * 100),
     },
   }
@@ -406,6 +532,7 @@ export function computeAtsReport({ resume, jdText }) {
       analyzed: keywords.length,
       matched: matched.map((k) => k.term),
       missing: missing.map((k) => k.term),
+      missingSkills: missing.filter((k) => k.isSkill).map((k) => k.term),
       coverage: Math.round(coverage * 100),
     },
   }

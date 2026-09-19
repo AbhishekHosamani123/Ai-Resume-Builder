@@ -3,7 +3,7 @@ import DashboardLayout from '../components/DashboardLayout'
 import { dashboardStyles as styles } from '../assets/dummystyle'
 import { useNavigate } from 'react-router-dom'
 import { Plus, FilePlus, Trash2, Gauge, FileText, Clock } from 'lucide-react'
-import { listResumes, deleteResume, getProfile } from '../lib/resumeStore'
+import { listResumes, deleteResume, getUserName } from '../lib/resumeStore'
 import { analyzeQuality } from '../lib/ats'
 import { ResumeSummaryCard } from '../components/Cards'
 import toast from 'react-hot-toast'
@@ -81,7 +81,13 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true)
   const [resumeToDelete, setResumeToDelete] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const profile = getProfile();
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+    let alive = true
+    getUserName().then((n) => alive && setUserName(n))
+    return () => { alive = false }
+  }, [])
 
   const fetchAllResumes = useCallback(async () => {
     try {
@@ -140,7 +146,7 @@ const Dashboard = () => {
         <div className={styles.headerWrapper}>
           <div>
             <h1 className={styles.headerTitle}>
-              Welcome back{profile?.name ? `, ${profile.name}` : ''}!
+              Welcome{userName ? `, ${userName}` : ''}!
             </h1>
             <p className={styles.headerSubtitle}>
               {allResumes.length > 0

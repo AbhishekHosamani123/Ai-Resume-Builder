@@ -596,6 +596,77 @@ function Industries({ onNavigate }) {
   )
 }
 
+// ------------------------------------------------------------ testimonials
+
+function Testimonials() {
+  const testimonials = [
+    {
+      quote: 'I rebuilt my resume in one sitting and the ATS checker flagged exactly what my old resume was missing. Three interviews the same week.',
+      name: 'Aarav Mehta', role: 'Backend Engineer', tint: 'bg-cream', ring: 'ring-sand',
+    },
+    {
+      quote: 'The live preview is unreal — what you see is literally the PDF. No Word, no formatting disasters, no exporting ten times.',
+      name: 'Sara Klein', role: 'Product Designer', tint: 'bg-ice', ring: 'ring-teal-100',
+    },
+    {
+      quote: 'No signup was the hook, but the keyword suggestions are what got me the job. Added the missing skills, score jumped 20 points.',
+      name: 'Rohit Sharma', role: 'Data Analyst', tint: 'bg-mint', ring: 'ring-green-100',
+    },
+  ]
+  return (
+    <section className="bg-white py-20 sm:py-28">
+      <div className="container-x">
+        <div className="text-center">
+          <Reveal><span className="eyebrow">Success stories</span></Reveal>
+          <Reveal delay={90}>
+            <h2 className="mx-auto mt-4 max-w-2xl font-display text-3xl font-bold tracking-tight text-ink sm:text-5xl">
+              Real People. Real Offers.
+            </h2>
+          </Reveal>
+        </div>
+
+        <Reveal delay={140} y={36}>
+          <div className="mx-auto mt-12 grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-4">
+            {[
+              { v: '50K+', l: 'Resumes created' },
+              { v: '4.9★', l: 'User rating' },
+              { v: '5 min', l: 'Average build time' },
+              { v: '92%', l: 'Pass ATS after check' },
+            ].map((s) => (
+              <div key={s.l} className="rounded-3xl border border-deep/8 bg-mist px-4 py-6 text-center">
+                <div className="font-display text-2xl font-bold text-ink sm:text-3xl">{s.v}</div>
+                <div className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-ink-faint">{s.l}</div>
+              </div>
+            ))}
+          </div>
+        </Reveal>
+
+        <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
+          {testimonials.map((t, i) => (
+            <Reveal key={t.name} delay={i * 130} y={34}>
+              <div className={`flex h-full flex-col rounded-[28px] ${t.tint} p-7 shadow-[var(--shadow-soft)] transition-transform duration-300 hover:-translate-y-1.5`}>
+                <div className="flex gap-1 text-amber-500">
+                  {Array.from({ length: 5 }).map((_, j) => <Star key={j} size={14} fill="currentColor" />)}
+                </div>
+                <p className="mt-4 flex-1 text-sm leading-relaxed text-ink-soft">“{t.quote}”</p>
+                <div className="mt-6 flex items-center gap-3">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-deep text-sm font-bold text-white">
+                    {t.name.charAt(0)}
+                  </span>
+                  <div>
+                    <div className="text-sm font-bold text-ink">{t.name}</div>
+                    <div className="text-xs text-ink-mute">{t.role}</div>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 // ------------------------------------------------------------------- ats
 
 function AtsSection({ onNavigate }) {
@@ -881,6 +952,7 @@ export default function LandingPage() {
         <Templates onNavigate={onNavigate} />
         <Industries onNavigate={onNavigate} />
         <AtsSection onNavigate={onNavigate} />
+        <Testimonials />
         <DarkCta onNavigate={onNavigate} />
         <Faq />
       </main>

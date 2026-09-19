@@ -65,6 +65,28 @@ export async function deleteResume(id) {
   if (getRecentResumeId() === id) localStorage.removeItem('rx_recentResume')
 }
 
+// Add suggested keywords to a resume's skills section (deduped,
+// case-insensitive). Returns the updated resume.
+export async function addSkillsToResume(id, terms) {
+  const resume = await idb.get(RESUMES, id)
+  if (!resume) throw new Error('Resume not found')
+  const existing = (resume.skills || []).map((s) => (s.name || '').trim().toLowerCase())
+  const added = []
+  const skills = [...(resume.skills || [])]
+  for (const term of terms) {
+    const t = String(term).trim()
+    if (!t) continue
+    if (existing.includes(t.toLowerCase())) continue
+    skills.push({ name: t, progress: 75 })
+    existing.push(t.toLowerCase())
+    added.push(t)
+  }
+  if (added.length) {
+    await updateResume(id, { skills })
+  }
+  return { resume: await idb.get(RESUMES, id), added }
+}
+
 // ---------- Local profile & preferences (localStorage) ----------
 
 const PROFILE_KEY = 'rx_profile'
@@ -87,4 +109,15 @@ export function getRecentResumeId() {
 
 export function setRecentResumeId(id) {
   localStorage.setItem('rx_recentResume', id)
+}
+
+// The user's actual name — taken from the Full Name in their most recently
+// updated resume (there is no login; the resume IS the profile).
+export async function getUserName() {
+  const resumes = await listResumes()
+  for (const r of resumes) {
+    const name = r.profileInfo?.fullName?.trim()
+    if (name) return name
+  }
+  return ''
 }

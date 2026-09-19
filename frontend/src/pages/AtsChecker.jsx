@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
-  ArrowLeft, CheckCircle2, FileText, Gauge, Loader2, RefreshCw, UploadCloud, XCircle,
+  ArrowLeft, CheckCircle2, FileText, Gauge, Loader2, Plus, RefreshCw, Sparkles, UploadCloud, XCircle,
 } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
-import { listResumes, getResume } from '../lib/resumeStore'
-import { computeAtsReport, computeTextAtsReport, extractTextFromPdf, bandFor } from '../lib/ats'
+import { listResumes, getResume, addSkillsToResume } from '../lib/resumeStore'
+import { computeAtsReport, computeTextAtsReport, extractTextFromPdf } from '../lib/ats'
 import toast from 'react-hot-toast'
 
 // ------------------------------------------------------------------ gauge
@@ -18,19 +18,20 @@ const ScoreGauge = ({ score, band }) => {
   useEffect(() => {
     let frame
     const start = performance.now()
+    const from = shown
     const tick = (t) => {
       const p = Math.min((t - start) / 900, 1)
-      setShown(Math.round(score * (1 - Math.pow(1 - p, 3))))
+      setShown(Math.round(from + (score - from) * (1 - Math.pow(1 - p, 3))))
       if (p < 1) frame = requestAnimationFrame(tick)
     }
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
-  }, [score])
+  }, [score]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="relative mx-auto h-48 w-48">
       <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
-        <circle cx="60" cy="60" r={r} fill="none" stroke="#e7ecf3" strokeWidth="11" />
+        <circle cx="60" cy="60" r={r} fill="none" stroke="#e8e8e8" strokeWidth="11" />
         <circle
           cx="60" cy="60" r={r} fill="none"
           stroke={band.color} strokeWidth="11" strokeLinecap="round"
@@ -70,13 +71,9 @@ const CategoryBar = ({ label, score, max, issues }) => {
   )
 }
 
-const KeywordChip = ({ term, ok }) => (
-  <span
-    className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold ${
-      ok ? 'bg-success/10 text-success' : 'bg-red-50 text-red-500'
-    }`}
-  >
-    {ok ? <CheckCircle2 size={11} /> : <XCircle size={11} />} {term}
+const MatchedChip = ({ term }) => (
+  <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-3 py-1.5 text-xs font-semibold text-success">
+    <CheckCircle2 size={11} /> {term}
   </span>
 )
 
@@ -94,8 +91,9 @@ const AtsChecker = () => {
   const [report, setReport] = useState(null)
   const [reportSource, setReportSource] = useState(null) // {kind:'resume'|'pdf', label, id?}
   const [parsingPdf, setParsingPdf] = useState(false)
-  const pdfTextRef = useRef(null)
+  const [addingTerm, setAddingTerm] = useState(null) // term being added, or 'ALL'
   const [pdfName, setPdfName] = useState('')
+  const pdfTextRef = useRef(null)
   const fileInputRef = useRef(null)
 
   useEffect(() => {
@@ -169,18 +167,45 @@ const AtsChecker = () => {
     }
   }
 
+  // Add suggested keywords straight into the resume's skills, then
+  // re-analyze so the score updates instantly.
+  const addKeywords = async (terms) => {
+    if (reportSource?.kind !== 'resume' || !terms.length) return
+    try {
+      setAddingTerm(terms.length > 1 ? 'ALL' : terms[0])
+      const { added } = await addSkillsToResume(reportSource.id, terms)
+      if (!added.length) {
+        toast('Already in your resume')
+        return
+      }
+      const fresh = await getResume(reportSource.id)
+      const rep = computeAtsReport({ resume: fresh, jdText })
+      setReport(rep)
+      // refresh the dashboard-side stats (skills count changed)
+      listResumes().then(setResumes)
+      toast.success(`Added ${added.length} keyword${added.length > 1 ? 's' : ''} — new score: ${rep.score}`)
+    } catch (err) {
+      console.error('Adding keywords failed:', err)
+      toast.error('Could not add keywords')
+    } finally {
+      setAddingTerm(null)
+    }
+  }
+
   const clearPdf = () => {
     pdfTextRef.current = null
     setPdfName('')
     setReport(null)
   }
 
+  const canEdit = reportSource?.kind === 'resume'
+
   return (
     <DashboardLayout>
       <div className="mx-auto w-full max-w-4xl px-5 py-8 sm:px-8">
         <div className="mb-4">
           <button
-            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition-colors hover:text-brand-700"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition-colors hover:text-teal-500"
             onClick={() => navigate(-1)}
           >
             <ArrowLeft size={15} /> Back
@@ -193,14 +218,15 @@ const AtsChecker = () => {
         </h1>
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-500">
           Your resume is picked up automatically — no downloading and re-uploading. Optionally
-          paste a job description to see exactly which keywords you're missing.
+          paste a job description to see exactly which keywords you're missing, then add them
+          in one click.
         </p>
 
         {/* source card */}
         <div className="card mt-6 p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-50 text-brand-600">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-ice text-teal-500">
                 <FileText size={20} />
               </span>
               <div>
@@ -262,7 +288,7 @@ const AtsChecker = () => {
                 role="switch"
                 aria-checked={jdOpen}
                 onClick={() => setJdOpen(!jdOpen)}
-                className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${jdOpen ? 'bg-brand-600' : 'bg-line'}`}
+                className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${jdOpen ? 'bg-brand-500' : 'bg-line'}`}
               >
                 <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${jdOpen ? 'left-[22px]' : 'left-0.5'}`} />
               </button>
@@ -337,7 +363,7 @@ const AtsChecker = () => {
                     </div>
                   )}
 
-                  {reportSource.kind === 'resume' && (
+                  {canEdit && (
                     <button
                       className="btn-secondary mt-4 !py-2.5 text-xs"
                       onClick={() => navigate(`/resume/${reportSource.id}`)}
@@ -360,17 +386,57 @@ const AtsChecker = () => {
                   <div className="text-xs font-bold uppercase tracking-wider text-success">Matched</div>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {report.keywords.matched.length
-                      ? report.keywords.matched.map((k) => <KeywordChip key={k} term={k} ok />)
-                      : <span className="text-xs text-slate-400">None — add these terms where they honestly apply.</span>}
+                      ? report.keywords.matched.map((k) => <MatchedChip key={k} term={k} />)
+                      : <span className="text-xs text-slate-400">None yet — add the missing keywords below.</span>}
                   </div>
                 </div>
-                <div className="mt-4">
-                  <div className="text-xs font-bold uppercase tracking-wider text-red-400">Missing</div>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {report.keywords.missing.length
-                      ? report.keywords.missing.map((k) => <KeywordChip key={k} term={k} ok={false} />)
-                      : <span className="text-xs text-slate-400">Nothing missing — impressive!</span>}
+                <div className="mt-5">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="text-xs font-bold uppercase tracking-wider text-red-400">
+                      Missing {report.keywords.missing.length > 0 && `(${report.keywords.missing.length})`}
+                    </div>
+                    {canEdit && report.keywords.missing.length > 0 && (
+                      <button
+                        className="btn-blue !px-4 !py-2 text-[11px]"
+                        disabled={addingTerm !== null}
+                        onClick={() => addKeywords(report.keywords.missing)}
+                      >
+                        {addingTerm === 'ALL'
+                          ? <><Loader2 size={12} className="animate-spin" /> Adding…</>
+                          : <><Plus size={12} /> Add all to resume</>}
+                      </button>
+                    )}
                   </div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {report.keywords.missing.length ? (
+                      report.keywords.missing.map((k) => (
+                        <span
+                          key={k}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-red-50 py-1.5 pl-3 pr-1.5 text-xs font-semibold text-red-500"
+                        >
+                          <XCircle size={11} /> {k}
+                          {canEdit && (
+                            <button
+                              className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-red-500 transition-transform hover:scale-110 hover:bg-red-500 hover:text-white disabled:opacity-50"
+                              title={`Add “${k}” to your resume`}
+                              disabled={addingTerm !== null}
+                              onClick={() => addKeywords([k])}
+                            >
+                              {addingTerm === k ? <Loader2 size={10} className="animate-spin" /> : <Plus size={11} />}
+                            </button>
+                          )}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-xs text-slate-400">Nothing missing — impressive!</span>
+                    )}
+                  </div>
+                  {canEdit && report.keywords.missing.length > 0 && (
+                    <p className="mt-3 flex items-center gap-1.5 text-[11px] leading-relaxed text-slate-400">
+                      <Sparkles size={11} /> Click <Plus size={10} /> on a keyword to add it to your
+                      resume's skills, or "Add all" — your score updates instantly.
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -392,14 +458,14 @@ const AtsChecker = () => {
                 <ul className="mt-4 space-y-2.5">
                   {report.suggestions.map((s, i) => (
                     <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed text-ink-soft">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-50 text-[10px] font-bold text-brand-700">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-ice text-[10px] font-bold text-teal-500">
                         {i + 1}
                       </span>
                       {s}
                     </li>
                   ))}
                 </ul>
-                {reportSource.kind === 'resume' && (
+                {canEdit && (
                   <button
                     className="btn-primary mt-5"
                     onClick={() => navigate(`/resume/${reportSource.id}`)}
