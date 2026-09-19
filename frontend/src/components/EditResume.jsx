@@ -764,13 +764,17 @@ const EditResume = () => {
       );
       element.style.height = `${visualH}px`;
 
-      // capture the rendered resume (oklch colors converted inside the clone)
+      // convert oklch colors in the LIVE document (variables at stylesheet
+      // level + the capture subtree), so html2canvas never parses oklch
+      const varStyle = convertOklchVarsInDocument(document);
+      convertOklchInTree(element);
+
+      // capture the rendered resume
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
         backgroundColor: "#FFFFFF",
         logging: false,
-        onclone: (doc) => { convertOklchVarsInDocument(doc); convertOklchInTree(doc.documentElement); convertOklchInTree(doc.body); },
       });
 
       // reset the fit scaling so the hidden section stays clean for next time
@@ -780,6 +784,7 @@ const EditResume = () => {
       }
       element.style.height = "";
       element.style.minHeight = "";
+      varStyle?.remove();
 
       // build a SINGLE-page A4 PDF; the canvas is letterboxed if it ever
       // exceeds the page so a second page can never appear

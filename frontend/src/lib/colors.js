@@ -51,9 +51,9 @@ export function convertOklchCall(colorValue) {
 }
 
 // Convert every `--color-*: oklch(...)` custom property defined in the
-// document's stylesheets to rgb, and inject an override style. This fixes
-// oklch at the SOURCE — utilities, pseudo-elements and shadows all resolve
-// through these variables, so html2canvas never sees an oklch() again.
+// document's stylesheets to rgb, and inject an override style into the LIVE
+// document head. Returns the injected <style> element (remove it after use)
+// so html2canvas — which clones the live DOM — never resolves oklch colors.
 export function convertOklchVarsInDocument(doc) {
   const overrides = [];
   const walkRules = (rules) => {
@@ -84,14 +84,14 @@ export function convertOklchVarsInDocument(doc) {
       /* cross-origin stylesheet — skip */
     }
   }
-  if (overrides.length) {
-    const style = doc.createElement("style");
-    style.textContent = `:root, :host { ${overrides
-      .map(([p, v]) => `${p}: ${v};`)
-      .join(" ")} }`;
-    doc.head.appendChild(style);
-  }
-  return overrides.length;
+  if (!overrides.length) return null;
+  const style = doc.createElement("style");
+  style.dataset.oklchOverride = "true";
+  style.textContent = `:root, :host { ${overrides
+    .map(([p, v]) => `${p}: ${v};`)
+    .join(" ")} }`;
+  doc.head.appendChild(style);
+  return style;
 }
 
 // Walk a DOM subtree and replace every oklch() computed color with its rgb()
