@@ -5,7 +5,7 @@ import { UserContext } from '../context/UserContext'
 import { useNavigate } from 'react-router-dom'
 import { Plus, FileText, Download, Edit, FilePlus, Trash2 } from 'lucide-react'
 import axiosInstance from '../utils/axioslnstance'
-import { API_PATHS } from '../utils/apiPathsjs'
+import { API_PATHS } from '../utils/apiPaths'
 import { ResumeSummaryCard } from '../components/Cards'
 import moment from 'moment'
 
@@ -277,7 +277,7 @@ const fetchAllResumes = async () => {
              </div>
 
              {allResumes.map((resume) => (
-                <ResumeSummaryCard key={resume._id} id={resume._id} imgUrl={resume.thmbnailLink}
+                <ResumeSummaryCard key={resume._id} id={resume._id} imgUrl={resume.thumbnailLink}
                 title={resume.title} createdAt={resume.createdAt} updatedAt={resume.updatedAt}
                 onSelect={() => navigate(`/resume/${resume._id}`)}
                 onDelete={() => handleDeleteClick(resume._id)}

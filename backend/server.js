@@ -1,47 +1,19 @@
-import express from 'express'
-import cors from 'cors'
-import 'dotenv/config'
-import { connectDB } from './config/db.js';
-import userRoutes from './routes/userRoutes.js'
+// Local development / standalone server entry.
+// The same app is used by the Vercel serverless function (see api/index.js).
+import app from './app.js'
+import { connectDB } from './config/db.js'
 
-import path from 'path'
-import { fileURLToPath } from 'url';
-import resumeRoutes from './routes/resumeRoutes.js'
+const port = process.env.PORT || 4000
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename)
-
-const app = express();
-const port = process.env.PORT || 4000;
-
-app.use(cors());
- 
-//connect to DB
-connectDB();
-
-//middleware
-app.use(express.json());
-
-app.use('/api/auth', userRoutes);
-app.use('/api/resume', resumeRoutes)
-
-app.use(
-    '/uploads',
-    express.static(path.join(__dirname, 'uploads'), {
-        setHeaders: (res, _path) => {
-            const allowedOrigin = process.env.CLIENT_ORIGIN || '*'
-            res.set('Access-Control-Allow-Origin', allowedOrigin)
-        }
+connectDB()
+    .then(() => {
+        app.listen(port, () => {
+            console.log(`server started on http://localhost:${port}`)
+        })
     })
-)
+    .catch(() => {
+        console.error('Server not started because the database connection failed.')
+        process.exit(1)
+    })
 
-//routes
-app.get('/',(req,res) => {
-    res.send('API Working')
-})
-
-
-
-app.listen(port, () => {
-    console.log(`server started on http://localhost:${port}`)
-})
+export default app

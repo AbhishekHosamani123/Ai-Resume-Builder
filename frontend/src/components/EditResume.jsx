@@ -5,7 +5,7 @@ import { TitleInput } from './Inputs'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Eye, Palette, Trash2, ArrowLeft, Loader2, Save, Download, AlertCircle, Check } from 'lucide-react'
 import axiosInstance from '../utils/axioslnstance'
-import { API_PATHS } from '../utils/apiPathsjs'
+import { API_PATHS } from '../utils/apiPaths'
 import toast from 'react-hot-toast'
 import StepProgress from './StepProgress'
 import RenderResume from './RenderResume'
@@ -601,11 +601,28 @@ const EditResume = () => {
 
       const fixedThumbnail = fixTailwindColors(thumbnailElement)
 
-      const thumbnailCanvas = await html2canvas(fixedThumbnail, {
-        scale: 0.5,
-        backgroundColor: "#FFFFFF",
-        logging: false,
-      })
+      // html2canvas cannot parse Tailwind v4's oklch() colors — force safe
+      // rgb colors while capturing (same approach as downloadPDF below).
+      const override = document.createElement("style")
+      override.textContent = `
+        * {
+          color: #000 !important;
+          background-color: #fff !important;
+          border-color: #000 !important;
+        }
+      `
+      document.head.appendChild(override)
+
+      let thumbnailCanvas
+      try {
+        thumbnailCanvas = await html2canvas(fixedThumbnail, {
+          scale: 0.5,
+          backgroundColor: "#FFFFFF",
+          logging: false,
+        })
+      } finally {
+        document.head.removeChild(override)
+      }
 
       document.body.removeChild(fixedThumbnail)
 
@@ -952,7 +969,7 @@ const EditResume = () => {
             onClose={() => setOpenThemeSelector(false)}
             />
         </div>
-        
+        </Modal>
 
         <Modal
         isOpen={openPreviewModal}
@@ -965,7 +982,7 @@ const EditResume = () => {
             actionBtnIcon={
               isDownloading ? (
                 <Loader2 size={16} className="animate-spin" />
-              ) : 
+              ) :
               downloadSuccess ? (
                 <Check size={16}  className="text-white" />
               ) : (
@@ -973,7 +990,7 @@ const EditResume = () => {
               )
             }
             onActionClick={downloadPDF}
-        />
+        >
 
       <div className='relative'>
         <div className='text-center mb-4'>
@@ -998,8 +1015,16 @@ const EditResume = () => {
       </div>
             </Modal>
 
-      {/* Hidden download section - always available */}
-      <div className="hidden">
+      {/* PDF capture source: rendered off-screen (html2canvas cannot capture
+          display:none elements) but invisible to the user */}
+      <div
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          top: "0",
+          pointerEvents: "none",
+        }}
+      >
         <div ref={resumeDownloadRef} className="a4-wrapper">
             <div className="w-full h-full">
                 <RenderResume key={`download-${resumeData?.template?.theme}`}
@@ -1011,8 +1036,17 @@ const EditResume = () => {
         </div>
       </div>
 
-      {/* NOW THUMBNAIL ERROR FIX */}
-      <div style={{ display: "none" }} ref={thumbnailRef}>
+      {/* Thumbnail capture source: rendered off-screen (html2canvas cannot
+          capture display:none elements) but invisible to the user */}
+      <div
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          top: "0",
+          pointerEvents: "none",
+        }}
+        ref={thumbnailRef}
+      >
           <div className={containerStyles.hiddenThumbnail}>
               <RenderResume key={`thumb-${resumeData?.template?.theme}`}
                             templateId={resumeData?.template?.theme || ""}

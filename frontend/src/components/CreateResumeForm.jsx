@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Input } from './Inputs'
 import { useNavigate } from 'react-router-dom'
 import axiosInstance from '../utils/axioslnstance'
-import { API_PATHS } from '../utils/apiPathsjs'
+import { API_PATHS } from '../utils/apiPaths'
 
 const CreateResumeForm = ({ onSuccess }) => {
 

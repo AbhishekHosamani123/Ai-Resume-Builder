@@ -1,9 +1,11 @@
 import axios from 'axios'
-import { BASE_URL } from './apiPathsjs'
+import { BASE_URL } from './apiPaths'
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
-  timeout: 10000,
+  // Generous timeout: serverless platforms have cold starts and free-tier
+  // MongoDB clusters can be slow to respond on the first request.
+  timeout: 30000,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -32,9 +34,14 @@ axiosInstance.interceptors.response.use(
     (error) => {
       if (error.response) {
         if (error.response.status === 401) {
-          // Clear invalid token and redirect to login
-          localStorage.removeItem('token');
-          window.location.href = '/'
+          // Only clear the session and redirect when an authenticated request
+          // was rejected (a token was actually attached). A 401 from the
+          // login/register endpoints just means wrong credentials — the form
+          // should display the error instead of redirecting.
+          if (localStorage.getItem('token')) {
+            localStorage.removeItem('token');
+            window.location.href = '/'
+          }
         }
         else if (error.response.status === 500) {
           console.error("Server Error")

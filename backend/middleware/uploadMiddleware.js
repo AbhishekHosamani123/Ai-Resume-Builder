@@ -1,13 +1,9 @@
 import multer from 'multer'
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, "uploads/")
-    },
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`)
-    },
-});
+// Use memory storage instead of disk storage: serverless platforms (e.g. Vercel)
+// have a read-only filesystem, so uploaded images are held in memory and stored
+// in MongoDB as data URLs (see controllers/uploadlmages.js).
+const storage = multer.memoryStorage()
 
 // FILE FILTER
 const fileFilter = (req, file, cb) => {
@@ -19,12 +15,14 @@ const fileFilter = (req, file, cb) => {
     }
 }
 
-const upload = multer({ 
-    storage, 
+const upload = multer({
+    storage,
     fileFilter,
     limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB limit
+        // Keep under Vercel's ~4.5MB request body limit
+        fileSize: 2 * 1024 * 1024, // 2MB limit
         files: 2 // Maximum 2 files
     }
 })
+
 export default upload
