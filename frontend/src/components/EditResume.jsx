@@ -24,7 +24,7 @@ import {
   AdditionalInfoForm 
 } from './Forms'
 
-import html2pdf from 'html2pdf.js'
+import { jsPDF } from 'jspdf'
 import html2canvas from 'html2canvas'
 
 // RESIZE OBSERVER HOOK
@@ -723,11 +723,6 @@ const EditResume = () => {
       return;
     }
 
-    if (!html2pdf) {
-      toast.error("PDF library not loaded. Please refresh the page.");
-      return;
-    }
-
     setIsDownloading(true);
     setDownloadSuccess(false);
     const toastId = toast.loading("Generating PDF...");
@@ -750,48 +745,33 @@ const EditResume = () => {
         // iterative fit: widen the layout while scaling down so the page
         // stays fully filled; re-measure after each reflow
         let s = A4_H_PX / element.scrollHeight;
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 5; i++) {
           inner.style.width = `${100 / s}%`;
           inner.style.transform = `scale(${s})`;
           inner.style.transformOrigin = "top left";
           const visual = inner.getBoundingClientRect().height;
-          if (Math.abs(visual - A4_H_PX) < 3) break;
+          if (visual <= A4_H_PX && visual > A4_H_PX - 6) break;
           s = s * (A4_H_PX / visual);
-          if (s >= 1) { s = 1; inner.style.width = "100%"; inner.style.transform = "none"; break; }
+          if (s > 1) s = 1;
         }
         appliedScale = s;
       }
 
-      // clamp the wrapper to at most one page (html2pdf slices by canvas height)
+      // clamp the wrapper to at most one page (guarantees a 1-page PDF)
       const visualH = Math.min(
         inner ? inner.getBoundingClientRect().height : element.scrollHeight,
         A4_H_PX
       );
       element.style.height = `${visualH}px`;
 
-      const pdfFilename = `${(resumeData.title || "Resume").replace(/[^a-z0-9]/gi, "_")}.pdf`;
-      const pdfBlob = await html2pdf()
-        .set({
-          margin: 0,
-          filename: pdfFilename,
-          image: { type: "jpeg", quality: 0.95 },
-          html2canvas: {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: "#FFFFFF",
-            logging: false,
-            // convert Tailwind v4's oklch() colors to rgb inside the clone so
-            // html2canvas can parse them while keeping the template's real colors
-            onclone: (doc) => convertOklchInTree(doc.body),
-          },
-          jsPDF: {
-            unit: "mm",
-            format: "a4",
-            orientation: "portrait",
-          },
-        })
-        .from(element)
-        .outputPdf("blob");
+      // capture the rendered resume (oklch colors converted inside the clone)
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#FFFFFF",
+        logging: false,
+        onclone: (doc) => convertOklchInTree(doc.body),
+      });
 
       // reset the fit scaling so the hidden section stays clean for next time
       if (inner) {
@@ -800,6 +780,24 @@ const EditResume = () => {
       }
       element.style.height = "";
       element.style.minHeight = "";
+
+      // build a SINGLE-page A4 PDF; the canvas is letterboxed if it ever
+      // exceeds the page so a second page can never appear
+      const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait", compress: true });
+      const imgW = 210;
+      let imgH = (canvas.height / canvas.width) * imgW;
+      let x = 0;
+      let y = 0;
+      if (imgH > 297) {
+        y = 0;
+        x = (210 - imgW * (297 / imgH)) / 2;
+        imgW = imgW * (297 / imgH);
+        imgH = 297;
+      }
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", x, y, imgW, imgH, undefined, "FAST");
+
+      const pdfFilename = `${(resumeData.title || "Resume").replace(/[^a-z0-9]/gi, "_")}.pdf`;
+      const pdfBlob = pdf.output("blob");
 
       // trigger the browser download from the generated blob
       const pdfUrl = URL.createObjectURL(pdfBlob);
