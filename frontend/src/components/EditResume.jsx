@@ -3,8 +3,9 @@ import DashboardLayout from './DashboardLayout'
 import { buttonStyles, containerStyles, statusStyles, iconStyles } from '../assets/dummystyle'
 import { TitleInput } from './Inputs'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Eye, Palette, Trash2, ArrowLeft, Loader2, Save, Download, AlertCircle, Check, Gauge } from 'lucide-react'
+import { Eye, Palette, Trash2, ArrowLeft, Loader2, Save, Download, AlertCircle, Check, Gauge, FileText } from 'lucide-react'
 import { getResume, updateResume as persistResume, deleteResume as removeResume, setRecentResumeId } from '../lib/resumeStore'
+import { downloadResumeWord } from '../lib/exportWord'
 import toast from 'react-hot-toast'
 import StepProgress from './StepProgress'
 import RenderResume from './RenderResume'
@@ -982,6 +983,19 @@ const EditResume = () => {
               )
             }
             onActionClick={downloadPDF}
+            secondaryAction={{
+              icon: <FileText size={14} />,
+              label: 'Word (.doc)',
+              onClick: () => {
+                try {
+                  downloadResumeWord(resumeData, resumeData.title || 'Resume')
+                  toast.success('Word file downloaded')
+                } catch (err) {
+                  console.error('Word export failed:', err)
+                  toast.error('Failed to generate Word file')
+                }
+              },
+            }}
         >
 
       <div className='relative'>

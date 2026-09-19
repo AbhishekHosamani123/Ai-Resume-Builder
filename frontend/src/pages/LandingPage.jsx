@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ArrowRight, ArrowLeft, BadgeCheck, CheckCircle2, ChevronDown, FileText, Gauge,
-  LayoutTemplate, Menu, MousePointerClick, PencilRuler, Sparkles, Star, X,
+  Instagram, LayoutTemplate, Linkedin, Menu, MousePointerClick, PencilRuler, Sparkles, Star, X,
 } from 'lucide-react'
 import { resumeTemplates } from '../utils/data'
 import { scrollToTarget } from '../lib/smoothScroll'
@@ -869,6 +869,19 @@ function Faq() {
 
 // ------------------------------------------------------------------- footer
 
+const SOCIALS = [
+  {
+    label: 'LinkedIn',
+    href: 'https://www.linkedin.com/in/abhishek-hosamani/',
+    icon: <Linkedin size={16} />,
+  },
+  {
+    label: 'Instagram',
+    href: 'https://www.instagram.com/abhishek_hosamani___/?hl=en',
+    icon: <Instagram size={16} />,
+  },
+]
+
 function Footer({ onNavigate }) {
   const cols = [
     { title: 'Resume', links: ['Create Resume', 'Resume Templates', 'Resume Examples'] },
@@ -890,6 +903,22 @@ function Footer({ onNavigate }) {
             The free resume builder with a built-in ATS score checker. Private by design — your
             data never leaves your browser.
           </p>
+          <div className="mt-5 flex items-center gap-2.5">
+            {SOCIALS.map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={s.label}
+                aria-label={s.label}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-deep/10 bg-white text-ink-soft transition-all hover:-translate-y-0.5 hover:border-brand-400 hover:bg-brand-500 hover:text-white"
+              >
+                {s.icon}
+              </a>
+            ))}
+            <span className="ml-1 text-[11px] text-ink-faint">Follow the builder</span>
+          </div>
           <div className="mt-6">
             <div className="text-xs font-bold uppercase tracking-wider text-ink-faint">Stay updated</div>
             <div className="mt-2 flex max-w-xs gap-2">
