@@ -340,6 +340,7 @@ export function analyzeQuality(resume) {
   else if (stats.words > 900) depthScore += 4
   if (stats.words < 120) depthIssues.push(`Your resume is very short (${stats.words} words) — aim for 250–600 words of real content`)
   else if (stats.words < 220) depthIssues.push(`Add more detail — ${stats.words} words so far, aim for 250–600`)
+  else if (stats.words > 650) depthIssues.push(`Your resume is long (${stats.words} words) — trim it to fit one page: many ATS auto-reject 2-page resumes, so keep only the most relevant, recent content`)
   add('depth', 'Content depth', Math.min(depthScore, 15), 15, depthIssues)
   depthIssues.forEach((i) => suggestions.push(i))
 

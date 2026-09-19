@@ -19,16 +19,18 @@ const dateRange = (start, end) => {
 }
 
 const STYLE = `
-  body { font-family: Calibri, Arial, sans-serif; color: #1a1a1a; font-size: 11pt; line-height: 1.35; }
-  h1 { font-size: 22pt; margin: 0 0 2pt 0; color: #0b282e; }
-  .role { font-size: 12pt; color: #1e7280; font-weight: bold; margin: 0 0 6pt 0; }
-  .contact { font-size: 10pt; color: #444444; margin: 0 0 4pt 0; }
-  h2 { font-size: 12pt; text-transform: uppercase; letter-spacing: 1px; color: #0b282e;
-       border-bottom: 1.5px solid #1e7280; padding-bottom: 2pt; margin: 16pt 0 6pt 0; }
-  .item { margin: 0 0 8pt 0; }
-  .item-head { margin: 0; font-size: 11pt; }
-  .item-sub { margin: 0; font-size: 10.5pt; color: #333333; }
-  .dates { float: right; font-size: 10pt; color: #666666; font-style: italic; }
+  @page WordSection1 { size: 21cm 29.7cm; margin: 1.1cm; }
+  div.WordSection1 { page: WordSection1; }
+  body { font-family: Calibri, Arial, sans-serif; color: #1a1a1a; font-size: 10.5pt; line-height: 1.3; }
+  h1 { font-size: 20pt; margin: 0 0 2pt 0; color: #0b282e; }
+  .role { font-size: 11.5pt; color: #1e7280; font-weight: bold; margin: 0 0 6pt 0; }
+  .contact { font-size: 9.5pt; color: #444444; margin: 0 0 4pt 0; }
+  h2 { font-size: 11pt; text-transform: uppercase; letter-spacing: 1px; color: #0b282e;
+       border-bottom: 1.5px solid #1e7280; padding-bottom: 2pt; margin: 12pt 0 5pt 0; }
+  .item { margin: 0 0 7pt 0; }
+  .item-head { margin: 0; font-size: 10.5pt; }
+  .item-sub { margin: 0; font-size: 10pt; color: #333333; }
+  .dates { float: right; font-size: 9.5pt; color: #666666; font-style: italic; }
   p { margin: 3pt 0 0 0; }
   ul { margin: 3pt 0 0 18pt; padding: 0; }
   li { margin-bottom: 2pt; }
@@ -113,7 +115,7 @@ export function buildResumeWordHtml(resume) {
   <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
   <style>${STYLE}</style>
 </head>
-<body>
+<body><div class='WordSection1'>
   <h1>${esc(p.fullName || resume.title || 'Resume')}</h1>
   ${p.designation ? `<p class="role">${esc(p.designation)}</p>` : ''}
   <p class="contact">${contactLine(c)}</p>
@@ -125,7 +127,7 @@ export function buildResumeWordHtml(resume) {
   ${section('Projects', projects)}
   ${section('Certifications', certs)}
   ${extras}
-</body>
+</div></body>
 </html>`
 }
 

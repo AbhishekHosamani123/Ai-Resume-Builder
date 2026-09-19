@@ -1,11 +1,13 @@
  import React, { useCallback, useEffect, useRef, useState } from 'react'
 import DashboardLayout from './DashboardLayout'
+import './A4.css'
 import { buttonStyles, containerStyles, statusStyles, iconStyles } from '../assets/dummystyle'
 import { TitleInput } from './Inputs'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Eye, Palette, Trash2, ArrowLeft, Loader2, Save, Download, AlertCircle, Check, Gauge, FileText } from 'lucide-react'
 import { getResume, updateResume as persistResume, deleteResume as removeResume, setRecentResumeId } from '../lib/resumeStore'
 import { downloadResumeWord } from '../lib/exportWord'
+import { convertOklchInTree } from '../lib/colors'
 import toast from 'react-hot-toast'
 import StepProgress from './StepProgress'
 import RenderResume from './RenderResume'
@@ -85,6 +87,7 @@ const EditResume = () => {
 
   const [openThemeSelector, setOpenThemeSelector] = useState(false)
   const [openPreviewModal, setOpenPreviewModal] = useState(false)
+  const [pageCount, setPageCount] = useState(1)
   const [currentPage, setCurrentPage] = useState("profile-info")
   const [progress, setProgress] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
@@ -599,17 +602,9 @@ const EditResume = () => {
 
       const fixedThumbnail = fixTailwindColors(thumbnailElement)
 
-      // html2canvas cannot parse Tailwind v4's oklch() colors — force safe
-      // rgb colors while capturing (same approach as downloadPDF below).
-      const override = document.createElement("style")
-      override.textContent = `
-        * {
-          color: #000 !important;
-          background-color: #fff !important;
-          border-color: #000 !important;
-        }
-      `
-      document.head.appendChild(override)
+      // html2canvas cannot parse Tailwind v4's oklch() colors — convert them
+      // to rgb on the clone so the thumbnail keeps the template's real colors
+      convertOklchInTree(fixedThumbnail)
 
       let thumbnailCanvas
       try {
@@ -619,10 +614,8 @@ const EditResume = () => {
           logging: false,
         })
       } finally {
-        document.head.removeChild(override)
+        document.body.removeChild(fixedThumbnail)
       }
-
-      document.body.removeChild(fixedThumbnail)
 
       const thumbnailDataUrl = thumbnailCanvas.toDataURL("image/png")
 
@@ -725,73 +718,94 @@ const EditResume = () => {
   }
   const downloadPDF = async () => {
     const element = resumeDownloadRef.current;
-    console.log("Download PDF - Element:", element);
     if (!element) {
-      console.error("resumeDownloadRef.current is null");
       toast.error("Failed to generate PDF. Please try again.");
       return;
     }
 
     if (!html2pdf) {
-      console.error("html2pdf is not available");
       toast.error("PDF library not loaded. Please refresh the page.");
       return;
     }
-  
+
     setIsDownloading(true);
     setDownloadSuccess(false);
     const toastId = toast.loading("Generating PDF...");
 
-    // Small delay to ensure the hidden element is rendered
-    await new Promise(resolve => setTimeout(resolve, 100));
-  
-    const override = document.createElement("style");
-    override.id = "__pdf_color_override__";
-    override.textContent = `
-      * {
-        color: #000 !important;
-        background-color: #fff !important;
-        border-color: #000 !important;
-      }
-    `;
-    document.head.appendChild(override);
-  
     try {
-      console.log("Starting PDF generation...");
+      // Small delay to ensure the hidden element is rendered
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // ONE PAGE RULE: A4 height is ~1122px at 96dpi (297mm). If the content
+      // is taller, scale the whole layout down so the resume always fits a
+      // single page — many ATS auto-reject multi-page resumes.
+      const A4_HEIGHT_PX = 1122;
+      const fitScale = element.scrollHeight > A4_HEIGHT_PX ? A4_HEIGHT_PX / element.scrollHeight : 1;
+
+      const inner = element.firstElementChild;
+      let appliedScale = 1;
+      if (inner && fitScale < 1) {
+        appliedScale = fitScale;
+        // widen the layout while scaling down so the page stays fully filled
+        inner.style.width = `${100 / appliedScale}%`;
+        inner.style.transform = `scale(${appliedScale})`;
+        inner.style.transformOrigin = "top left";
+        // one refinement pass — the wider layout reflows and changes height
+        const visualH = element.getBoundingClientRect().height;
+        if (visualH > A4_HEIGHT_PX) {
+          appliedScale = appliedScale * (A4_HEIGHT_PX / visualH);
+          inner.style.width = `${100 / appliedScale}%`;
+          inner.style.transform = `scale(${appliedScale})`;
+        }
+        // clamp the wrapper box to the visual (scaled) content height
+        element.style.height = `${Math.min(element.getBoundingClientRect().height, A4_HEIGHT_PX)}px`;
+      }
+
       await html2pdf()
         .set({
-          margin:       0,
-          filename:     `${(resumeData.title || "Resume").replace(/[^a-z0-9]/gi, "_")}.pdf`,
-          image:        { type: "png", quality: 1.0 },
-          html2canvas:  {
-            scale:           2,
-            useCORS:         true,
+          margin: 0,
+          filename: `${(resumeData.title || "Resume").replace(/[^a-z0-9]/gi, "_")}.pdf`,
+          image: { type: "jpeg", quality: 0.95 },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
             backgroundColor: "#FFFFFF",
-            logging:         false,
-            windowWidth:     element.scrollWidth,
+            logging: false,
+            // convert Tailwind v4's oklch() colors to rgb inside the clone so
+            // html2canvas can parse them while keeping the template's real colors
+            onclone: (doc) => convertOklchInTree(doc.body),
           },
-          jsPDF:        {
-            unit:       "mm",
-            format:     "a4",
-            orientation:"portrait",
+          jsPDF: {
+            unit: "mm",
+            format: "a4",
+            orientation: "portrait",
           },
-          pagebreak: {
-            mode: ['avoid-all', 'css', 'legacy']
-          }
         })
         .from(element)
         .save();
-  
-      toast.success("PDF downloaded successfully!", { id: toastId });
+
+      // reset the fit scaling so the hidden section stays clean for next time
+      if (inner) {
+        inner.style.width = "";
+        inner.style.transform = "";
+      }
+      element.style.height = "";
+
+      toast.success("PDF downloaded successfully — 1 page A4!", { id: toastId });
+      if (appliedScale < 1) {
+        toast.error(
+          `Your content was long, so it was scaled to ${Math.round(appliedScale * 100)}% to fit one page. Tip: shorten older roles or descriptions — most ATS reject 2-page resumes.`,
+          { duration: 8000 }
+        );
+      }
       setDownloadSuccess(true);
       setTimeout(() => setDownloadSuccess(false), 3000);
-  
+
     } catch (err) {
       console.error("PDF error:", err);
       toast.error(`Failed to generate PDF: ${err.message}`, { id: toastId });
-  
+
     } finally {
-      document.getElementById("__pdf_color_override__")?.remove();
       setIsDownloading(false);
     }
   };
@@ -827,6 +841,20 @@ const EditResume = () => {
       return () => clearTimeout(timeoutId)
     }
   }, [resumeData, resumeId])
+
+  // ONE PAGE RULE: live page-length estimate from the hidden A4 capture
+  // section. A single page is the industry standard — many ATS auto-reject
+  // multi-page resumes, so we warn the user as soon as content overflows.
+  useEffect(() => {
+    const measure = () => {
+      const el = resumeDownloadRef.current
+      if (!el) return
+      const pages = Math.max(1, Math.ceil(el.scrollHeight / 1122))
+      setPageCount(pages)
+    }
+    const timeoutId = setTimeout(measure, 600)
+    return () => clearTimeout(timeoutId)
+  }, [resumeData])
 
 
   if (isLoading && !resumeData.title) {
@@ -874,7 +902,21 @@ const EditResume = () => {
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-medium text-gray-700">Resume Completion</span>
-            <span className="text-sm font-bold text-violet-600">{completionPercentage}%</span>
+            <span className="flex items-center gap-3">
+              {pageCount > 1 ? (
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200 px-3 py-1 text-xs font-semibold text-amber-700"
+                  title="Recruiters and many ATS prefer one-page resumes — trim older or less relevant content"
+                >
+                  ⚠ Exceeds 1 page — consider trimming
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-700">
+                  ✓ 1 page — ATS friendly
+                </span>
+              )}
+              <span className="text-sm font-bold text-violet-600">{completionPercentage}%</span>
+            </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div 

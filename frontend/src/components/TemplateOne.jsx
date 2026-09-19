@@ -11,7 +11,7 @@ import { formatYearMonth } from "../utils/helper";
 
 const DEFAULT_THEME = ["#ffffff", "#0d47a1", "#1e88e5", "#64b5f6", "#bbdefb"];
 
-const Title = ({ text, color }) => (
+const Title = ({ text, color = "#0b282e" }) => (
   <div className="relative w-fit mb-2 resume-section-title">
     <h2 className="relative text-base font-bold uppercase tracking-wide pb-2" style={{ color }}>
       {text}
@@ -117,7 +117,7 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
       {/* Professional Summary */}
       {profileInfo.summary && (
         <div className="resume-section mb-3">
-          <Title text="Professional Summary" />
+          <Title text="Professional Summary" color="#0b282e" />
           <p className="text-sm leading-relaxed">{profileInfo.summary}</p>
         </div>
       )}
@@ -127,7 +127,7 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
         <div className="col-span-2 space-y-4">
           {workExperience.length > 0 && (
             <div className="resume-section">
-              <Title text="Work Experience" />
+              <Title text="Work Experience" color="#0b282e" />
               <div className="space-y-6">
                 {workExperience.map((exp, i) => (
                   <WorkExperience
@@ -138,7 +138,7 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
                       exp.endDate
                     )}`}
                     description={exp.description}
-                    durationColor={[2]}
+                    durationColor="#1e7280"
                     
                   />
                 ))}
@@ -148,7 +148,7 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
 
           {projects.length > 0 && (
             <div className="resume-section">
-              <Title text="Projects" />
+              <Title text="Projects" color="#0b282e" />
               <div className="space-y-4">
                 {projects.map((proj, i) => (
                   <ProjectInfo
@@ -157,7 +157,7 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
                     description={proj.description}
                     githubLink={proj.github}
                     liveDemoUrl={proj.liveDemo}
-                    bgColor={[4]}
+                    bgColor="#dbeafe"
                     headingClass="pb-2" // Added pb-2 to subheadings
                   />
                 ))}
@@ -170,13 +170,13 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
         <div className="col-span-1 space-y-6">
           {skills.length > 0 && (
             <div className="resume-section">
-              <Title text="Skills" />
+              <Title text="Skills" color="#0b282e" />
               <div className="flex flex-wrap gap-2">
                 {skills.map((skill, i) => (
                   <span
                     key={i}
                     className="text-xs font-medium px-2 py-1 rounded"
-                    style={{ backgroundColor: [4] }}
+                    style={{ backgroundColor: "#dbeafe" }}
                   >
                     {skill.name}
                   </span>
@@ -187,7 +187,7 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
 
           {education.length > 0 && (
             <div className="resume-section">
-              <Title text="Education" />
+              <Title text="Education" color="#0b282e" />
               <div className="space-y-4 pb-2">
                 {education.map((edu, i) => (
                   <EducationInfo
@@ -207,7 +207,7 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
 
           {certifications.length > 0 && (
             <div className="resume-section">
-              <Title text="Certifications" />
+              <Title text="Certifications" color="#0b282e" />
               <div className="space-y-2">
                 {certifications.map((cert, i) => (
                   <CertificationInfo
@@ -215,7 +215,7 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
                     title={cert.title}
                     issuer={cert.issuer}
                     year={cert.year}
-                    bgColor={[4]}
+                    bgColor="#dbeafe"
                    
                   />
                 ))}
@@ -225,13 +225,13 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
 
           {languages.length > 0 && (
             <div className="resume-section">
-              <Title text="Languages" />
+              <Title text="Languages" color="#0b282e" />
               <div className="flex flex-wrap gap-2">
                 {languages.map((lang, i) => (
                   <span
                     key={i}
                     className="text-xs font-medium px-2 py-1 rounded"
-                    style={{ backgroundColor: [4] }}
+                    style={{ backgroundColor: "#dbeafe" }}
                   >
                     {lang.name}
                   </span>
@@ -242,14 +242,14 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
 
           {interests.length > 0 && interests.some((i) => i) && (
             <div className="resume-section">
-              <Title text="Interests" />
+              <Title text="Interests" color="#0b282e" />
               <div className="flex flex-wrap gap-2">
                 {interests.map((int, i) =>
                   int ? (
                     <span
                       key={i}
                       className="text-xs font-medium px-2 py-1 rounded"
-                      style={{ backgroundColor: [4] }}
+                      style={{ backgroundColor: "#dbeafe" }}
                     >
                       {int}
                     </span>
