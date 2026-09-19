@@ -28,7 +28,7 @@ const Modal = ({
                 <button type="button" className={styles.closeButton} onClick={onClose}>
                     <X size={20}/>
                 </button>
-                <div className={styles.body}>{children}</div>
+                <div className={styles.body} data-lenis-prevent>{children}</div>
             </div>
         </div>
     )

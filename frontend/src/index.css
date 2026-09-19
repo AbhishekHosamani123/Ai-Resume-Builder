@@ -1,45 +1,57 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap');
 
 @import "tailwindcss";
 
 @theme {
-  /* Typography */
+  /* Typography — Bricolage Grotesque for display, Inter for body */
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  /* Brand blue scale (primary = 600) */
-  --color-brand-50: #eef4ff;
-  --color-brand-100: #dfe9ff;
-  --color-brand-200: #c5d6ff;
-  --color-brand-300: #a1bcff;
-  --color-brand-400: #7b99ff;
-  --color-brand-500: #5577fb;
-  --color-brand-600: #2e5fe8;
-  --color-brand-700: #2449c9;
-  --color-brand-800: #1f3ea3;
-  --color-brand-900: #1e3a85;
+  /* Accent blue (buttons, links, highlights) */
+  --color-brand-50: #e5f4ff;
+  --color-brand-100: #cce9ff;
+  --color-brand-200: #99d4ff;
+  --color-brand-300: #66bfff;
+  --color-brand-400: #33aaff;
+  --color-brand-500: #0099ff;
+  --color-brand-600: #0084e0;
+  --color-brand-700: #0068b8;
+  --color-brand-800: #00548f;
+  --color-brand-900: #084572;
+
+  /* Deep teal (dark sections) + teal accents */
+  --color-deep: #0b282e;
+  --color-deep-soft: #0c2f36;
+  --color-teal-500: #1e7280;
+  --color-teal-100: #d3e6ea;
+
+  /* Soft pastel tints for cards */
+  --color-ice: #ecf6f8;
+  --color-ice-2: #e9f1f2;
+  --color-mint: #e7f3e7;
+  --color-cream: #faf7ef;
+  --color-sand: #f4efe1;
 
   /* Neutrals */
-  --color-ink: #0b1b33;
-  --color-ink-soft: #33415c;
-  --color-mist: #f6f8fb;
-  --color-line: #e7ecf3;
+  --color-ink: #0b0b0b;
+  --color-ink-soft: #363636;
+  --color-ink-mute: #605f5f;
+  --color-ink-faint: #a5a5a5;
+  --color-mist: #fafafa;
+  --color-line: #e8e8e8;
 
   /* Semantic */
   --color-success: #12b76a;
   --color-warning: #f59e0b;
-  --color-danger: #ef4444;
+  --color-danger: #ff4d4d;
 
-  --shadow-soft: 0 1px 2px rgba(11, 27, 51, 0.05), 0 12px 32px -12px rgba(11, 27, 51, 0.14);
-  --shadow-lift: 0 2px 4px rgba(11, 27, 51, 0.06), 0 20px 48px -16px rgba(11, 27, 51, 0.22);
-  --shadow-glow: 0 12px 32px -8px rgba(46, 95, 232, 0.45);
+  --shadow-soft: 0 1px 2px rgba(11, 11, 11, 0.04), 0 12px 32px -12px rgba(11, 40, 46, 0.14);
+  --shadow-lift: 0 2px 4px rgba(11, 11, 11, 0.05), 0 24px 48px -16px rgba(11, 40, 46, 0.22);
+  --shadow-glow: 0 12px 32px -8px rgba(0, 132, 224, 0.45);
+  --shadow-card: 0 0 0 1px rgba(11, 40, 46, 0.06), 0 18px 40px -18px rgba(11, 40, 46, 0.18);
 }
 
 @layer base {
-  html {
-    scroll-behavior: smooth;
-  }
-
   body {
     font-family: var(--font-sans);
     background-color: #ffffff;
@@ -55,19 +67,32 @@
 
   ::selection {
     background: var(--color-brand-100);
-    color: var(--color-brand-900);
+    color: var(--color-deep);
   }
 
-  /* custom scrollbar */
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: rgba(11, 27, 51, 0.25);
+    background-color: rgba(11, 40, 46, 0.25);
     border-radius: 10px;
   }
   .custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
+  }
+
+  /* Lenis smooth scroll */
+  html.lenis, html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
   }
 }
 
@@ -76,23 +101,30 @@
     @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
   }
 
-  /* small uppercase section label, like "HOW IT WORKS" in the reference */
   .eyebrow {
-    @apply inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-brand-600;
+    @apply inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-teal-500;
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-[var(--shadow-glow)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-700 active:translate-y-0;
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-deep active:translate-y-0;
+  }
+  .btn-blue {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-brand-500 px-6 py-3 text-sm font-semibold text-white shadow-[var(--shadow-glow)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-600 active:translate-y-0;
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border border-line bg-white px-6 py-3 text-sm font-semibold text-ink transition-all duration-200 hover:border-brand-300 hover:text-brand-700 hover:shadow-soft;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-line bg-white px-6 py-3 text-sm font-semibold text-ink transition-all duration-200 hover:border-teal-500/40 hover:text-teal-500 hover:shadow-soft;
   }
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-brand-50 hover:text-brand-700;
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-ink-soft transition-colors hover:bg-ice hover:text-teal-500;
   }
 
   .card {
     @apply rounded-3xl border border-line bg-white shadow-[var(--shadow-soft)];
+  }
+
+  /* pastel tinted card, Zono-style */
+  .card-tint {
+    @apply rounded-3xl border border-deep/5 bg-ice p-6 shadow-[var(--shadow-soft)];
   }
 
   .input-base {
@@ -100,30 +132,31 @@
   }
 
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-ink-soft transition-all hover:border-brand-300 hover:text-brand-700;
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-ink-soft transition-all hover:border-teal-500/40 hover:text-teal-500;
   }
 
-  /* soft radial glow used behind hero/preview artwork */
   .glow-blob {
     @apply pointer-events-none absolute rounded-full blur-3xl;
-    background: radial-gradient(closest-side, rgba(85, 119, 251, 0.18), transparent);
+    background: radial-gradient(closest-side, rgba(0, 153, 255, 0.14), transparent);
   }
 }
 
 @layer utilities {
-  @keyframes fade-in-up {
-    from {
-      opacity: 0;
-      transform: translateY(14px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  /* Scroll reveal (Framer-style fade + rise + deblur) */
+  .reveal {
+    opacity: 0;
+    transform: translateY(var(--reveal-y, 28px)) scale(var(--reveal-scale, 1));
+    filter: blur(var(--reveal-blur, 8px));
+    transition:
+      opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms),
+      transform 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms),
+      filter 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms);
+    will-change: opacity, transform, filter;
   }
-
-  .animate-fade-in-up {
-    animation: fade-in-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
   }
 
   @keyframes float-y {
@@ -136,18 +169,37 @@
   .animate-float-slow {
     animation: float-y 9s ease-in-out infinite;
   }
+
+  /* infinite marquee */
+  @keyframes marquee-x {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .animate-marquee {
+    animation: marquee-x 28s linear infinite;
+  }
+  .marquee-mask {
+    mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+  }
+
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in-up {
+    animation: fade-in-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
 }
 
 @media print {
   body * {
     visibility: hidden;
   }
-
   .resume-container,
   .resume-container * {
     visibility: visible;
   }
-
   .resume-container {
     position: absolute;
     left: 0;
