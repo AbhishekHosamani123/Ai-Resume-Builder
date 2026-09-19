@@ -739,27 +739,35 @@ const EditResume = () => {
       // ONE PAGE RULE: A4 height is ~1122px at 96dpi (297mm). If the content
       // is taller, scale the whole layout down so the resume always fits a
       // single page — many ATS auto-reject multi-page resumes.
-      const A4_HEIGHT_PX = 1122;
-      const fitScale = element.scrollHeight > A4_HEIGHT_PX ? A4_HEIGHT_PX / element.scrollHeight : 1;
-
+      const A4_W_PX = element.clientWidth || 794;
+      const A4_H_PX = A4_W_PX * (297 / 210); // ~1122.5
       const inner = element.firstElementChild;
       let appliedScale = 1;
-      if (inner && fitScale < 1) {
-        appliedScale = fitScale;
-        // widen the layout while scaling down so the page stays fully filled
-        inner.style.width = `${100 / appliedScale}%`;
-        inner.style.transform = `scale(${appliedScale})`;
-        inner.style.transformOrigin = "top left";
-        // one refinement pass — the wider layout reflows and changes height
-        const visualH = element.getBoundingClientRect().height;
-        if (visualH > A4_HEIGHT_PX) {
-          appliedScale = appliedScale * (A4_HEIGHT_PX / visualH);
-          inner.style.width = `${100 / appliedScale}%`;
-          inner.style.transform = `scale(${appliedScale})`;
+      // neutralize min-height so the canvas matches real content height
+      element.style.minHeight = "0";
+
+      if (inner && element.scrollHeight > A4_H_PX + 2) {
+        // iterative fit: widen the layout while scaling down so the page
+        // stays fully filled; re-measure after each reflow
+        let s = A4_H_PX / element.scrollHeight;
+        for (let i = 0; i < 4; i++) {
+          inner.style.width = `${100 / s}%`;
+          inner.style.transform = `scale(${s})`;
+          inner.style.transformOrigin = "top left";
+          const visual = inner.getBoundingClientRect().height;
+          if (Math.abs(visual - A4_H_PX) < 3) break;
+          s = s * (A4_H_PX / visual);
+          if (s >= 1) { s = 1; inner.style.width = "100%"; inner.style.transform = "none"; break; }
         }
-        // clamp the wrapper box to the visual (scaled) content height
-        element.style.height = `${Math.min(element.getBoundingClientRect().height, A4_HEIGHT_PX)}px`;
+        appliedScale = s;
       }
+
+      // clamp the wrapper to at most one page (html2pdf slices by canvas height)
+      const visualH = Math.min(
+        inner ? inner.getBoundingClientRect().height : element.scrollHeight,
+        A4_H_PX
+      );
+      element.style.height = `${visualH}px`;
 
       const pdfFilename = `${(resumeData.title || "Resume").replace(/[^a-z0-9]/gi, "_")}.pdf`;
       const pdfBlob = await html2pdf()
@@ -791,6 +799,7 @@ const EditResume = () => {
         inner.style.transform = "";
       }
       element.style.height = "";
+      element.style.minHeight = "";
 
       // trigger the browser download from the generated blob
       const pdfUrl = URL.createObjectURL(pdfBlob);
@@ -863,7 +872,9 @@ const EditResume = () => {
     const measure = () => {
       const el = resumeDownloadRef.current
       if (!el) return
+      el.style.minHeight = "0" // ignore the A4 min-height while measuring
       const pages = Math.max(1, Math.ceil(el.scrollHeight / 1122))
+      el.style.minHeight = ""
       setPageCount(pages)
     }
     const timeoutId = setTimeout(measure, 600)
