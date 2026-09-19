@@ -79,13 +79,27 @@ const TemplateATS = ({ resumeData = {}, colorPalette, containerWidth }) => {
   const linkStyle = { color: linkColor(palette), textDecoration: "none" };
   const sep = <span style={{ color: "#666666", margin: "0 5px" }}>|</span>;
 
+  // Contact row, LaTeX \href style: URLs render as friendly link text
+  const contactLink = (value) => {
+    const v = String(value || "").trim()
+    if (!v) return null
+    if (/^mailto:/i.test(v)) return { text: v.replace(/^mailto:/i, ""), href: v }
+    if (/^[\w.+-]+@[\w-]+\.[\w.]+$/.test(v)) return { text: v, href: `mailto:${v}` }
+    if (/linkedin\.com/i.test(v)) return { text: "LinkedIn", href: v.startsWith("http") ? v : `https://${v}` }
+    if (/github\.com/i.test(v)) return { text: "GitHub", href: v.startsWith("http") ? v : `https://${v}` }
+    if (/^https?:\/\/(?!linkedin|github)/i.test(v)) return { text: v.replace(/^https?:\/\//i, "").replace(/\/$/, ""), href: v }
+    return { text: v, href: null }
+  }
+
   const contactItems = [
     contactInfo.phone,
     contactInfo.email,
     contactInfo.linkedin,
     contactInfo.github,
     contactInfo.location,
-  ].filter(Boolean)
+  ]
+    .map(contactLink)
+    .filter(Boolean)
 
   const jobs = workExperience.filter((w) => (w.company || "").trim() || (w.role || "").trim())
   const edus = education.filter((e) => (e.degree || "").trim() || (e.institution || "").trim())
@@ -94,6 +108,17 @@ const TemplateATS = ({ resumeData = {}, colorPalette, containerWidth }) => {
   const skillNames = skills.map((s) => (s.name || "").trim()).filter(Boolean)
   const languageNames = languages.map((l) => (l.name || "").trim()).filter(Boolean)
   const interestNames = interests.map((i) => (i || "").trim()).filter(Boolean)
+
+  // LaTeX-style grouped skills: an entry typed as "Group: item, item" renders
+  // as a bold-labeled line; plain entries join into a single line.
+  const esc = (s) => String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+  const skillGroups = []
+  const plainSkills = []
+  for (const name of skillNames) {
+    const m = name.match(/^([^:]{2,40}):\s*(.+)$/)
+    if (m) skillGroups.push([m[1].trim(), m[2].split(/\s*,\s*/).filter(Boolean)])
+    else plainSkills.push(name)
+  }
 
   return (
     <div
@@ -124,7 +149,13 @@ const TemplateATS = ({ resumeData = {}, colorPalette, containerWidth }) => {
           {contactItems.map((item, i) => (
             <span key={i}>
               {i > 0 && sep}
-              <span style={/^https?:|^www\./.test(item) ? linkStyle : undefined}>{item}</span>
+              {item.href ? (
+                <a href={item.href} target={item.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" style={linkStyle}>
+                  {item.text}
+                </a>
+              ) : (
+                <span>{item.text}</span>
+              )}
             </span>
           ))}
         </div>
@@ -138,14 +169,20 @@ const TemplateATS = ({ resumeData = {}, colorPalette, containerWidth }) => {
         </>
       )}
 
-      {/* ---------- Skills ---------- */}
+      {/* ---------- Skills (supports LaTeX-style "Group: item, item" entries) ---------- */}
       {skillNames.length > 0 && (
         <>
           <SectionTitle text="Technical Skills" palette={palette} />
-          <p style={{ margin: 0 }}>
-            <strong>Skills: </strong>
-            {skillNames.join(" • ")}
-          </p>
+          {skillGroups.length > 0 ? (
+            skillGroups.map(([label, items], i) => (
+              <p key={i} style={{ margin: "0 0 2px 0" }}>
+                <strong>{esc(label)}: </strong>
+                {esc(items.join(", "))}
+              </p>
+            ))
+          ) : (
+            <p style={{ margin: 0 }}>{esc(skillNames.join(" • "))}</p>
+          )}
         </>
       )}
 
@@ -189,7 +226,7 @@ const TemplateATS = ({ resumeData = {}, colorPalette, containerWidth }) => {
       {/* ---------- Certifications ---------- */}
       {certs.length > 0 && (
         <>
-          <SectionTitle text="Certifications" palette={palette} />
+          <SectionTitle text="Certifications & Achievements" palette={palette} />
           {certs.map((ct, i) => (
             <div key={i} style={{ marginBottom: 6 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
