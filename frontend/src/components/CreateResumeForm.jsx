@@ -1,49 +1,42 @@
 import React, { useState } from 'react'
 import { Input } from './Inputs'
 import { useNavigate } from 'react-router-dom'
-import axiosInstance from '../utils/axioslnstance'
-import { API_PATHS } from '../utils/apiPaths'
+import { createResume } from '../lib/resumeStore'
 
 const CreateResumeForm = ({ onSuccess }) => {
-
     const [title, setTitle] = useState("")
     const [error, setError] = useState(null)
+    const [busy, setBusy] = useState(false)
     const navigate = useNavigate()
 
     const handleCreateResume = async (e) => {
         e.preventDefault();
-    
-        if (!title) {
+
+        if (!title.trim()) {
             setError("Please enter resume title")
             return
         }
         setError("")
-    
+        setBusy(true)
+
         try {
-            const response = await axiosInstance.post(API_PATHS.RESUME.CREATE, {
-                title,
-            })
-            if (response.data?._id) {
-                if (onSuccess) {
-                    onSuccess();
-                }
-                navigate(`/resume/${response.data?._id}`)
-            }
+            const resume = await createResume({ title: title.trim() })
+            if (onSuccess) onSuccess();
+            navigate(`/resume/${resume._id}`)
         }
-        catch (error) {
-            if (error.response && error.response.data.message) {
-                setError(error.response.data.message)
-            }
-            else {
-                setError('Something went wrong. Please try again.')
-            }
+        catch (err) {
+            console.error('Failed to create resume:', err)
+            setError('Something went wrong. Please try again.')
+        }
+        finally {
+            setBusy(false)
         }
     }
 
     return (
-        <div className='w-full max-w-md p-8 bg-white rounded-2xl border border-gray-100 shadow-lg'>
-            <h3 className='text-2xl font-bold text-gray-900 mb-2'>Create New Resume</h3>
-            <p className='text-gray-600 mb-8'>
+        <div className='w-full max-w-md p-8'>
+            <h3 className='font-display text-xl font-bold text-ink'>Create New Resume</h3>
+            <p className='mt-1.5 text-sm leading-relaxed text-slate-500 mb-7'>
                 Give your resume a title to get started. You can customize everything later.
             </p>
 
@@ -52,11 +45,11 @@ const CreateResumeForm = ({ onSuccess }) => {
                     label='Resume Title' placeholder='e.g., John Doe - Software Engineer'
                     type='text' />
 
-                {error && <p className='text-red-500 text-sm mb-4'>{error}</p>}
+                {error && <p className='text-sm font-medium text-red-500 mb-4'>{error}</p>}
 
-                <button type = 'submit' className='w-full py-3 bg-gradient-to-r from-rose-500 to-pink-600 text-white font-black
-                rounded-2xl hover:scale-105 hover:shadow-xl hover:shadow-rose-200 transition-all'>
-                    Create Resume
+                <button disabled={busy} type='submit'
+                    className='btn-primary w-full disabled:opacity-60'>
+                    {busy ? 'Creating…' : 'Create Resume'}
                 </button>
             </form>
         </div>

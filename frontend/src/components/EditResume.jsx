@@ -3,9 +3,8 @@ import DashboardLayout from './DashboardLayout'
 import { buttonStyles, containerStyles, statusStyles, iconStyles } from '../assets/dummystyle'
 import { TitleInput } from './Inputs'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Eye, Palette, Trash2, ArrowLeft, Loader2, Save, Download, AlertCircle, Check } from 'lucide-react'
-import axiosInstance from '../utils/axioslnstance'
-import { API_PATHS } from '../utils/apiPaths'
+import { Eye, Palette, Trash2, ArrowLeft, Loader2, Save, Download, AlertCircle, Check, Gauge } from 'lucide-react'
+import { getResume, updateResume as persistResume, deleteResume as removeResume, setRecentResumeId } from '../lib/resumeStore'
 import toast from 'react-hot-toast'
 import StepProgress from './StepProgress'
 import RenderResume from './RenderResume'
@@ -565,11 +564,9 @@ const EditResume = () => {
 
   const fetchResumeDetailsById = async () => {
     try {
-      const response = await axiosInstance.get(API_PATHS.RESUME.GET_BY_ID(resumeId))
+      const resumeInfo = await getResume(resumeId)
 
-      if (response.data && response.data.profileInfo) {
-        const resumeInfo = response.data
-
+      if (resumeInfo && resumeInfo.profileInfo) {
         setResumeData((prevState) => ({
           ...prevState,
           title: resumeInfo?.title || "Untitled",
@@ -627,24 +624,9 @@ const EditResume = () => {
       document.body.removeChild(fixedThumbnail)
 
       const thumbnailDataUrl = thumbnailCanvas.toDataURL("image/png")
-      const thumbnailFile = dataURLtoFile(
-        thumbnailDataUrl,
-        `thumbnail-${resumeId}.png`
-      )
 
-      const formData = new FormData()
-      formData.append("thumbnail", thumbnailFile)
-
-      const uploadResponse = await axiosInstance.put(
-        API_PATHS.RESUME.UPLOAD_IMAGES(resumeId),
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      )
-
-      const { thumbnailLink } = uploadResponse.data
-      await updateResumeDetails(thumbnailLink)
+      // Everything is local now — the generated data URL is stored directly
+      await updateResumeDetails(thumbnailDataUrl)
 
       toast.success("Resume Updated Successfully")
       navigate("/dashboard")
@@ -661,9 +643,13 @@ const EditResume = () => {
   const fetchResumeData = async () => {
     try {
       setIsLoading(true)
-      const response = await axiosInstance.get(API_PATHS.RESUME.GET_BY_ID(resumeId))
-      if (response.data) {
-        setResumeData(response.data)
+      const resume = await getResume(resumeId)
+      if (resume) {
+        setResumeData(resume)
+        setRecentResumeId(resumeId)
+      } else {
+        toast.error("Resume not found")
+        navigate("/dashboard")
       }
     } catch (error) {
       console.error("Error fetching resume:", error)
@@ -696,17 +682,11 @@ const EditResume = () => {
         template: resumeData.template || { theme: "01", colorPalette: [] }
       }
       
-      await axiosInstance.put(API_PATHS.RESUME.UPDATE(resumeId), cleanResumeData)
+      await persistResume(resumeId, cleanResumeData)
       toast.success("Resume saved successfully")
     } catch (error) {
       console.error("Error saving resume:", error)
-      if (error.response?.status === 500) {
-        toast.error("Server error. Please try again later.")
-      } else if (error.response?.status === 401) {
-        toast.error("Session expired. Please login again.")
-      } else {
-        toast.error("Failed to save resume")
-      }
+      toast.error("Failed to save resume")
     } finally {
       setIsLoading(false)
     }
@@ -716,7 +696,7 @@ const EditResume = () => {
     try {
       setIsLoading(true)
 
-      await axiosInstance.put(API_PATHS.RESUME.UPDATE(resumeId), {
+      await persistResume(resumeId, {
         ...resumeData,
         thumbnailLink: thumbnailLink || "",
       })
@@ -728,11 +708,11 @@ const EditResume = () => {
     }
   }
 
-  // delete function to delete any resume 
+  // delete function to delete any resume
   const handleDeleteResume = async () => {
     try {
       setIsLoading(true)
-      await axiosInstance.delete(API_PATHS.RESUME.DELETE(resumeId))
+      await removeResume(resumeId)
       toast.success("Resume deleted successfully")
       navigate("/dashboard")
     } catch (error) {
@@ -877,6 +857,11 @@ const EditResume = () => {
                     <span className='text-sm'>Delete</span>
                 </button>
 
+                <button onClick={() => navigate(`/ats?resume=${resumeId}`)} className={buttonStyles.ats}>
+                    <Gauge size={15} />
+                    <span className='text-sm'>ATS Score</span>
+                </button>
+
                 <button onClick={() => setOpenPreviewModal(true)} className={buttonStyles.preview}>
                     <Eye size={16} />
                     <span className='text-sm'>Preview</span>
@@ -922,6 +907,13 @@ const EditResume = () => {
                 : <Save size={16} />}
             {isLoading ? "Saving..." : "Save & Exit"}
             </button>
+
+            {currentPage === "additionalInfo" && (
+              <button className={buttonStyles.ats} onClick={() => navigate(`/ats?resume=${resumeId}`)} disabled={isLoading}>
+                <Gauge size={16} />
+                ATS Score
+              </button>
+            )}
 
             <button className={buttonStyles.next} onClick={currentPage === "additionalInfo" ? downloadPDF : validateAndNext} disabled={isLoading}>
             {currentPage === "additionalInfo" && <Download size={16} />}

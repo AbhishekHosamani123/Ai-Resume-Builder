@@ -1,46 +1,14 @@
-import { useContext, useState } from "react"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { UserContext } from "../context/UserContext"
-import { cardStyles } from "../assets/dummystyle"
-import { Award, TrendingUp, Zap, Edit, Trash2, Clock, Check } from "lucide-react"
-import axiosInstance from '../utils/axioslnstance'
+import { cardStyles as styles } from "../assets/dummystyle"
+import { Award, TrendingUp, Zap, Edit, Trash2, Check } from "lucide-react"
 
-// PROFILE INFO CARDS
-export const ProfileInfoCard = () => {
-  const navigate = useNavigate()
-  const { user, clearUser } = useContext(UserContext)
+const formatDate = (value) =>
+  value
+    ? new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    : "—"
 
-  const handleLogout = () => {
-    localStorage.clear();
-    clearUser();
-    navigate('/');
-  }
-
-  return (
-    user && (
-      <div className={cardStyles.profileCard}>
-        <div className={cardStyles.profileInitialsContainer}>
-          <span className={cardStyles.profileInitialsText}>
-            {user.name ? user.name.charAt(0).toUpperCase() : ""}
-          </span>
-        </div>
-
-        <div>
-          <div className={cardStyles.profileName}>
-            {user.name || ""}
-          </div>
-          <button className={cardStyles.logoutButton}
-            onClick={handleLogout}>
-            Logout
-          </button>
-        </div>
-      </div>
-    )
-  )
-}
-
-// Resume summary card
-// ResumeSummaryCard Component
+// Resume summary card shown on the dashboard
 export const ResumeSummaryCard = ({
   id,
   title = "Untitled Resume",
@@ -49,32 +17,8 @@ export const ResumeSummaryCard = ({
   onSelect,
   onDelete,
   completion = 85,
+  atsScore = null,
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  
-
-  const formattedCreatedDate = createdAt
-    ? new Date(createdAt).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    })
-    : "—";
-
-  const formattedUpdatedDate = updatedAt
-    ? new Date(updatedAt).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    })
-    : "—";
-
-  const getCompletionColor = () => {
-    if (completion >= 90) return cardStyles.completionHigh;
-    if (completion >= 70) return cardStyles.completionMedium;
-    return cardStyles.completionLow;
-  };
-
   const getCompletionIcon = () => {
     if (completion >= 90) return <Award size={12} />;
     if (completion >= 70) return <TrendingUp size={12} />;
@@ -86,165 +30,123 @@ export const ResumeSummaryCard = ({
     if (onDelete) onDelete();
   };
 
-  const generateDesign = () => {
-    const colors = [
-      "from-blue-50 to-blue-100",
-      "from-purple-50 to-purple-100",
-      "from-emerald-50 to-emerald-100",
-      "from-amber-50 to-amber-100",
-      "from-rose-50 to-rose-100"
-    ];
-    return colors[title.length % colors.length];
-  };
-
-  const designColor = generateDesign();
-
   return (
-    <div
-      className={cardStyles.resumeCard}
-      onClick={onSelect}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Completion indicator */}
-      <div className={cardStyles.completionIndicator}>
-        <div className={`${cardStyles.completionDot} bg-gradient-to-r ${getCompletionColor()}`}>
-          <div className={cardStyles.completionDotInner} />
-        </div>
-        <span className={cardStyles.completionPercentageText}>{completion}%</span>
-        {getCompletionIcon()}
-      </div>
+    <div className={styles.resumeCard} onClick={onSelect}>
+      <div className={styles.cardBackground} />
 
-      {/* Preview area */}
-      <div className={`${cardStyles.previewArea} bg-gradient-to-br ${designColor}`}>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className={cardStyles.emptyPreviewIcon}>
-            <Edit size={28} className="text-indigo-600" />
-          </div>
-          <span className={cardStyles.emptyPreviewText}>{title}</span>
-          <span className={cardStyles.emptyPreviewSubtext}>
-            {completion === 0 ? "Start building" : `${completion}% completed`}
+      <div className={styles.previewArea}>
+        {/* completion indicator */}
+        <div className={styles.completionIndicator}>
+          <span className={`${styles.completionDot} ${completion >= 90 ? styles.completionHigh : completion >= 70 ? styles.completionMedium : styles.completionLow}`}>
+            <span className={styles.completionDotInner} />
           </span>
-
-          {/* Mini resume sections indicator */}
-          <div className="mt-4 flex gap-2">
-            {['Profile', 'Work', 'Skills', 'Edu'].map((section, i) => (
-              <div
-                key={i}
-                className={`px-2 py-1 text-xs rounded-md ${i < Math.floor(completion / 25)
-                  ? 'bg-white/90 text-indigo-600 font-medium'
-                  : 'bg-white/50 text-gray-500'
-                  }`}
-              >
-                {section}
-              </div>
-            ))}
-          </div>
+          <span className={styles.completionPercentageText}>{completion}%</span>
         </div>
 
-        {/* Hover overlay with action buttons */}
-        {isHovered && (
-          <div className={cardStyles.actionOverlay}>
-            <div className={cardStyles.actionButtonsContainer}>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (onSelect) onSelect();
-                }}
-                className={cardStyles.editButton}
-                title="Edit"
-              >
-                <Edit size={18} className={cardStyles.buttonIcon} />
-              </button>
-              <button
-                onClick={handleDeleteClick}
-                className={cardStyles.deleteButton}
-                title="Delete"
-              >
-                <Trash2 size={18} className={cardStyles.buttonIcon} />
-              </button>
-            </div>
+        {atsScore != null && (
+          <div className="absolute left-4 top-4 z-10">
+            <span className={styles.atsBadge}>
+              <Check size={11} /> ATS {atsScore}
+            </span>
           </div>
         )}
+
+        {/* generated preview design */}
+        <div className="flex h-[190px] flex-col items-center justify-center rounded-2xl bg-gradient-to-br from-mist to-brand-50">
+          <div className="w-28 rounded-lg border border-line bg-white p-3 shadow-[var(--shadow-soft)] transition-transform duration-300 group-hover:-rotate-2">
+            <div className="mx-auto h-1.5 w-12 rounded-full bg-ink/80" />
+            <div className="mx-auto mt-1 h-1 w-8 rounded-full bg-line" />
+            <div className="mt-2.5 space-y-1">
+              {[100, 82, 90, 66].map((w, i) => (
+                <div key={i} className="h-1 rounded-full bg-mist" style={{ width: `${w}%` }} />
+              ))}
+            </div>
+            <div className="mt-2 h-1 w-8 rounded-full bg-brand-600/70" />
+            <div className="mt-1.5 space-y-1">
+              {[88, 74].map((w, i) => (
+                <div key={i} className="h-1 rounded-full bg-mist" style={{ width: `${w}%` }} />
+              ))}
+            </div>
+          </div>
+          <div className={styles.emptyPreviewText}>{title}</div>
+          <div className={styles.emptyPreviewSubtext}>
+            {completion}% complete
+          </div>
+        </div>
       </div>
 
-      {/* Info area */}
-      <div className={cardStyles.infoArea}>
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            <h5 className={cardStyles.title}>{title}</h5>
-            <div className={cardStyles.dateInfo}>
-              <Clock size={12} />
-              <span>Created At: {formattedCreatedDate}</span>
-              <span className="ml-2">Updated At: {formattedUpdatedDate}</span>
+      <div className={styles.infoArea}>
+        <h3 className={styles.title}>{title}</h3>
+        <div className={styles.dateInfo}>
+          <span>Created: {formatDate(createdAt)}</span>
+          <span className="text-line">•</span>
+          <span>Updated: {formatDate(updatedAt)}</span>
+        </div>
+
+        <div className={styles.progressBar}>
+          <div className={styles.progressFill} style={{ width: `${completion}%` }} />
+        </div>
+        <div className={styles.completionStatus}>
+          <span className={styles.statusText}>
+            {completion >= 90 ? "Ready to go!" : completion >= 50 ? "Making progress" : "Getting started"}
+          </span>
+          <span className={styles.percentageText}>{completion}% Complete</span>
+        </div>
+      </div>
+
+      {/* hover actions */}
+      <div className={styles.actionOverlay}>
+        <div className={styles.actionButtonsContainer}>
+          <button
+            className={styles.editButton}
+            onClick={(e) => { e.stopPropagation(); onSelect && onSelect() }}
+            title="Edit resume"
+          >
+            <Edit size={16} className={styles.buttonIcon} />
+          </button>
+          <button
+            className={styles.deleteButton}
+            onClick={handleDeleteClick}
+            title="Delete resume"
+          >
+            <Trash2 size={16} className={styles.buttonIcon} />
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Template picker card (used inside the theme selector)
+export const TemplateCard = ({ thumbnailImg, isSelected, onSelect }) => {
+  const navigate = useNavigate();
+  return (
+    <div
+      className={`${styles.templateCard} ${isSelected ? styles.templateCardSelected : styles.templateCardDefault}`}
+      onClick={() => onSelect && onSelect()}
+    >
+      {isSelected && (
+        <div className={styles.selectionIndicator}>
+          <div className={styles.selectionCircle}>
+            <Check size={14} className={styles.selectionIcon} />
+          </div>
+        </div>
+      )}
+      {thumbnailImg ? (
+        <div className={styles.templateDesign}>
+          <img src={thumbnailImg} alt="Template preview" className="h-full w-full object-cover object-top" />
+          <div className={styles.templateHoverEffect} />
+        </div>
+      ) : (
+        <div className={styles.emptyTemplate}>
+          <div className="flex h-full items-center justify-center bg-mist">
+            <div className="text-center">
+              <div className={styles.emptyTemplateIcon}>📄</div>
+              <div className={styles.emptyTemplateText}>No template</div>
             </div>
           </div>
         </div>
-
-        {/* Progress bar */}
-        <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className={`h-full bg-gradient-to-r ${getCompletionColor()} rounded-full transition-all duration-700 ease-out relative overflow-hidden`}
-            style={{ width: `${completion}%` }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse"></div>
-          </div>
-          <div
-            className={`absolute top-0 h-full w-4 bg-gradient-to-r from-transparent to-white/50 blur-sm transition-all duration-700`}
-            style={{ left: `${Math.max(0, completion - 2)}%` }}
-          ></div>
-        </div>
-
-        {/* Completion status */}
-        <div className="flex justify-between items-center mt-2">
-          <span className="text-xs font-medium text-gray-500">
-            {completion < 50 ? "Getting Started" : completion < 80 ? "Almost There" : "Ready to Go!"}
-          </span>
-          <span className="text-xs font-bold text-gray-700">{completion}% Complete</span>
-        </div>
-
-        
-      </div>
+      )}
     </div>
   );
 };
-
-// TEMPLATES CARD
-export const TemplateCard = ({ thumbnailImg, isSelected, onSelect }) => {
-  return (
-    <div
-      className={`group h-auto md:h-[300px] lg:h-[320px] flex flex-col bg-white border-2 overflow-hidden cursor-pointer transition-all duration-500 hover:scale-105 hover:shadow-lg rounded-3xl ${
-        isSelected
-          ? 'border-violet-500 shadow-lg shadow-violet-500/20 bg-violet-50'
-          : 'border-gray-200 hover:border-violet-300'
-      }`}
-      onClick={onSelect}
-    >
-      {thumbnailImg ? (
-        <div className='relative w-full h-full overflow-hidden'>
-          <img src={thumbnailImg || '/placeholder.svg'} alt="Template Review" className="w-full h-full 
-          object-cover group-hover:scale-110 transition-transform duration-700" />
-
-          <div className="absolute inset-0 bg-gradient-to-t from-white/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"/>
-
-          {isSelected && (
-            <div className="absolute inset-0 bg-violet-500/10 flex items-center justify-center">
-              <div className="w-16 h-16 bg-white backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg animate-pulse">
-                <Check size={24} className="text-violet-600"/>
-              </div>
-            </div>
-          )}
-
-
-          {/* HOVER EFFECT */}
-          <div className="absolute inset-0 bg-gradient-to-t from-violet-100/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          </div>
-         </div>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-100">
-            <span className="text-gray-500">No preview available</span>
-          </div>
-        )}
-      </div>
-  )
-}

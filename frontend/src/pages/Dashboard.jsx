@@ -1,333 +1,266 @@
-import React, { useState, useContext, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import DashboardLayout from '../components/DashboardLayout'
 import { dashboardStyles as styles } from '../assets/dummystyle'
-import { UserContext } from '../context/UserContext'
 import { useNavigate } from 'react-router-dom'
-import { Plus, FileText, Download, Edit, FilePlus, Trash2 } from 'lucide-react'
-import axiosInstance from '../utils/axioslnstance'
-import { API_PATHS } from '../utils/apiPaths'
+import { Plus, FilePlus, Trash2, Gauge, FileText, Clock } from 'lucide-react'
+import { listResumes, deleteResume, getProfile } from '../lib/resumeStore'
+import { analyzeQuality } from '../lib/ats'
 import { ResumeSummaryCard } from '../components/Cards'
-import moment from 'moment'
-
 import toast from 'react-hot-toast'
 import Modal from '../components/Model'
 import CreateResumeForm from '../components/CreateResumeForm'
 
-const Dashboard = () => {
-    const navigate = useNavigate();
-    const { user } = useContext(UserContext);
-    const [openCreateModal, setOpenCreateModal] = useState(false);
-    const [allResumes, setAllResumes] = useState([]);
-    const [loading, setLoading] = useState(true)
-    const [resumeToDelete, setResumeToDelete] = useState(null);
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+// Calculate completion percentage for a resume
+const calculateCompletion = (resume) => {
+  let completedFields = 0;
+  let totalFields = 0;
 
-    // Calculate completion percentage for a resume
-  const calculateCompletion = (resume) => {
-    let completedFields = 0;
-    let totalFields = 0;
+  totalFields += 3;
+  if (resume.profileInfo?.fullName) completedFields++;
+  if (resume.profileInfo?.designation) completedFields++;
+  if (resume.profileInfo?.summary) completedFields++;
 
-    // Profile Info
-    totalFields += 3;
-    if (resume.profileInfo?.fullName) completedFields++;
-    if (resume.profileInfo?.designation) completedFields++;
-    if (resume.profileInfo?.summary) completedFields++;
+  totalFields += 2;
+  if (resume.contactInfo?.email) completedFields++;
+  if (resume.contactInfo?.phone) completedFields++;
 
-    // Contact Info
+  resume.workExperience?.forEach(exp => {
+    totalFields += 5;
+    if (exp.company) completedFields++;
+    if (exp.role) completedFields++;
+    if (exp.startDate) completedFields++;
+    if (exp.endDate) completedFields++;
+    if (exp.description) completedFields++;
+  });
+
+  resume.education?.forEach(edu => {
+    totalFields += 4;
+    if (edu.degree) completedFields++;
+    if (edu.institution) completedFields++;
+    if (edu.startDate) completedFields++;
+    if (edu.endDate) completedFields++;
+  });
+
+  resume.skills?.forEach(skill => {
     totalFields += 2;
-    if (resume.contactInfo?.email) completedFields++;
-    if (resume.contactInfo?.phone) completedFields++;
+    if (skill.name) completedFields++;
+    if (skill.progress > 0) completedFields++;
+  });
 
-    // Work Experience
-    resume.workExperience?.forEach(exp => {
-      totalFields += 5;
-      if (exp.company) completedFields++;
-      if (exp.role) completedFields++;
-      if (exp.startDate) completedFields++;
-      if (exp.endDate) completedFields++;
-      if (exp.description) completedFields++;
-    });
+  resume.projects?.forEach(project => {
+    totalFields += 4;
+    if (project.title) completedFields++;
+    if (project.description) completedFields++;
+    if (project.github) completedFields++;
+    if (project.liveDemo) completedFields++;
+  });
 
-    // Education
-    resume.education?.forEach(edu => {
-      totalFields += 4;
-      if (edu.degree) completedFields++;
-      if (edu.institution) completedFields++;
-      if (edu.startDate) completedFields++;
-      if (edu.endDate) completedFields++;
-    });
+  resume.certifications?.forEach(cert => {
+    totalFields += 3;
+    if (cert.title) completedFields++;
+    if (cert.issuer) completedFields++;
+    if (cert.year) completedFields++;
+  });
 
-    // Skills
-    resume.skills?.forEach(skill => {
-      totalFields += 2;
-      if (skill.name) completedFields++;
-      if (skill.progress > 0) completedFields++;
-    });
+  resume.languages?.forEach(lang => {
+    totalFields += 2;
+    if (lang.name) completedFields++;
+    if (lang.progress > 0) completedFields++;
+  });
 
-    // Projects
-    resume.projects?.forEach(project => {
-      totalFields += 4;
-      if (project.title) completedFields++;
-      if (project.description) completedFields++;
-      if (project.github) completedFields++;
-      if (project.liveDemo) completedFields++;
-    });
+  totalFields += (resume.interests?.length || 0);
+  completedFields += (resume.interests?.filter(i => i?.trim() !== "")?.length || 0);
 
-    // Certifications
-    resume.certifications?.forEach(cert => {
-      totalFields += 3;
-      if (cert.title) completedFields++;
-      if (cert.issuer) completedFields++;
-      if (cert.year) completedFields++;
-    });
+  return Math.round((completedFields / totalFields) * 100);
+};
 
-    // Languages
-    resume.languages?.forEach(lang => {
-      totalFields += 2;
-      if (lang.name) completedFields++;
-      if (lang.progress > 0) completedFields++;
-    });
+const Dashboard = () => {
+  const navigate = useNavigate();
+  const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [allResumes, setAllResumes] = useState([]);
+  const [loading, setLoading] = useState(true)
+  const [resumeToDelete, setResumeToDelete] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const profile = getProfile();
 
-    // Interests
-    totalFields += (resume.interests?.length || 0);
-    completedFields += (resume.interests?.filter(i => i?.trim() !== "")?.length || 0);
-
-    return Math.round((completedFields / totalFields) * 100);
-  };
-
-  // IT WILL SHOW IF COMPLETED OR FILLED IT WILL DO ++.
-const fetchAllResumes = async () => {
+  const fetchAllResumes = useCallback(async () => {
     try {
       setLoading(true)
-      const response = await axiosInstance.get(API_PATHS.RESUME.GET_ALL)
-      // ADD COMPLETION PERCENTAGE TO EACH RESUMES
-      const resumesWithCompletion = response.data.map(resume => ({
+      const resumes = await listResumes()
+      const decorated = resumes.map(resume => ({
         ...resume,
-        completion: calculateCompletion(resume)
+        completion: calculateCompletion(resume),
+        ats: analyzeQuality(resume).score,
       }))
-
-      setAllResumes(resumesWithCompletion)
+      setAllResumes(decorated)
     } catch (error) {
-        console.error('Error fetching resumes: ', error)
+      console.error('Error loading resumes: ', error)
+      toast.error('Could not load your resumes')
+    } finally {
+      setLoading(false)
     }
-     finally{
-         setLoading(false)
-     }
+  }, []);
+
+  useEffect(() => {
+    fetchAllResumes();
+  }, [fetchAllResumes]);
+
+  const handleDeleteResume = async () => {
+    if (!resumeToDelete) return;
+    try {
+      await deleteResume(resumeToDelete)
+      toast.success('Resume deleted')
+      fetchAllResumes()
+    } catch (error) {
+      console.error('Error deleting resume:', error)
+      toast.error('Failed to delete resume')
+    } finally {
+      setResumeToDelete(null)
+      setShowDeleteConfirm(false)
+    }
   }
 
-  useEffect(() =>{
-    fetchAllResumes();
-}, []);
+  const handleDeleteClick = (id) => {
+    setResumeToDelete(id);
+    setShowDeleteConfirm(true);
+  }
 
+  const avgCompletion = allResumes.length
+    ? Math.round(allResumes.reduce((s, r) => s + r.completion, 0) / allResumes.length)
+    : 0
+  const bestAts = allResumes.length
+    ? Math.max(...allResumes.map((r) => r.ats))
+    : 0
+  const lastUpdated = allResumes[0]?.updatedAt
 
-    const handleDeleteResume = async () => {
-        if(!resumeToDelete) return;
-        try{
-            await axiosInstance.delete(API_PATHS.RESUME.DELETE(resumeToDelete))
-            toast.success('Resume Deleted successfully ')
-            fetchAllResumes()
-        }
-        catch (error) {
-            console.error('Error deleting resume:', error)
-            toast.error('failed to delete resume')
-          }
-          finally {
-            setResumeToDelete(null)
-            setShowDeleteConfirm(false)
-          }
-    }
-
-    const handleDeleteClick = (id) => {
-        setResumeToDelete(id);
-        setShowDeleteConfirm(true);
-}
-    return (
-        <DashboardLayout>
-            <div className={styles.container}>
-                {/* Header */}
-                <div className={styles.headerWrapper}>
-                    <div>
-                        <h1 className={styles.headerTitle}>
-                            Welcome back, {user?.name || 'User'}!
-                        </h1>
-                        <p className={styles.headerSubtitle}>
-                            {allResumes.length > 0 
-                                ? `You have ${allResumes.length} resume${allResumes.length !== 1 ? 's' : ''}`
-                                : 'Start building your professional resume'
-                            }
-                        </p>
-                    </div>
-                    <button className={styles.createButton} onClick={() => setOpenCreateModal(true)}>
-                        <div className={styles.createButtonOverlay}></div>
-                        <div className={styles.createButtonContent}>
-                            <Plus size={20} />
-                             <span>Create New Resume</span>
-                        </div>
-                    </button>
-                </div>
-
-                {/* Resume Grid */}
-                <div className={styles.grid}>
-
-                    {/* Sample Resume Cards
-                    {allResumes.length === 0 && (
-                        <div className={styles.resumeCard}>
-                            <div className={styles.previewArea}>
-                                <div className={styles.emptyPreview}>
-                                    <div className={styles.emptyPreviewIcon}>
-                                        <FileText size={24} className="text-violet-600" />
-                                    </div>
-                                    <div className={styles.emptyPreviewText}>Software Engineer Resume</div>
-                                    <div className={styles.emptyPreviewSubtext}>Last updated: 2 days ago</div>
-                                </div>
-                            </div>
-                            <div className={styles.infoArea}>
-                                <h3 className={styles.title}>Software Engineer Resume</h3>
-                                <div className={styles.dateInfo}>
-                                    <span>Updated 2 days ago</span>
-                                </div>
-                            </div>
-                            <div className={styles.actionOverlay}>
-                                <div className={styles.actionButtonsContainer}>
-                                    <button className={styles.editButton}>
-                                        <Edit size={16} className={styles.buttonIcon} />
-                                    </button>
-                                    <button className={styles.deleteButton}>
-                                        <Download size={16} className={styles.buttonIcon} />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )} */}
-
-                    {/* Render actual resumes when they exist
-                    {allResumes.map((resume, index) => (
-                        <div key={index} className={styles.resumeCard}>
-                            <div className={styles.previewArea}>
-                                <div className={styles.emptyPreview}>
-                                    <div className={styles.emptyPreviewIcon}>
-                                        <FileText size={24} className="text-violet-600" />
-                                    </div>
-                                    <div className={styles.emptyPreviewText}>{resume.title || 'Untitled Resume'}</div>
-                                    <div className={styles.emptyPreviewSubtext}>Last updated: {resume.updatedAt || 'Recently'}</div>
-                                </div>
-                            </div>
-                            <div className={styles.infoArea}>
-                                <h3 className={styles.title}>{resume.title || 'Untitled Resume'}</h3>
-                                <div className={styles.dateInfo}>
-                                    <span>Updated {resume.updatedAt || 'Recently'}</span>
-                                </div>
-                            </div>
-                            <div className={styles.actionOverlay}>
-                                <div className={styles.actionButtonsContainer}>
-                                    <button className={styles.editButton}>
-                                        <Edit size={16} className={styles.buttonIcon} />
-                                    </button>
-                                    <button className={styles.deleteButton}>
-                                        <Download size={16} className={styles.buttonIcon} />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    ))} */}
-                </div>
-
-
-            {/* Loading State */}
-        {loading && (
-        <div className={styles.spinnerWrapper}>
-        <div className={styles.spinner}></div>
+  return (
+    <DashboardLayout>
+      <div className={styles.container}>
+        {/* Header */}
+        <div className={styles.headerWrapper}>
+          <div>
+            <h1 className={styles.headerTitle}>
+              Welcome back{profile?.name ? `, ${profile.name}` : ''}!
+            </h1>
+            <p className={styles.headerSubtitle}>
+              {allResumes.length > 0
+                ? `You have ${allResumes.length} resume${allResumes.length !== 1 ? 's' : ''} — saved privately in this browser`
+                : 'Start building your professional resume — no sign-up needed'}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <button className={styles.createButton} onClick={() => navigate('/ats')}>
+              <Gauge size={17} /> ATS Checker
+            </button>
+            <button className={styles.createButton} onClick={() => setOpenCreateModal(true)}>
+              <Plus size={18} />
+              <span>Create New Resume</span>
+            </button>
+          </div>
         </div>
+
+        {/* Stats row */}
+        {!loading && allResumes.length > 0 && (
+          <div className={styles.statsRow}>
+            <div className={styles.statCard}>
+              <div className={styles.statLabel}><span className="inline-flex items-center gap-1.5"><FileText size={12} /> Resumes</span></div>
+              <div className={styles.statValue}>{allResumes.length}</div>
+            </div>
+            <div className={styles.statCard}>
+              <div className={styles.statLabel}>Avg completion</div>
+              <div className={styles.statValue}>{avgCompletion}%</div>
+            </div>
+            <div className={styles.statCard}>
+              <div className={styles.statLabel}><span className="inline-flex items-center gap-1.5"><Gauge size={12} /> Best ATS score</span></div>
+              <div className={styles.statValue}>{bestAts}</div>
+            </div>
+            <div className={styles.statCard}>
+              <div className={styles.statLabel}><span className="inline-flex items-center gap-1.5"><Clock size={12} /> Last updated</span></div>
+              <div className={`${styles.statValue} text-lg`}>
+                {lastUpdated ? new Date(lastUpdated).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <div className={styles.spinnerWrapper}>
+            <div className={styles.spinner}></div>
+          </div>
         )}
 
         {/* EMPTY STATE */}
         {!loading && allResumes.length === 0 && (
-        <div className={styles.emptyStateWrapper}>
-             <div className={styles.emptyIconWrapper}>
-                 <FilePlus size={32} className='text-violet-600'/>
-
-                <h3 className={styles.emptyTitle}>No Resumes Yet</h3>
-                <p className={styles.emptyText}>
-                You haven't created any resumes yet. Start building your professional resume to land your
-                dream job.
-                </p>
-                 <button className={styles.createButton} onClick={() => setOpenCreateModal(true)}>
-                 <div className={styles.createButtonOverlay}></div>
-                 <div className={styles.createButtonContent}>
-                     <Plus size={20} />
-                     <span>Create Your First Resume</span>
-                 </div>
-                 </button>
-
+          <div className={styles.emptyStateWrapper}>
+            <div className={styles.emptyIconWrapper}>
+              <FilePlus size={26} />
             </div>
-            </div>
+            <h3 className={styles.emptyTitle}>No Resumes Yet</h3>
+            <p className={styles.emptyText}>
+              Create your first resume in minutes — pick a template, fill in your details and
+              export a job-ready PDF. Everything stays private in your browser.
+            </p>
+            <button className={styles.createButton} onClick={() => setOpenCreateModal(true)}>
+              <Plus size={18} />
+              <span>Create Your First Resume</span>
+            </button>
+          </div>
         )}
 
         {/* GRID VIEW */}
         {!loading && allResumes.length > 0 && (
-        <div className={styles.grid}>
-             <div className={styles.newResumeCard} onClick={() => setOpenCreateModal(true)}>
-                 <div className={styles.newResumeIcon}>
-                     <Plus size={24} className="text-white" />
-                 </div>
-                 <h3 className={styles.newResumeTitle}>Create New Resume</h3>
-                 <p className={styles.newResumeText}>
-                     Start building your professional resume with our easy-to-use builder
-                 </p>
-             </div>
+          <div className={styles.grid}>
+            <div className={styles.newResumeCard} onClick={() => setOpenCreateModal(true)}>
+              <div className={styles.newResumeIcon}>
+                <Plus size={22} />
+              </div>
+              <h3 className={styles.newResumeTitle}>Create New Resume</h3>
+              <p className={styles.newResumeText}>
+                Start building your professional resume with our easy-to-use builder
+              </p>
+            </div>
 
-             {allResumes.map((resume) => (
-                <ResumeSummaryCard key={resume._id} id={resume._id} imgUrl={resume.thumbnailLink}
+            {allResumes.map((resume) => (
+              <ResumeSummaryCard key={resume._id} id={resume._id}
                 title={resume.title} createdAt={resume.createdAt} updatedAt={resume.updatedAt}
                 onSelect={() => navigate(`/resume/${resume._id}`)}
                 onDelete={() => handleDeleteClick(resume._id)}
                 completion={resume.completion || 0}
-                isPremium={resume.isPremium}
-                isNew = {moment().diff(moment(resume.createdAt), 'days') < 7 }
-                />
-             ))}
-        </div>
+                atsScore={resume.ats}
+              />
+            ))}
+          </div>
         )}
-
-            </div>
-
-
-
-             {/* CREATE MODAL */}
-             <Modal isOpen={openCreateModal} onClose={() => setOpenCreateModal(false)} hideHeader>
-                 <div className='p-6'>
-                     <div className={styles.modalHeader}>
-                         <h3 className={styles.modalTitle}>Create New Resume</h3>
-                     </div>
-                     <CreateResumeForm onSuccess={() => {
-                         setOpenCreateModal(false);
-                         fetchAllResumes();
-                     }}/>
-                 </div>
-             </Modal>
-
-
-{/* DELETE MODAL */}
-<Modal isOpen={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} title='Confirm Deletion'
-  showActionBtn actionBtnText='Delete' onActionClick={handleDeleteResume}>
-
-  <div className='p-4'>
-    <div className='flex flex-col items-center text-center'>
-      <div className={styles.deleteIconWrapper}>
-        <Trash2 className='text-orange-600' size={24} />
       </div>
 
-      <h3 className={styles.deleteTitle}>Delete Resume?</h3>
-      <p className={styles.deleteText}>
-        Are you sure you want to delete this resume? This action cannot be undone.
-      </p>
-    </div>
-  </div>
-</Modal>
+      {/* CREATE MODAL */}
+      <Modal isOpen={openCreateModal} onClose={() => setOpenCreateModal(false)} hideHeader>
+        <div className='p-2'>
+          <CreateResumeForm onSuccess={() => {
+            setOpenCreateModal(false);
+            fetchAllResumes();
+          }} />
+        </div>
+      </Modal>
 
-
-        </DashboardLayout>
-    )
+      {/* DELETE MODAL */}
+      <Modal isOpen={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} title='Confirm Deletion'
+        showActionBtn actionBtnText='Delete' onActionClick={handleDeleteResume}>
+        <div className='p-6'>
+          <div className='flex flex-col items-center text-center'>
+            <div className={styles.deleteIconWrapper}>
+              <Trash2 size={22} />
+            </div>
+            <h3 className={styles.deleteTitle}>Delete Resume?</h3>
+            <p className={styles.deleteText}>
+              Are you sure you want to delete this resume? This action cannot be undone.
+            </p>
+          </div>
+        </div>
+      </Modal>
+    </DashboardLayout>
+  )
 }
 
-export default Dashboard 
+export default Dashboard
