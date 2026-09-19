@@ -761,10 +761,11 @@ const EditResume = () => {
         element.style.height = `${Math.min(element.getBoundingClientRect().height, A4_HEIGHT_PX)}px`;
       }
 
-      await html2pdf()
+      const pdfFilename = `${(resumeData.title || "Resume").replace(/[^a-z0-9]/gi, "_")}.pdf`;
+      const pdfBlob = await html2pdf()
         .set({
           margin: 0,
-          filename: `${(resumeData.title || "Resume").replace(/[^a-z0-9]/gi, "_")}.pdf`,
+          filename: pdfFilename,
           image: { type: "jpeg", quality: 0.95 },
           html2canvas: {
             scale: 2,
@@ -782,7 +783,7 @@ const EditResume = () => {
           },
         })
         .from(element)
-        .save();
+        .outputPdf("blob");
 
       // reset the fit scaling so the hidden section stays clean for next time
       if (inner) {
@@ -790,6 +791,19 @@ const EditResume = () => {
         inner.style.transform = "";
       }
       element.style.height = "";
+
+      // trigger the browser download from the generated blob
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      const downloadAnchor = document.createElement("a");
+      downloadAnchor.href = pdfUrl;
+      downloadAnchor.download = pdfFilename;
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      setTimeout(() => URL.revokeObjectURL(pdfUrl), 3000);
+
+      // keep the generated PDF accessible (debugging / tests)
+      window.__lastResumePdf = pdfBlob;
 
       toast.success("PDF downloaded successfully — 1 page A4!", { id: toastId });
       if (appliedScale < 1) {
