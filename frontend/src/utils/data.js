@@ -2,7 +2,31 @@ import Resume1 from "../assets/Resume1.png"
 import Resume2 from "../assets/Resume2.png"
 import Resume3 from "../assets/Resume3.png"
 
+// SVG thumbnail mimicking the ATS template's layout (centered name, ruled
+// section headings, text lines) — shown first in the picker.
+const ATS_THUMBNAIL =
+  "data:image/svg+xml," +
+  encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 400'>
+  <rect width='300' height='400' fill='#ffffff'/>
+  <text x='150' y='34' text-anchor='middle' font-family='Arial' font-size='17' font-weight='700' fill='#1f1f1f'>ABHISHEK UMESH HOSAMANI</text>
+  <text x='150' y='50' text-anchor='middle' font-family='Arial' font-size='9' font-style='italic' fill='#333333'>Software Engineer • Backend Developer</text>
+  <text x='150' y='64' text-anchor='middle' font-family='Arial' font-size='8' fill='#555555'>+91 8431406956 | email | LinkedIn | GitHub | Belagavi</text>
+  ${[
+    ['PROFESSIONAL SUMMARY', 92], ['TECHNICAL SKILLS', 138], ['EXPERIENCE', 184], ['PROJECTS', 258], ['EDUCATION', 332],
+  ].map(([label, y]) => `
+    <text x='24' y='${y}' font-family='Arial' font-size='9.5' font-weight='700' fill='#1f1f1f'>${label}</text>
+    <line x1='24' y1='${y + 5}' x2='276' y2='${y + 5}' stroke='#444444' stroke-width='1.2'/>
+    ${[y + 18, y + 30, y + 42].map((ly, i) => `<rect x='24' y='${ly}' width='${i === 2 ? 140 : 236}' height='5' rx='2.5' fill='#e3e3e3'/>`).join('')}
+  `).join('')}
+  <circle cx='152' cy='115' r='2.2' fill='#999999'/>
+</svg>`)
+
 export const resumeTemplates = [
+    {
+        id: "04",
+        thumbnailImg: ATS_THUMBNAIL,
+        colorPaletteCode: "themeATS"
+    },
     {
         id: "01",
         thumbnailImg: Resume1,

@@ -1,4 +1,5 @@
 import React from 'react'
+import TemplateATS from './TemplateATS'
 import TemplateOne from './TemplateOne'
 import TemplateTwo from './TemplateTwo'
 import TemplateThree from './TemplateThree'
@@ -9,6 +10,10 @@ const RenderResume = ({
   containerWidth,
 }) => {
   switch (templateId) {
+    case "04":
+      return (
+        <TemplateATS resumeData={resumeData} containerWidth={containerWidth} />
+      )
     case "01":
       return (
         <TemplateOne resumeData={resumeData} containerWidth={containerWidth} />

@@ -19,7 +19,7 @@ function blankResume(title) {
     _id: uid(),
     title: title || 'Untitled Resume',
     thumbnailLink: '',
-    template: { theme: '01', colorPalette: [] },
+    template: { theme: "04", colorPalette: [] }, // 04 = ATS template (shown first)
     profileInfo: { profilePreviewUrl: '', fullName: '', designation: '', summary: '' },
     contactInfo: { email: '', phone: '', location: '', linkedin: '', github: '', website: '' },
     workExperience: [{ company: '', role: '', startDate: '', endDate: '', description: '' }],

@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ArrowRight, ArrowLeft, BadgeCheck, CheckCircle2, ChevronDown, FileText, Gauge,
-  Instagram, LayoutTemplate, Linkedin, Menu, MousePointerClick, PencilRuler, Sparkles, Star, X,
+  Instagram, LayoutTemplate, Linkedin, Menu, MousePointerClick, PencilRuler, Sparkles, X,
 } from 'lucide-react'
 import { resumeTemplates } from '../utils/data'
 import { scrollToTarget } from '../lib/smoothScroll'
@@ -150,8 +150,8 @@ function Hero({ onNavigate }) {
                 ))}
               </div>
               <p className="max-w-xs text-xs leading-relaxed text-ink-mute">
-                Join <span className="font-semibold text-ink">thousands of professionals</span> who
-                got hired faster with ResumeXpert — 100% free, no sign-up.
+                <span className="font-semibold text-ink">100% free — no sign-up, no tracking.</span>{" "}
+                Your data never leaves your browser.
               </p>
             </div>
           </Reveal>
@@ -202,12 +202,12 @@ function Hero({ onNavigate }) {
 // ----------------------------------------------------------------- marquee
 
 function Marquee() {
-  const items = ['PENSKE', 'VOYA', 'IBM', 'Batteries+Bulls', 'intuit', 'GRIFOLS', 'SHOPIFY', 'NOTION', 'STRIPE', 'LINEAR']
+  const items = ['Node.js', 'Docker', 'Kubernetes', 'AWS', 'Python', 'TypeScript', 'React', 'SQL', 'PostgreSQL', 'GraphQL', 'Redis', 'CI/CD', 'Microservices', 'System Design', 'Agile', 'Figma']
   const row = [...items, ...items]
   return (
     <section className="border-y border-deep/5 bg-white py-8">
       <p className="text-center text-[11px] font-bold uppercase tracking-[0.2em] text-ink-faint">
-        Our users got hired by
+        The ATS checker knows every keyword below
       </p>
       <div className="marquee-mask mt-5 overflow-hidden">
         <div className="animate-marquee flex w-max items-center gap-14 pr-14">
@@ -596,72 +596,45 @@ function Industries({ onNavigate }) {
   )
 }
 
-// ------------------------------------------------------------ testimonials
+// ----------------------------------------------------------------- feedback
 
-function Testimonials() {
-  const testimonials = [
-    {
-      quote: 'I rebuilt my resume in one sitting and the ATS checker flagged exactly what my old resume was missing. Three interviews the same week.',
-      name: 'Aarav Mehta', role: 'Backend Engineer', tint: 'bg-cream', ring: 'ring-sand',
-    },
-    {
-      quote: 'The live preview is unreal — what you see is literally the PDF. No Word, no formatting disasters, no exporting ten times.',
-      name: 'Sara Klein', role: 'Product Designer', tint: 'bg-ice', ring: 'ring-teal-100',
-    },
-    {
-      quote: 'No signup was the hook, but the keyword suggestions are what got me the job. Added the missing skills, score jumped 20 points.',
-      name: 'Rohit Sharma', role: 'Data Analyst', tint: 'bg-mint', ring: 'ring-green-100',
-    },
-  ]
+// The LinkedIn post that promotes the app — users leave feedback in its
+// comments (no accounts, no in-app review forms).
+const LINKEDIN_POST_URL = 'https://www.linkedin.com/in/abhishek-hosamani/'
+
+function Feedback() {
   return (
     <section className="bg-white py-20 sm:py-28">
       <div className="container-x">
-        <div className="text-center">
-          <Reveal><span className="eyebrow">Success stories</span></Reveal>
-          <Reveal delay={90}>
-            <h2 className="mx-auto mt-4 max-w-2xl font-display text-3xl font-bold tracking-tight text-ink sm:text-5xl">
-              Real People. Real Offers.
-            </h2>
-          </Reveal>
-        </div>
-
-        <Reveal delay={140} y={36}>
-          <div className="mx-auto mt-12 grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-4">
-            {[
-              { v: '50K+', l: 'Resumes created' },
-              { v: '4.9★', l: 'User rating' },
-              { v: '5 min', l: 'Average build time' },
-              { v: '92%', l: 'Pass ATS after check' },
-            ].map((s) => (
-              <div key={s.l} className="rounded-3xl border border-deep/8 bg-mist px-4 py-6 text-center">
-                <div className="font-display text-2xl font-bold text-ink sm:text-3xl">{s.v}</div>
-                <div className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-ink-faint">{s.l}</div>
-              </div>
-            ))}
+        <Reveal>
+          <div className="relative mx-auto max-w-3xl overflow-hidden rounded-[28px] bg-ice px-6 py-12 text-center shadow-[var(--shadow-soft)] sm:px-12">
+            <div className="glow-blob left-1/4 top-0 h-56 w-56" />
+            <div className="relative">
+              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-[var(--shadow-glow)]">
+                <Linkedin size={20} />
+              </span>
+              <span className="eyebrow mt-5">Feedback</span>
+              <h2 className="font-display mx-auto mt-3 max-w-xl text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+                Help Us Build a Better Resume Builder
+              </h2>
+              <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-ink-mute sm:text-base">
+                ResumeXpert has no accounts and no tracking — so our feedback lives where the
+                community is. Drop a comment on our LinkedIn post: what you loved, what broke,
+                and what you want next.
+              </p>
+              <a
+                href={LINKEDIN_POST_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-blue mt-7 px-7 py-3.5 text-base"
+              >
+                <Linkedin size={17} /> Give Feedback on LinkedIn
+                <ArrowRight size={16} />
+              </a>
+              <p className="mt-3 text-[11px] text-ink-faint">Opens in a new tab — every comment shapes the next update.</p>
+            </div>
           </div>
         </Reveal>
-
-        <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
-          {testimonials.map((t, i) => (
-            <Reveal key={t.name} delay={i * 130} y={34}>
-              <div className={`flex h-full flex-col rounded-[28px] ${t.tint} p-7 shadow-[var(--shadow-soft)] transition-transform duration-300 hover:-translate-y-1.5`}>
-                <div className="flex gap-1 text-amber-500">
-                  {Array.from({ length: 5 }).map((_, j) => <Star key={j} size={14} fill="currentColor" />)}
-                </div>
-                <p className="mt-4 flex-1 text-sm leading-relaxed text-ink-soft">“{t.quote}”</p>
-                <div className="mt-6 flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-deep text-sm font-bold text-white">
-                    {t.name.charAt(0)}
-                  </span>
-                  <div>
-                    <div className="text-sm font-bold text-ink">{t.name}</div>
-                    <div className="text-xs text-ink-mute">{t.role}</div>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
       </div>
     </section>
   )
@@ -795,9 +768,12 @@ function DarkCta({ onNavigate }) {
           </div>
         </Reveal>
         <Reveal delay={350}>
-          <div className="mt-9 flex items-center justify-center gap-1.5 text-amber-400">
-            {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={15} fill="currentColor" />)}
-            <span className="ml-2 text-xs font-medium text-white/50">Loved by professionals worldwide</span>
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-medium text-white/50">
+            <span>Free forever</span>
+            <span className="text-white/20">•</span>
+            <span>No sign-up</span>
+            <span className="text-white/20">•</span>
+            <span>100% private — data stays in your browser</span>
           </div>
         </Reveal>
       </div>
@@ -981,7 +957,7 @@ export default function LandingPage() {
         <Templates onNavigate={onNavigate} />
         <Industries onNavigate={onNavigate} />
         <AtsSection onNavigate={onNavigate} />
-        <Testimonials />
+        <Feedback />
         <DarkCta onNavigate={onNavigate} />
         <Faq />
       </main>
