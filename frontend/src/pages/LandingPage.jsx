@@ -7,6 +7,7 @@ import {
 import { resumeTemplates } from '../utils/data'
 import { scrollToTarget } from '../lib/smoothScroll'
 import Reveal from '../components/Reveal'
+import mascotVideo from '../assets/mascot.mp4'
 
 const LOGO = (
   <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink text-white">
@@ -93,10 +94,24 @@ function Navbar({ onNavigate }) {
 
 // ------------------------------------------------------------------- hero
 
-function ResumeMockCard({ src, className = '', style }) {
+function ResumeMockCard({ src, className = '', style, showMascot = false }) {
   return (
-    <div className={`overflow-hidden rounded-2xl border border-deep/8 bg-white shadow-[var(--shadow-lift)] p-1.5 ${className}`} style={style}>
+    <div className={`relative overflow-hidden rounded-2xl border border-deep/8 bg-white shadow-[var(--shadow-lift)] p-1.5 ${className}`} style={style}>
       <img src={src} alt="Resume template preview" className="w-full aspect-[210/297] object-contain bg-white rounded-lg" />
+      {showMascot && (
+        <div className="absolute top-0 right-0 z-20 pointer-events-none select-none">
+          <video
+            src={mascotVideo}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 object-contain border-0 shadow-none outline-none ring-0 bg-transparent"
+            title="AI Mascot crafting resume"
+            aria-label="AI Mascot crafting resume"
+          />
+        </div>
+      )}
     </div>
   )
 }
@@ -162,7 +177,7 @@ function Hero({ onNavigate }) {
           <div className="glow-blob left-1/2 top-1/2 h-[380px] w-[380px]" />
           <div className="relative px-6 sm:px-10">
             <div data-parallax="0.06">
-              <ResumeMockCard src={resumeTemplates[0].thumbnailImg} className="-rotate-3" />
+              <ResumeMockCard src={resumeTemplates[0].thumbnailImg} className="-rotate-3" showMascot={true} />
             </div>
             <div data-parallax="-0.1" className="absolute -bottom-12 right-0 w-44 sm:w-56">
               <ResumeMockCard src={resumeTemplates[1].thumbnailImg} className="rotate-3" />
