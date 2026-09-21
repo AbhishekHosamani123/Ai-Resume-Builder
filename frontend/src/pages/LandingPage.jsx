@@ -1122,19 +1122,18 @@ function Footer({ onNavigate }) {
       links: [
         { label: 'Help Center', action: () => onNavigate('#faq') },
         { label: 'FAQ', action: () => onNavigate('#faq') },
-        { label: 'Contact Us', action: () => { window.location.href = 'mailto:abhishekhosamani522@gmail.com' } },
+        { label: 'Terms of Service', action: () => onNavigate('/') },
+        { label: 'Privacy Policy', action: () => onNavigate('/') },
+        { label: 'Cookie Settings', action: () => onNavigate('/') },
       ],
     },
   ]
 
   return (
     <footer className="relative border-t border-slate-200/80 bg-white overflow-hidden">
-      {/* Very subtle ambient gradient glow on the right */}
-      <div className="pointer-events-none absolute right-0 bottom-0 h-96 w-96 rounded-full bg-gradient-to-tl from-sky-100/50 via-blue-50/30 to-transparent blur-3xl -z-10" />
-
       {/* Expanded Full-Width Footer Container */}
       <div className="w-full pl-6 sm:pl-10 lg:pl-12 xl:pl-16 pr-0 pt-10 sm:pt-12 pb-0">
-        <div className="flex flex-col lg:flex-row items-end justify-between gap-10 xl:gap-14">
+        <div className="flex flex-col lg:flex-row items-end justify-between gap-8 xl:gap-12">
           
           {/* LEFT & CENTER: Brand, Tagline, Socials & Navigation Columns */}
           <div className="w-full lg:flex-1 grid grid-cols-1 md:grid-cols-[1.1fr_2.2fr] xl:grid-cols-[1.15fr_2.4fr] gap-8 xl:gap-12 items-start self-start pt-3 pr-6 sm:pr-10 lg:pr-6">
@@ -1194,69 +1193,99 @@ function Footer({ onNavigate }) {
 
           </div>
 
-          {/* RIGHT CORNER: Developer Visual docked at the far right of the website */}
+          {/* RIGHT CORNER: Decorative Developer-Photo Composition (Matching Reference Exactly) */}
           <div className="relative flex flex-col items-center lg:items-end justify-end self-end shrink-0 w-full sm:w-auto lg:pr-6 xl:pr-10 select-none mt-10 lg:mt-0">
             
-            {/* Unified Visual Container */}
-            <div className="relative flex items-end justify-center w-[300px] sm:w-[360px] lg:w-[410px]">
+            {/* Visual Wrapper */}
+            <div className="relative flex items-end justify-center w-[320px] sm:w-[380px] lg:w-[420px] pb-2">
               
-              {/* Perfectly Centered Symmetrical Sky-Blue Dome Backdrop */}
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[330px] sm:w-[400px] lg:w-[450px] h-[265px] sm:h-[310px] lg:h-[345px] rounded-t-[165px] sm:rounded-t-[200px] lg:rounded-t-[225px] bg-gradient-to-b from-[#bae6fd]/90 via-[#e0f2fe]/70 to-[#f0f9ff]/30 pointer-events-none z-0" />
+              {/* Soft Abstract Light-Blue Organic/Blob Background */}
+              <div className="absolute bottom-0 right-0 z-0 w-[420px] sm:w-[480px] lg:w-[500px] h-[330px] sm:h-[370px] pointer-events-none overflow-hidden">
+                <svg className="w-full h-full" viewBox="0 0 500 370" fill="none">
+                  <defs>
+                    <linearGradient id="refOrganicBlob" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#e0f2fe" stopOpacity="0.95" />
+                      <stop offset="50%" stopColor="#bae6fd" stopOpacity="0.85" />
+                      <stop offset="100%" stopColor="#dbeafe" stopOpacity="0.95" />
+                    </linearGradient>
+                  </defs>
+                  {/* Organic curved blob matching the reference silhouette */}
+                  <path
+                    d="M 20 370 C 5 280, 50 200, 130 155 C 200 115, 250 50, 345 42 C 430 35, 495 80, 500 175 C 505 255, 495 330, 500 370 Z"
+                    fill="url(#refOrganicBlob)"
+                  />
+                </svg>
+              </div>
 
-              {/* Top-Left Handwritten Element: Built with ♥ by me + curved arrow pointing to Abhishek */}
-              <div className="absolute top-5 -left-10 sm:-left-14 lg:-left-16 z-20 pointer-events-none select-none">
-                <div className="font-['Caveat',cursive] -rotate-6 text-[#0284c7] text-lg sm:text-xl font-bold leading-[1.08] text-center drop-shadow-2xs">
+              {/* Above and slightly left of the photo: Handwritten text + curved arrow */}
+              <div className="absolute top-8 left-1 sm:left-4 lg:left-6 z-20 pointer-events-none select-none">
+                <div className="font-['Caveat',cursive] -rotate-[8deg] text-[#0284c7] text-2xl sm:text-[27px] font-bold leading-[1.08] text-left drop-shadow-2xs">
                   <div>Built</div>
-                  <div className="flex items-center justify-center gap-1">
+                  <div className="flex items-center gap-1">
                     <span>with</span>
-                    <span className="text-[#0284c7] text-sm">♥</span>
+                    <span className="text-[#0284c7] text-lg leading-none">♥</span>
                   </div>
                   <div>by me</div>
                 </div>
-                {/* Curved arrow pointing down & right toward Abhishek */}
+                
+                {/* Thin curved blue hand-drawn arrow underneath text, curving down and right towards Abhishek */}
                 <svg
-                  className="w-9 h-9 text-[#0284c7] -rotate-12 translate-x-5 translate-y-0.5"
-                  viewBox="0 0 36 36"
+                  className="w-12 h-10 text-[#38bdf8] translate-x-3 translate-y-1"
+                  viewBox="0 0 54 42"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <path d="M8 8 C 6 22, 14 26, 28 24" />
-                  <path d="M22 20 L 28 24 L 22 28" />
+                  <path d="M 6 4 C 6 18, 14 32, 34 30 C 42 29, 48 26, 51 22" />
+                  <path d="M 42 16 L 51 22 L 43 27" />
                 </svg>
               </div>
 
-              {/* Top-Right 3 Radiating Rays (Radiating outward from top-right of head) */}
-              <div className="absolute top-5 right-8 sm:right-12 lg:right-14 z-20 pointer-events-none select-none">
+              {/* Near top-right of head: Exactly 3 short blue hand-drawn accent lines angled outward like small rays */}
+              <div className="absolute top-6 right-8 sm:right-12 lg:right-14 z-20 pointer-events-none select-none">
                 <svg
-                  className="w-9 h-9 text-[#38bdf8]"
-                  viewBox="0 0 36 36"
+                  className="w-10 h-10 text-[#38bdf8]"
+                  viewBox="0 0 40 40"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2.4"
                   strokeLinecap="round"
                 >
-                  <line x1="8" y1="28" x2="2" y2="18" />
-                  <line x1="18" y1="24" x2="18" y2="10" />
-                  <line x1="28" y1="28" x2="34" y2="20" />
+                  {/* Ray 1: steep angle */}
+                  <line x1="12" y1="32" x2="6" y2="20" />
+                  {/* Ray 2: diagonal ~45° */}
+                  <line x1="22" y1="26" x2="34" y2="14" />
+                  {/* Ray 3: gentle angle ~15° */}
+                  <line x1="24" y1="34" x2="38" y2="30" />
                 </svg>
               </div>
 
-              {/* Developer Portrait - Clickable to LinkedIn, Touching Bottom Divider Line */}
+              {/* Clean Cutout Developer Photo - Partially overlapping the organic background */}
+              <div className="relative z-10 w-full flex items-end justify-center">
+                <img
+                  src={abhishekImg}
+                  alt="Abhishek Hosamani"
+                  className="w-full h-auto object-contain object-bottom drop-shadow-sm"
+                />
+              </div>
+
+              {/* Compact Name Badge (as shown in reference screenshot) */}
               <a
                 href="https://www.linkedin.com/in/abhishek-hosamani/"
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Connect with Abhishek Hosamani on LinkedIn"
-                className="relative z-10 w-full flex items-end justify-center group cursor-pointer block"
+                className="absolute -bottom-1 right-2 sm:right-6 lg:right-8 z-20 rounded-2xl border border-slate-200/90 bg-white/95 backdrop-blur-md px-4 py-2.5 shadow-[0_10px_25px_-5px_rgba(15,23,42,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-[#0284c7]/40 block text-left"
               >
-                <img
-                  src={abhishekImg}
-                  alt="Abhishek Hosamani"
-                  className="w-full h-auto object-contain object-bottom drop-shadow-md transition-all duration-300 group-hover:scale-[1.02] group-hover:drop-shadow-lg"
-                />
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs sm:text-[13px] font-bold text-slate-900 tracking-tight">Abhishek Hosamani</span>
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#10b981] shrink-0" />
+                </div>
+                <div className="mt-0.5 text-[11px] text-slate-500 font-medium">
+                  Full Stack Developer
+                </div>
               </a>
 
             </div>
