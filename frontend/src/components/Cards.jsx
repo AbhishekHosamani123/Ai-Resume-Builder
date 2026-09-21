@@ -132,7 +132,7 @@ export const TemplateCard = ({
 }) => {
   return (
     <div
-      className={`${styles.templateCard} ${isSelected ? styles.templateCardSelected : styles.templateCardDefault} flex flex-col relative group`}
+      className={`${styles.templateCard} ${isSelected ? styles.templateCardSelected : styles.templateCardDefault} min-h-[300px] flex flex-col relative group`}
       onClick={() => onSelect && onSelect()}
     >
       {isSelected && (
@@ -153,8 +153,12 @@ export const TemplateCard = ({
       )}
 
       {thumbnailImg ? (
-        <div className={styles.templateDesign}>
-          <img src={thumbnailImg} alt={name || "Template preview"} className="h-full w-full object-cover object-top" />
+        <div className="template-card-preview">
+          <img
+            src={thumbnailImg}
+            alt={name || "Template preview"}
+            loading="lazy"
+          />
           <div className={styles.templateHoverEffect} />
         </div>
       ) : (

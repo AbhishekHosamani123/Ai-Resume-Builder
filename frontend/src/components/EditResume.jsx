@@ -933,7 +933,8 @@ const EditResume = () => {
   // trimming — 1 page is the industry standard and many ATS auto-reject
   // multi-page resumes — then let the user decide.
   const downloadPDF = async () => {
-    if (pageCount > 1) {
+    // If redirected via autoDownload, proceed directly so user gets their file
+    if (pageCount > 1 && searchParams.get("autoDownload") !== "true") {
       setShowOversizeDialog(true);
       return;
     }
@@ -993,10 +994,21 @@ const EditResume = () => {
     return () => clearTimeout(timeoutId)
   }, [resumeData])
 
-  // Auto-open preview modal if redirected with ?autoDownload=true
+  // Auto-download when redirected with ?autoDownload=true from Dashboard
+  const hasAutoDownloadedRef = useRef(false);
   useEffect(() => {
-    if (searchParams.get("autoDownload") === "true" && resumeData?.title && !isLoading) {
+    if (
+      searchParams.get("autoDownload") === "true" &&
+      resumeData?.title &&
+      !isLoading &&
+      !hasAutoDownloadedRef.current
+    ) {
+      hasAutoDownloadedRef.current = true;
       setOpenPreviewModal(true);
+      const timer = setTimeout(() => {
+        downloadPDF();
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [searchParams, resumeData?.title, isLoading]);
 
@@ -1234,7 +1246,7 @@ const EditResume = () => {
 
 
         {/* MODAL DATA HERE */}
-        <Modal isOpen={openThemeSelector} onClose={() => setOpenThemeSelector(false)} title="Change Title">
+        <Modal isOpen={openThemeSelector} onClose={() => setOpenThemeSelector(false)} title="Select Template & Theme">
         <div className={containerStyles.modalContent}>
             <ThemeSelector
             selectedTheme={resumeData?.template.theme}

@@ -171,7 +171,7 @@ const DITTO_THUMBNAIL = createSvgThumbnail(`<svg xmlns='http://www.w3.org/2000/s
   <text x='150' y='58' text-anchor='middle' font-family='Arial' font-size='7' fill='#64748b'>alex@example.com • (555) 123-4567 • San Francisco, CA • linkedin/alexjohnson</text>
   <line x1='24' y1='66' x2='276' y2='66' stroke='#cbd5e1' stroke-width='1'/>
   ${[
-    ['PROFESSIONAL SUMMARY', 84], ['EXPERIENCE', 134], ['EDUCATION', 244], ['SKILLS & TOOLS', 312],
+    ['PROFESSIONAL SUMMARY', 84], ['EXPERIENCE', 134], ['EDUCATION', 244], ['SKILLS &amp; TOOLS', 312],
   ].map(([label, y]) => `
     <text x='24' y='${y}' font-family='Arial' font-size='8.5' font-weight='bold' fill='#0f172a'>${label}</text>
     <line x1='24' y1='${y + 4}' x2='276' y2='${y + 4}' stroke='#cbd5e1' stroke-width='0.8'/>
@@ -342,7 +342,7 @@ const ONYX_THUMBNAIL = createSvgThumbnail(`<svg xmlns='http://www.w3.org/2000/sv
   <circle cx='258' cy='36' r='18' fill='#0f172a'/>
   <line x1='20' y1='60' x2='280' y2='60' stroke='#0f172a' stroke-width='2.5'/>
   ${[
-    ['EXECUTIVE SUMMARY', 84], ['WORK EXPERIENCE', 134], ['EDUCATION & CREDENTIALS', 260],
+    ['EXECUTIVE SUMMARY', 84], ['WORK EXPERIENCE', 134], ['EDUCATION &amp; CREDENTIALS', 260],
   ].map(([label, y]) => `
     <text x='20' y='${y}' font-family='Arial' font-size='8.5' font-weight='black' fill='#0f172a'>${label}</text>
     <line x1='20' y1='${y + 4}' x2='280' y2='${y + 4}' stroke='#0f172a' stroke-width='1'/>
@@ -365,7 +365,7 @@ const PIKACHU_THUMBNAIL = createSvgThumbnail(`<svg xmlns='http://www.w3.org/2000
     <rect x='20' y='${y + 8}' width='50' height='4' rx='2' fill='#ca8a04'/>
     <rect x='20' y='${y + 16}' width='150' height='4' rx='2' fill='#64748b'/>
   `).join('')}
-  <text x='195' y='96' font-family='Arial' font-size='8.5' font-weight='black' fill='#0f172a'>SKILLS & TOOLS</text>
+  <text x='195' y='96' font-family='Arial' font-size='8.5' font-weight='black' fill='#0f172a'>SKILLS &amp; TOOLS</text>
   ${[112, 125, 138, 151, 164].map((y) => `<rect x='195' y='${y}' width='75' height='9' rx='2' fill='#fef9c3' stroke='#fde047'/>`).join('')}
 </svg>`);
 
@@ -373,7 +373,7 @@ const PIKACHU_THUMBNAIL = createSvgThumbnail(`<svg xmlns='http://www.w3.org/2000
 const RHYHORN_THUMBNAIL = createSvgThumbnail(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 400'>
   <rect width='300' height='400' fill='#ffffff'/>
   <text x='20' y='36' font-family='Arial' font-size='16' font-weight='black' fill='#1e293b'>ALEX JOHNSON</text>
-  <text x='20' y='50' font-family='Arial' font-size='8.5' font-weight='black' fill='#475569'>INFRASTRUCTURE & DEVOPS</text>
+  <text x='20' y='50' font-family='Arial' font-size='8.5' font-weight='black' fill='#475569'>INFRASTRUCTURE &amp; DEVOPS</text>
   <rect x='240' y='20' width='36' height='36' rx='4' fill='#334155'/>
   <line x1='20' y1='62' x2='280' y2='62' stroke='#334155' stroke-width='3'/>
   <!-- Solid gray block headers -->
@@ -503,7 +503,7 @@ const SHANIDHYA_EXECUTIVE_THUMBNAIL = createSvgThumbnail(`<svg xmlns='http://www
   <!-- Top Executive Navy Banner -->
   <rect x='0' y='0' width='300' height='62' fill='#1e3a8a'/>
   <text x='24' y='32' font-family='Georgia, serif' font-size='16' font-weight='bold' fill='#ffffff'>Alex Johnson</text>
-  <text x='24' y='48' font-family='Arial' font-size='8.5' font-weight='600' letter-spacing='1' fill='#fbbf24'>SENIOR SOFTWARE DEVELOPER & ARCHITECT</text>
+  <text x='24' y='48' font-family='Arial' font-size='8.5' font-weight='600' letter-spacing='1' fill='#fbbf24'>SENIOR SOFTWARE DEVELOPER &amp; ARCHITECT</text>
   <!-- Contact row -->
   <rect x='0' y='62' width='300' height='18' fill='#f8fafc'/>
   <line x1='0' y1='80' x2='300' y2='80' stroke='#e2e8f0' stroke-width='1'/>

@@ -90,10 +90,10 @@ export const cardStyles = {
 
   atsBadge: "inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-bold text-brand-700",
 
-  templateCard: "relative overflow-hidden rounded-2xl border border-line bg-white shadow-[var(--shadow-soft)] transition-all duration-200 cursor-pointer hover:shadow-[var(--shadow-lift)]",
-  templateCardSelected: "ring-2 ring-brand-600",
+  templateCard: "relative flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-[var(--shadow-soft)] transition-all duration-200 cursor-pointer hover:shadow-[var(--shadow-lift)] hover:-translate-y-0.5",
+  templateCardSelected: "ring-2 ring-brand-600 shadow-[var(--shadow-lift)]",
   templateCardDefault: "hover:border-brand-200",
-  templateDesign: "relative aspect-[4/5] h-full w-full",
+  templateDesign: "relative h-56 w-full bg-slate-100/70 overflow-hidden flex items-center justify-center p-2 border-b border-slate-100",
   templateOverlay: "absolute inset-0 bg-white/10",
   selectionIndicator: "absolute right-3 top-3 z-20",
   selectionCircle: "flex h-7 w-7 items-center justify-center rounded-full bg-brand-600 shadow-md",

@@ -51,6 +51,37 @@ const ThemeSelector = ({ selectedTheme, setSelectedTheme, resumeData, onClose })
 
   const currentTemplate = resumeTemplates.find((t) => t.id === selectedThemeId)
 
+  // Ensure the full template preview is visible from header to footer.
+  // If the user's resume currently has empty sections while they are still filling it out,
+  // gracefully fall back to sample content for those missing sections.
+  const previewData = useMemo(() => {
+    if (!resumeData) return DUMMY_RESUME_DATA
+    const hasName = Boolean(resumeData.profileInfo?.fullName?.trim())
+    const hasExp = resumeData.workExperience?.some((w) => (w.company || w.role || w.description)?.trim())
+    const hasEdu = resumeData.education?.some((e) => (e.institution || e.degree)?.trim())
+    const hasSkills = resumeData.skills?.some((s) => (s.name || (typeof s === 'string' && s))?.trim())
+    const hasProjects = resumeData.projects?.some((p) => p.title?.trim())
+    const hasCerts = resumeData.certifications?.some((c) => c.title?.trim())
+
+    return {
+      ...DUMMY_RESUME_DATA,
+      ...resumeData,
+      profileInfo: {
+        ...DUMMY_RESUME_DATA.profileInfo,
+        ...(hasName ? resumeData.profileInfo : {}),
+      },
+      contactInfo: {
+        ...DUMMY_RESUME_DATA.contactInfo,
+        ...(resumeData.contactInfo?.email ? resumeData.contactInfo : {}),
+      },
+      workExperience: hasExp ? resumeData.workExperience : DUMMY_RESUME_DATA.workExperience,
+      education: hasEdu ? resumeData.education : DUMMY_RESUME_DATA.education,
+      skills: hasSkills ? resumeData.skills : DUMMY_RESUME_DATA.skills,
+      projects: hasProjects ? resumeData.projects : DUMMY_RESUME_DATA.projects,
+      certifications: hasCerts ? resumeData.certifications : DUMMY_RESUME_DATA.certifications,
+    }
+  }, [resumeData])
+
   return (
     <div className='max-w-7xl mx-auto px-4'>
       {/* Header */}
@@ -172,7 +203,7 @@ const ThemeSelector = ({ selectedTheme, setSelectedTheme, resumeData, onClose })
           <div className="overflow-auto max-h-[75vh] flex justify-center bg-slate-50/50 p-2 rounded-xl">
             <RenderResume
               templateId={selectedThemeId}
-              resumeData={resumeData || DUMMY_RESUME_DATA}
+              resumeData={previewData}
               containerWidth={baseWidth}
             />
           </div>
