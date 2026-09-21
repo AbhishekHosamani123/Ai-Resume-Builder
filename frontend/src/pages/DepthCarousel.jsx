@@ -18,20 +18,20 @@ const EASING_MAP = {
 }
 
 /**
- * DepthCarousel - 3D fanned depth stack carousel
- * Cards recede into 3D perspective along a depth rail with configurable
- * tilt, spread, falloff tint, blur, controls, and indicators.
+ * DepthCarousel - Bilateral 3D Depth Carousel
+ * Displays the active card in the center with sharp, clearly readable
+ * template cards visible on both the left and right sides.
  */
 export default function DepthCarousel({
   items = [],
-  depth = 220,
-  spread = 90,
-  tilt = 22,
-  tiltDirection = 'right',
+  depth = 180,
+  spread = 150,
+  tilt = 20,
+  tiltDirection = 'both',
   perspective = 1400,
-  visibleCards = 4,
-  falloff = 0.2,
-  blur = 6,
+  visibleCards = 3,
+  falloff = 0.15,
+  blur = 0,
   autoplay = false,
   loop = true,
   cardWidth = 300,
@@ -70,9 +70,10 @@ export default function DepthCarousel({
 
   // Responsive scale down on small viewports so 3D fanning never overflows
   const responsiveScale = useMemo(() => {
-    if (containerWidth < 400) return 0.78
-    if (containerWidth < 640) return 0.88
-    if (containerWidth < 768) return 0.95
+    if (containerWidth < 380) return 0.62
+    if (containerWidth < 480) return 0.72
+    if (containerWidth < 640) return 0.82
+    if (containerWidth < 768) return 0.9
     return 1
   }, [containerWidth])
 
@@ -80,6 +81,13 @@ export default function DepthCarousel({
   const effectiveCardHeight = Math.round(cardHeight * responsiveScale)
   const effectiveSpread = Math.round(spread * responsiveScale)
   const effectiveDepth = Math.round(depth * responsiveScale)
+
+  // Clamp visible cards on very narrow mobile screens
+  const effectiveVisibleCards = useMemo(() => {
+    if (containerWidth < 480) return Math.min(visibleCards, 1)
+    if (containerWidth < 768) return Math.min(visibleCards, 2)
+    return visibleCards
+  }, [containerWidth, visibleCards])
 
   // Clamp active index if items change
   useEffect(() => {
@@ -128,7 +136,7 @@ export default function DepthCarousel({
   const handlePointerUp = (clientX) => {
     if (!isDragging.current || dragStartX.current === null) return
     const deltaX = clientX - dragStartX.current
-    if (Math.abs(deltaX) > 45) {
+    if (Math.abs(deltaX) > 40) {
       if (deltaX < 0) {
         goToNext()
       } else {
@@ -140,12 +148,6 @@ export default function DepthCarousel({
   }
 
   const resolvedEase = EASING_MAP[ease] || ease || 'cubic-bezier(0.215, 0.61, 0.355, 1)'
-  const dirMultiplier = tiltDirection === 'left' ? -1 : 1
-
-  // Center alignment offset:
-  // Since cards fan towards one side, offset the active card slightly opposite
-  // so the overall stack visual center remains centered in the container.
-  const visualCenterOffset = -dirMultiplier * Math.round(Math.min(visibleCards, Math.max(total, 1) - 1) * effectiveSpread * 0.36)
 
   if (total === 0) {
     return (
@@ -175,30 +177,31 @@ export default function DepthCarousel({
       onMouseDown={(e) => handlePointerDown(e.clientX)}
       onMouseUp={(e) => handlePointerUp(e.clientX)}
     >
-      {/* 3D Scene Rail */}
+      {/* 3D Scene Rail - Centered for bilateral presentation */}
       <div
         className="relative flex-1 w-full flex items-center justify-center"
         style={{
           transformStyle: 'preserve-3d',
-          transform: `translateX(${visualCenterOffset}px)`,
           transition: `transform ${duration}ms ${resolvedEase}`
         }}
       >
         {items.map((item, index) => {
-          // Calculate relative position to active index
+          // Calculate relative position to active index with circular shortest-path
           let diff = index - activeIndex
           if (loop && total > 2) {
-            // Shortest path around circular array
-            if (diff > total / 2) diff -= total
-            if (diff < -total / 2) diff += total
+            while (diff > total / 2) diff -= total
+            while (diff < -total / 2) diff += total
           }
 
-          // Check if this card is visible
-          const isReceding = diff >= 0 && diff < visibleCards
-          const isExiting = diff === -1 || (diff < 0 && Math.abs(diff) < 2)
-          const isVisible = isReceding || isExiting
+          const absDiff = Math.abs(diff)
+          const sign = Math.sign(diff)
+          const isVisible = absDiff <= effectiveVisibleCards
+          const isActive = diff === 0
 
-          // Card transformation calculations
+          // Bilateral 3D transformations:
+          // Left side (sign < 0): negative X, positive rotateY (angled inward)
+          // Center (diff === 0): X=0, rotateY=0, full focus
+          // Right side (sign > 0): positive X, negative rotateY (angled inward)
           let translateX = 0
           let translateY = 0
           let translateZ = 0
@@ -208,8 +211,8 @@ export default function DepthCarousel({
           let tintOpacity = 0
           let zIndex = 1
 
-          if (diff === 0) {
-            // Front active card
+          if (isActive) {
+            // Center active card
             translateX = 0
             translateY = 0
             translateZ = 0
@@ -217,55 +220,44 @@ export default function DepthCarousel({
             opacity = 1
             blurPx = 0
             tintOpacity = 0
-            zIndex = visibleCards + 10
-          } else if (isReceding) {
-            // Cards receding into depth
-            translateX = dirMultiplier * diff * effectiveSpread
+            zIndex = effectiveVisibleCards * 2 + 10
+          } else if (isVisible) {
+            // Symmetrical side cards on left and right
+            translateX = sign * absDiff * effectiveSpread
             translateY = 0
-            translateZ = -diff * effectiveDepth
-            rotateYDeg = -dirMultiplier * tilt
-            opacity = Math.max(0.12, 1 - diff * falloff)
-            blurPx = Math.min(diff * blur, 16)
-            tintOpacity = Math.min(0.85, diff * falloff)
-            zIndex = visibleCards - diff + 2
-          } else if (isExiting) {
-            // Card currently transitioning off to the side/past viewer
-            translateX = -dirMultiplier * effectiveSpread * 1.2
-            translateY = 0
-            translateZ = Math.round(effectiveDepth * 0.25)
-            rotateYDeg = dirMultiplier * 14
-            opacity = 0
-            blurPx = blur
-            tintOpacity = 0.5
-            zIndex = visibleCards + 8
+            translateZ = -absDiff * effectiveDepth
+            rotateYDeg = -sign * tilt
+            opacity = Math.max(0.35, 1 - absDiff * falloff)
+            // Zero blur so template designs and text are completely sharp and readable!
+            blurPx = blur > 0 ? Math.min(absDiff * blur, 4) : 0
+            tintOpacity = Math.min(0.18, absDiff * (falloff * 0.4))
+            zIndex = effectiveVisibleCards * 2 - absDiff
           } else {
-            // Deeply hidden cards
-            translateX = dirMultiplier * visibleCards * effectiveSpread
+            // Hidden cards beyond visible range
+            translateX = sign * (effectiveVisibleCards + 1) * effectiveSpread
             translateY = 0
-            translateZ = -(visibleCards + 1) * effectiveDepth
-            rotateYDeg = -dirMultiplier * tilt
+            translateZ = -(effectiveVisibleCards + 1) * effectiveDepth
+            rotateYDeg = -sign * tilt
             opacity = 0
-            blurPx = 16
-            tintOpacity = 0.9
+            blurPx = 0
+            tintOpacity = 0.4
             zIndex = 0
           }
-
-          const isActive = diff === 0
 
           return (
             <div
               key={item.id || index}
-              onClick={(e) => {
+              onClick={() => {
                 if (!isDragging.current) {
                   if (isActive) {
                     if (onCardClick) onCardClick(item, index)
                     else if (item.onClick) item.onClick()
-                  } else if (isReceding) {
+                  } else if (isVisible) {
                     setActiveIndex(index)
                   }
                 }
               }}
-              className={`group absolute top-1/2 left-1/2 cursor-pointer ${
+              className={`group absolute top-1/2 left-1/2 cursor-pointer transition-shadow ${
                 isActive ? 'cursor-pointer' : 'cursor-pointer hover:brightness-105'
               }`}
               style={{
@@ -276,35 +268,39 @@ export default function DepthCarousel({
                 borderRadius: `${radius}px`,
                 zIndex,
                 opacity: isVisible ? opacity : 0,
-                pointerEvents: isVisible && (isActive || isReceding) ? 'auto' : 'none',
+                pointerEvents: isVisible ? 'auto' : 'none',
                 transformStyle: 'preserve-3d',
+                WebkitBackfaceVisibility: 'hidden',
+                backfaceVisibility: 'hidden',
+                willChange: 'transform, opacity',
                 transform: `translate3d(${translateX}px, ${translateY}px, ${translateZ}px) rotateY(${rotateYDeg}deg)`,
                 filter: blurPx > 0 ? `blur(${blurPx}px)` : 'none',
                 transition: `transform ${duration}ms ${resolvedEase}, opacity ${duration}ms ${resolvedEase}, filter ${duration}ms ${resolvedEase}`
               }}
             >
-              {/* Card Container with Shadow and Border */}
+              {/* Card Container with Crisp Elevation and Border */}
               <div
                 className={`relative w-full h-full overflow-hidden bg-white border border-slate-200/90 transition-all duration-300 ${
                   isActive
-                    ? 'shadow-[0_22px_45px_-12px_rgba(15,23,42,0.22),0_4px_16px_-2px_rgba(15,23,42,0.12)] ring-2 ring-brand-500/80'
-                    : 'shadow-[0_12px_28px_-8px_rgba(15,23,42,0.18)]'
+                    ? 'shadow-[0_24px_50px_-12px_rgba(15,23,42,0.25),0_4px_16px_-2px_rgba(15,23,42,0.12)] ring-2 ring-brand-500/85'
+                    : 'shadow-[0_12px_32px_-8px_rgba(15,23,42,0.18)]'
                 }`}
                 style={{ borderRadius: `${radius}px` }}
               >
-                {/* Template Image Preview */}
-                <div className="relative w-full h-full bg-slate-50 flex items-center justify-center p-3 sm:p-3.5">
+                {/* Template Image Preview (Crisp & High-Res) */}
+                <div className="relative w-full h-full bg-slate-50 flex items-center justify-center p-2.5 sm:p-3.5">
                   <img
                     src={item.image}
                     alt={item.alt || item.title || `Template ${index + 1}`}
                     className="w-full h-full object-contain rounded-md bg-white shadow-xs pointer-events-none"
+                    style={{ imageRendering: 'auto' }}
                     loading="lazy"
                   />
 
                   {/* ATS Score Badge (if present) */}
                   {item.atsScore && (
-                    <div className="absolute top-3 right-3 z-10">
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-sm tracking-wide">
+                    <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10">
+                      <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 sm:px-2 rounded-full bg-emerald-600 text-white shadow-sm tracking-wide">
                         <Check size={10} strokeWidth={2.5} /> ATS {item.atsScore}
                       </span>
                     </div>
@@ -312,33 +308,33 @@ export default function DepthCarousel({
 
                   {/* Layout / Category Badge */}
                   {(item.layoutType || item.category) && (
-                    <div className="absolute top-3 left-3 z-10">
-                      <span className="inline-flex items-center text-[9px] font-semibold px-2 py-0.5 rounded-full bg-white/90 text-slate-700 shadow-xs border border-slate-200/60 backdrop-blur-xs">
+                    <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-10">
+                      <span className="inline-flex items-center text-[8px] sm:text-[9px] font-semibold px-1.5 py-0.5 sm:px-2 rounded-full bg-white/95 text-slate-700 shadow-xs border border-slate-200/60 backdrop-blur-xs">
                         {item.layoutType || item.category}
                       </span>
                     </div>
                   )}
 
-                  {/* Bottom Info Bar & Quick Action */}
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/85 via-slate-950/50 to-transparent p-3 sm:p-3.5 pt-8 flex items-end justify-between gap-2 text-white">
+                  {/* Bottom Info Bar & Action Button */}
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-transparent p-2.5 sm:p-3.5 pt-7 flex items-end justify-between gap-2 text-white">
                     <div className="min-w-0 flex-1">
                       <p className="text-xs sm:text-sm font-bold truncate drop-shadow-xs">
                         {item.title || item.alt}
                       </p>
-                      <p className="text-[10px] text-slate-300 font-medium truncate">
+                      <p className="text-[9px] sm:text-[10px] text-slate-300 font-medium truncate">
                         {item.category || 'Professional Template'}
                       </p>
                     </div>
 
                     {isActive && (
-                      <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-brand-500 hover:bg-brand-600 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm transition-transform active:scale-95">
+                      <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-brand-500 hover:bg-brand-600 px-2.5 py-1 text-[9px] sm:text-[10px] font-bold text-white shadow-sm transition-transform active:scale-95">
                         <Sparkles size={10} /> Use
                       </span>
                     )}
                   </div>
                 </div>
 
-                {/* Depth Falloff Tint Overlay */}
+                {/* Depth Falloff Tint Overlay (Subtle, preserves readability) */}
                 <div
                   className="absolute inset-0 pointer-events-none transition-opacity"
                   style={{
@@ -392,7 +388,7 @@ export default function DepthCarousel({
                     ? 'w-6 bg-brand-600 shadow-xs'
                     : 'w-2 bg-slate-300/80 hover:bg-slate-400'
                 }`}
-                aria-label={`Jump to slide ${i + 1}`}
+                aria-label={`Jump to template ${i + 1}`}
                 title={`Template ${i + 1}`}
               />
             ))}

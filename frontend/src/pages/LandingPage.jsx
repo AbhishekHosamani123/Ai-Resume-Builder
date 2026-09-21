@@ -551,14 +551,14 @@ function Templates({ onNavigate }) {
           <div className="mt-12" style={{ height: '500px', position: 'relative' }}>
             <DepthCarousel
               items={items}
-              depth={220}
-              spread={90}
-              tilt={22}
-              tiltDirection="right"
+              depth={180}
+              spread={150}
+              tilt={20}
+              tiltDirection="both"
               perspective={1400}
-              visibleCards={4}
-              falloff={0.2}
-              blur={6}
+              visibleCards={3}
+              falloff={0.15}
+              blur={0}
               autoplay={false}
               loop
               cardWidth={300}
