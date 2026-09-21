@@ -1,6 +1,7 @@
 import { Input } from "./Inputs";
 import { RatingInput } from "./ResumeSection";
 import { Plus, Trash2 } from "lucide-react";
+import { BulletPointsField } from "./BulletPointsField";
 import {
   commonStyles,
   additionalInfoStyles,
@@ -357,24 +358,13 @@ export const ProjectDetailForm = ({ projectInfo, updateArrayItem, addArrayItem, 
               </div>
 
               <div className="md:col-span-2">
-                <div className="flex items-center justify-between mb-3">
-                  <label className="block text-sm font-bold text-slate-700">Description</label>
-                  {typeof onEnhanceProjectDescription === 'function' && (
-                    <button
-                      type="button"
-                      onClick={() => onEnhanceProjectDescription(index)}
-                      className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-md text-white bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 focus:outline-none focus:ring-2 focus:ring-violet-400"
-                    >
-                      AI Enhance
-                    </button>
-                  )}
-                </div>
-                <textarea
-                  placeholder="Short description about the project"
-                  className={projectDetailStyles.textarea}
-                  rows={3}
+                <BulletPointsField
+                  label="Description & Highlights"
                   value={project.description || ""}
-                  onChange={({ target }) => updateArrayItem(index, "description", target.value)}
+                  onChange={(val) => updateArrayItem(index, "description", val)}
+                  onEnhance={typeof onEnhanceProjectDescription === 'function' ? () => onEnhanceProjectDescription(index) : null}
+                  placeholder="Describe your project highlights, features, and technologies used..."
+                  category="project"
                 />
               </div>
 
@@ -525,24 +515,13 @@ export const WorkExperienceForm = ({ workExperience, updateArrayItem, addArrayIt
             </div>
 
             <div className="mt-6">
-              <div className="flex items-center justify-between mb-3">
-                <label className="block text-sm font-bold text-slate-700">Description</label>
-                {typeof onEnhanceDescription === 'function' && (
-                  <button
-                    type="button"
-                    onClick={() => onEnhanceDescription(index)}
-                    className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-md text-white bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 focus:outline-none focus:ring-2 focus:ring-violet-400"
-                  >
-                    AI Enhance
-                  </button>
-                )}
-              </div>
-              <textarea
-                placeholder="What did you do in this role?"
-                className={workExperienceStyles.textarea}
-                rows={3}
+              <BulletPointsField
+                label="Job Description & Achievements"
                 value={experience.description || ""}
-                onChange={({ target }) => updateArrayItem(index, "description", target.value)}
+                onChange={(val) => updateArrayItem(index, "description", val)}
+                onEnhance={typeof onEnhanceDescription === 'function' ? () => onEnhanceDescription(index) : null}
+                placeholder="Describe your key roles, responsibilities, and achievements..."
+                category="experience"
               />
             </div>
 

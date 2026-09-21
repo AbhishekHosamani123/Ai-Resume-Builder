@@ -55,16 +55,24 @@ export function buildResumeWordHtml(resume) {
   const c = resume.contactInfo || {}
   const skills = (resume.skills || []).map((s) => (s.name || '').trim()).filter(Boolean)
 
+  const formatDescriptionHtml = (desc) => {
+    if (!desc || !String(desc).trim()) return ''
+    const raw = String(desc).trim()
+    const lines = raw
+      .split(/\r?\n+/)
+      .map((l) => l.trim().replace(/^[-*•▪▫–—]\s*/, '').trim())
+      .filter(Boolean)
+
+    if (lines.length > 1 || /^[-*•▪▫–—]/.test(raw)) {
+      return `<ul>${lines.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>`
+    }
+    return `<p>${esc(raw)}</p>`
+  }
+
   const work = (resume.workExperience || [])
     .filter((w) => (w.company || '').trim() || (w.role || '').trim())
     .map((w) => {
-      const bullets = (w.description || '')
-        .split(/(?:\. |;\s*)/)
-        .map((s) => s.trim())
-        .filter((s) => s.length > 3)
-      const desc = bullets.length > 1
-        ? `<ul>${bullets.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>`
-        : `<p>${esc(w.description || '')}</p>`
+      const desc = formatDescriptionHtml(w.description)
       return `<div class="item">
         <p class="item-head"><strong>${esc(w.role)}</strong>${w.company ? ` — ${esc(w.company)}` : ''}<span class="dates">${esc(dateRange(w.startDate, w.endDate))}</span></p>
         ${desc}
@@ -82,12 +90,15 @@ export function buildResumeWordHtml(resume) {
 
   const projects = (resume.projects || [])
     .filter((pr) => (pr.title || '').trim())
-    .map((pr) => `<div class="item">
+    .map((pr) => {
+      const desc = formatDescriptionHtml(pr.description)
+      return `<div class="item">
         <p class="item-head"><strong>${esc(pr.title)}</strong></p>
-        ${pr.description ? `<p>${esc(pr.description)}</p>` : ''}
+        ${desc}
         ${pr.github ? `<p>${esc(pr.github)}</p>` : ''}
         ${pr.liveDemo ? `<p>${esc(pr.liveDemo)}</p>` : ''}
-      </div>`)
+      </div>`
+    })
     .join('')
 
   const certs = (resume.certifications || [])

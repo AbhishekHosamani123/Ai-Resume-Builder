@@ -498,18 +498,34 @@ const EditResume = () => {
               const role = (exp.role || '').trim()
               const current = (exp.description || '').trim()
 
-              const opener = role && company
-                ? `Delivered impact as ${role} at ${company}`
-                : role
-                  ? `Delivered impact as ${role}`
-                  : 'Delivered measurable impact'
+              const roleTitle = role || 'Engineer'
+              const companyText = company ? `at ${company}` : ''
 
-              const enhanced = current
-                ? `${opener}. ${current.replace(/\s+/g, ' ').trim()} Drove outcomes through ownership, collaboration, and a focus on quality.`
-                : `${opener}. Led initiatives end-to-end, improved team efficiency, and shipped high-quality features with clear, measurable outcomes.`
+              const defaultBullets = [
+                `• Spearheaded development of core deliverables as ${roleTitle} ${companyText}, accelerating feature delivery and product quality.`,
+                `• Collaborated with cross-functional engineering and product teams to establish scalable workflows and best practices.`,
+                `• Optimized critical systems and resolved technical bottlenecks, driving measurable improvements in speed and efficiency.`,
+              ]
+
+              let enhanced = defaultBullets.join('\n')
+              if (current) {
+                const existingLines = current
+                  .split(/\r?\n+/)
+                  .map((s) => s.trim().replace(/^[-*•▪▫–—]\s*/, '').trim())
+                  .filter(Boolean)
+
+                if (existingLines.length > 0) {
+                  enhanced = existingLines
+                    .map((line) => {
+                      const clean = line.replace(/\.+$/, '')
+                      return `• ${clean} — drove measurable improvements in quality, efficiency, and system performance.`
+                    })
+                    .join('\n')
+                }
+              }
 
               updateArrayItem("workExperience", idx, "description", enhanced)
-              try { toast.success('Description enhanced') } catch { /* ignore */ }
+              try { toast.success('Description enhanced into bullet points') } catch { /* ignore */ }
             }}
           />
         )
@@ -552,13 +568,33 @@ const EditResume = () => {
               const title = (proj.title || '').trim()
               const current = (proj.description || '').trim()
 
-              const opener = title ? `Project: ${title}` : 'Project'
-              const enhanced = current
-                ? `${opener} — ${current.replace(/\s+/g, ' ').trim()} Highlighted impact, technical decisions, and measurable results.`
-                : `${opener} — designed and implemented end-to-end, focusing on clean architecture, performance, and a great user experience. Delivered measurable outcomes and clear documentation.`
+              const projTitle = title || 'Full-Stack Application'
+
+              const defaultBullets = [
+                `• Designed and developed ${projTitle} with modern architecture, responsive UI, and secure API endpoints.`,
+                `• Implemented robust state management, streamlined data pipelines, and optimized client-side performance.`,
+                `• Deployed production-ready releases with comprehensive testing, error tracking, and automated CI/CD workflows.`,
+              ]
+
+              let enhanced = defaultBullets.join('\n')
+              if (current) {
+                const existingLines = current
+                  .split(/\r?\n+/)
+                  .map((s) => s.trim().replace(/^[-*•▪▫–—]\s*/, '').trim())
+                  .filter(Boolean)
+
+                if (existingLines.length > 0) {
+                  enhanced = existingLines
+                    .map((line) => {
+                      const clean = line.replace(/\.+$/, '')
+                      return `• ${clean} — architected for high performance, maintainability, and seamless user experience.`
+                    })
+                    .join('\n')
+                }
+              }
 
               updateArrayItem("projects", idx, "description", enhanced)
-              try { toast.success('Project description enhanced') } catch { /* ignore */ }
+              try { toast.success('Project description enhanced into bullet points') } catch { /* ignore */ }
             }}
           />
         )
