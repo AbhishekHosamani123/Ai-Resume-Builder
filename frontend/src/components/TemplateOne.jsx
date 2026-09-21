@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { LuMail, LuPhone, LuGithub, LuGlobe } from "react-icons/lu";
-import { RiLinkedinLine } from "react-icons/ri";
+import { Mail, Phone, Github, Globe, Linkedin } from "lucide-react";
 import {
   EducationInfo,
   WorkExperience,
@@ -21,6 +20,15 @@ const Title = ({ text, color = "#0b282e" }) => (
 );
 
 const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
+  const palette = Array.isArray(colorPalette) && colorPalette.length
+    ? colorPalette
+    : (resumeData?.template?.colorPalette && resumeData.template.colorPalette.length
+      ? resumeData.template.colorPalette
+      : DEFAULT_THEME);
+  const primaryColor = palette[1] || "#0d47a1";
+  const accentColor = palette[2] || "#1e88e5";
+  const badgeBg = palette[4] || "#dbeafe";
+
   const {
     profileInfo = {},
     contactInfo = {},
@@ -34,7 +42,7 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
   } = resumeData;
 
   const resumeRef = useRef(null);
-  const [baseWidth, setBaseWidth] = useState(800);
+  const [baseWidth, setBaseWidth] = useState(794);
   const [scale, setScale] = useState(1);
 
   useEffect(() => {
@@ -48,64 +56,68 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
   return (
     <div
       ref={resumeRef}
-      className="p-6 bg-white font-sans text-gray-800"
+      className="p-6 bg-white a4-wrapper text-gray-800"
       style={{
+        fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
         transform: containerWidth > 0 ? `scale(${scale})` : undefined,
         transformOrigin: "top left",
-        width: containerWidth > 0 ? `${baseWidth}px` : undefined,
+        width: "100%",
+        maxWidth: containerWidth > 0 ? `${baseWidth}px` : "100%",
+        boxSizing: "border-box",
+        minHeight: "100%",
       }}
     >
       {/* Header */}
-      <div className="resume-section flex justify-between items-start mb-6">
+      <div className="resume-section flex justify-between items-start mb-6" data-section="profile-info">
         <div>
-          <h1 className="text-3xl font-bold pb-2" >
+          <h1 className="text-3xl font-bold pb-2" style={{ color: primaryColor }}>
             {profileInfo.fullName}
           </h1>
-          <p className="text-lg font-medium pb-2">{profileInfo.designation}</p>
-          <div className="flex flex-wrap gap-3 text-sm">
+          <p className="text-lg font-medium pb-2 text-gray-700">{profileInfo.designation}</p>
+          <div className="flex flex-wrap gap-3 text-sm" data-section="contact-info">
             {contactInfo.email && (
-              <div className="flex items-center">
-                <LuMail className="mr-1" />
+              <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                <Mail className="shrink-0 text-slate-500" size={14} />
                 <a href={`mailto:${contactInfo.email}`} className="hover:underline">
                   {contactInfo.email}
                 </a>
               </div>
             )}
             {contactInfo.phone && (
-              <div className="flex items-center">
-                <LuPhone className="mr-1" />
+              <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                <Phone className="shrink-0 text-slate-500" size={14} />
                 <a href={`tel:${contactInfo.phone}`} className="hover:underline">
                   {contactInfo.phone}
                 </a>
               </div>
             )}
             {contactInfo.location && (
-              <div className="flex items-center">
+              <div className="inline-flex items-center gap-1.5 whitespace-nowrap text-slate-600">
                 <span>{contactInfo.location}</span>
               </div>
             )}
           </div>
         </div>
-        <div className="flex flex-col items-end text-sm">
+        <div className="flex flex-col items-end text-sm space-y-1.5" data-section="contact-info">
           {contactInfo.linkedin && (
-            <div className="flex items-center mb-1">
-              <RiLinkedinLine className="mr-1" />
-              <a href={contactInfo.linkedin} target="_blank" rel="noopener noreferrer" className="hover:underline">
+            <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
+              <Linkedin className="shrink-0 text-blue-600" size={14} />
+              <a href={contactInfo.linkedin} target="_blank" rel="noopener noreferrer" className="hover:underline text-blue-600">
                 LinkedIn
               </a>
             </div>
           )}
           {contactInfo.github && (
-            <div className="flex items-center mb-1">
-              <LuGithub className="mr-1" />
+            <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
+              <Github className="shrink-0 text-slate-700" size={14} />
               <a href={contactInfo.github} target="_blank" rel="noopener noreferrer" className="hover:underline">
                 GitHub
               </a>
             </div>
           )}
           {contactInfo.website && (
-            <div className="flex items-center">
-              <LuGlobe className="mr-1" />
+            <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
+              <Globe className="shrink-0 text-slate-700" size={14} />
               <a href={contactInfo.website} target="_blank" rel="noopener noreferrer" className="hover:underline">
                 Portfolio
               </a>
@@ -116,8 +128,8 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
 
       {/* Professional Summary */}
       {profileInfo.summary && (
-        <div className="resume-section mb-3">
-          <Title text="Professional Summary" color="#0b282e" />
+        <div className="resume-section mb-3" data-section="profile-info">
+          <Title text="Professional Summary" color={primaryColor} />
           <p className="text-sm leading-relaxed">{profileInfo.summary}</p>
         </div>
       )}
@@ -126,8 +138,8 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
         {/* Left Column */}
         <div className="col-span-2 space-y-4">
           {workExperience.length > 0 && (
-            <div className="resume-section">
-              <Title text="Work Experience" color="#0b282e" />
+            <div className="resume-section" data-section="work-experience">
+              <Title text="Work Experience" color={primaryColor} />
               <div className="space-y-6">
                 {workExperience.map((exp, i) => (
                   <WorkExperience
@@ -138,8 +150,7 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
                       exp.endDate
                     )}`}
                     description={exp.description}
-                    durationColor="#1e7280"
-                    
+                    durationColor={accentColor}
                   />
                 ))}
               </div>
@@ -147,8 +158,8 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
           )}
 
           {projects.length > 0 && (
-            <div className="resume-section">
-              <Title text="Projects" color="#0b282e" />
+            <div className="resume-section" data-section="projects">
+              <Title text="Projects" color={primaryColor} />
               <div className="space-y-4">
                 {projects.map((proj, i) => (
                   <ProjectInfo
@@ -157,8 +168,8 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
                     description={proj.description}
                     githubLink={proj.github}
                     liveDemoUrl={proj.liveDemo}
-                    bgColor="#dbeafe"
-                    headingClass="pb-2" // Added pb-2 to subheadings
+                    bgColor={badgeBg}
+                    headingClass="pb-2"
                   />
                 ))}
               </div>
@@ -169,14 +180,14 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
         {/* Right Column */}
         <div className="col-span-1 space-y-6">
           {skills.length > 0 && (
-            <div className="resume-section">
-              <Title text="Skills" color="#0b282e" />
+            <div className="resume-section" data-section="skills">
+              <Title text="Skills" color={primaryColor} />
               <div className="flex flex-wrap gap-2">
                 {skills.map((skill, i) => (
                   <span
                     key={i}
                     className="text-xs font-medium px-2 py-1 rounded"
-                    style={{ backgroundColor: "#dbeafe" }}
+                    style={{ backgroundColor: badgeBg }}
                   >
                     {skill.name}
                   </span>
@@ -186,8 +197,8 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
           )}
 
           {education.length > 0 && (
-            <div className="resume-section">
-              <Title text="Education" color="#0b282e" />
+            <div className="resume-section" data-section="education-info">
+              <Title text="Education" color={primaryColor} />
               <div className="space-y-4 pb-2">
                 {education.map((edu, i) => (
                   <EducationInfo
@@ -197,17 +208,15 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
                     duration={`${formatYearMonth(edu.startDate)} - ${formatYearMonth(
                       edu.endDate
                     )}`}
-                  
                   />
                 ))}
-                <br />
               </div>
             </div>
           )}
 
           {certifications.length > 0 && (
-            <div className="resume-section">
-              <Title text="Certifications" color="#0b282e" />
+            <div className="resume-section" data-section="certifications">
+              <Title text="Certifications" color={primaryColor} />
               <div className="space-y-2">
                 {certifications.map((cert, i) => (
                   <CertificationInfo
@@ -215,8 +224,7 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
                     title={cert.title}
                     issuer={cert.issuer}
                     year={cert.year}
-                    bgColor="#dbeafe"
-                   
+                    bgColor={badgeBg}
                   />
                 ))}
               </div>
@@ -224,14 +232,14 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
           )}
 
           {languages.length > 0 && (
-            <div className="resume-section">
-              <Title text="Languages" color="#0b282e" />
+            <div className="resume-section" data-section="additionalInfo">
+              <Title text="Languages" color={primaryColor} />
               <div className="flex flex-wrap gap-2">
                 {languages.map((lang, i) => (
                   <span
                     key={i}
                     className="text-xs font-medium px-2 py-1 rounded"
-                    style={{ backgroundColor: "#dbeafe" }}
+                    style={{ backgroundColor: badgeBg }}
                   >
                     {lang.name}
                   </span>
@@ -241,15 +249,15 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
           )}
 
           {interests.length > 0 && interests.some((i) => i) && (
-            <div className="resume-section">
-              <Title text="Interests" color="#0b282e" />
+            <div className="resume-section" data-section="additionalInfo">
+              <Title text="Interests" color={primaryColor} />
               <div className="flex flex-wrap gap-2">
                 {interests.map((int, i) =>
                   int ? (
                     <span
                       key={i}
                       className="text-xs font-medium px-2 py-1 rounded"
-                      style={{ backgroundColor: "#dbeafe" }}
+                      style={{ backgroundColor: badgeBg }}
                     >
                       {int}
                     </span>

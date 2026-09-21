@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { formatYearMonth } from "../utils/helper";
+import { parseBullets } from "./templates/TemplateHelpers";
 
 // TemplateATS — classic single-column ATS resume, adapted from a LaTeX
 // layout: centered uppercase header, ruled section headings, tight bullets,
@@ -13,18 +14,21 @@ const headingColor = (palette) => palette[1] || DEFAULT_THEME[1];
 const lineColor = (palette) => palette[2] || DEFAULT_THEME[2];
 
 const SectionTitle = ({ text, palette }) => (
-  <h2
-    className="uppercase font-bold tracking-wide"
-    style={{
-      fontSize: 13,
-      color: headingColor(palette),
-      borderBottom: `1px solid ${lineColor(palette)}`,
-      paddingBottom: 3,
-      margin: "14px 0 6px 0",
-    }}
-  >
-    {text}
-  </h2>
+  <div style={{ margin: "14px 0 6px 0" }}>
+    <div
+      style={{
+        fontSize: 13,
+        fontWeight: 700,
+        letterSpacing: "0.5px",
+        textTransform: "uppercase",
+        color: headingColor(palette),
+        paddingBottom: 2,
+      }}
+    >
+      {text}
+    </div>
+    <div style={{ height: "1px", backgroundColor: lineColor(palette), width: "100%" }} />
+  </div>
 );
 
 const Dates = ({ start, end }) => {
@@ -35,23 +39,37 @@ const Dates = ({ start, end }) => {
   return <span style={{ fontSize: 12, color: "#555555", fontStyle: "italic" }}>{text}</span>
 }
 
-const Bullets = ({ text }) => {
-  const items = String(text || "")
-    .split(/(?:\. |;\s*)/)
-    .map((s) => s.trim().replace(/\.$/, ""))
-    .filter((s) => s.length > 3)
-  if (!items.length) return null
+const Bullets = ({ text, color = "#444444" }) => {
+  const items = parseBullets(text);
+  if (!items.length) return null;
   return (
-    <ul style={{ margin: "3px 0 0 0", paddingLeft: 18 }}>
+    <div style={{ margin: "4px 0 2px 0", paddingLeft: "6px" }}>
       {items.map((b, i) => (
-        <li key={i} style={{ marginBottom: 2 }}>{b}</li>
+        <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "8px", marginBottom: "3px" }}>
+          <span
+            style={{
+              display: "inline-block",
+              width: "4.5px",
+              height: "4.5px",
+              borderRadius: "50%",
+              backgroundColor: color,
+              marginTop: "6px",
+              flexShrink: 0,
+            }}
+          />
+          <span style={{ flex: 1, fontSize: 12.5, lineHeight: 1.35, color: "#222222" }}>{b}</span>
+        </div>
       ))}
-    </ul>
-  )
-}
+    </div>
+  );
+};
 
 const TemplateATS = ({ resumeData = {}, colorPalette, containerWidth }) => {
-  const palette = Array.isArray(colorPalette) && colorPalette.length ? colorPalette : DEFAULT_THEME
+  const palette = Array.isArray(colorPalette) && colorPalette.length
+    ? colorPalette
+    : (resumeData?.template?.colorPalette && resumeData.template.colorPalette.length
+      ? resumeData.template.colorPalette
+      : DEFAULT_THEME)
   const {
     profileInfo = {},
     contactInfo = {},
@@ -65,7 +83,7 @@ const TemplateATS = ({ resumeData = {}, colorPalette, containerWidth }) => {
   } = resumeData
 
   const resumeRef = useRef(null);
-  const [baseWidth, setBaseWidth] = useState(800);
+  const [baseWidth, setBaseWidth] = useState(794);
   const [scale, setScale] = useState(1);
 
   useEffect(() => {
@@ -111,7 +129,6 @@ const TemplateATS = ({ resumeData = {}, colorPalette, containerWidth }) => {
 
   // LaTeX-style grouped skills: an entry typed as "Group: item, item" renders
   // as a bold-labeled line; plain entries join into a single line.
-  const esc = (s) => String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
   const skillGroups = []
   const plainSkills = []
   for (const name of skillNames) {
@@ -123,20 +140,23 @@ const TemplateATS = ({ resumeData = {}, colorPalette, containerWidth }) => {
   return (
     <div
       ref={resumeRef}
-      className="bg-white"
+      className="bg-white a4-wrapper"
       style={{
-        fontFamily: "Calibri, Carlito, 'Segoe UI', Arial, sans-serif",
+        fontFamily: "'Carlito', Calibri, 'Segoe UI', Arial, sans-serif",
         color: "#1a1a1a",
         fontSize: 13,
         lineHeight: 1.35,
         padding: "26px 34px",
         transform: containerWidth > 0 ? `scale(${scale})` : undefined,
         transformOrigin: "top left",
-        width: containerWidth > 0 ? `${baseWidth}px` : undefined,
+        width: "100%",
+        maxWidth: containerWidth > 0 ? `${baseWidth}px` : "100%",
+        boxSizing: "border-box",
+        minHeight: "100%",
       }}
     >
       {/* ---------- Header ---------- */}
-      <div style={{ textAlign: "center" }}>
+      <div style={{ textAlign: "center" }} data-section="profile-info">
         <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: 0.5, color: headingColor(palette) }}>
           {(profileInfo.fullName || "YOUR NAME").toUpperCase()}
         </div>
@@ -145,7 +165,7 @@ const TemplateATS = ({ resumeData = {}, colorPalette, containerWidth }) => {
             {profileInfo.designation}
           </div>
         )}
-        <div style={{ fontSize: 12, marginTop: 4 }}>
+        <div style={{ fontSize: 12, marginTop: 4 }} data-section="contact-info">
           {contactItems.map((item, i) => (
             <span key={i}>
               {i > 0 && sep}
@@ -163,35 +183,41 @@ const TemplateATS = ({ resumeData = {}, colorPalette, containerWidth }) => {
 
       {/* ---------- Professional Summary ---------- */}
       {profileInfo.summary && (
-        <>
+        <div data-section="profile-info">
           <SectionTitle text="Professional Summary" palette={palette} />
           <p style={{ margin: 0 }}>{profileInfo.summary}</p>
-        </>
+        </div>
       )}
 
       {/* ---------- Skills (supports LaTeX-style "Group: item, item" entries) ---------- */}
       {skillNames.length > 0 && (
-        <>
+        <div data-section="skills">
           <SectionTitle text="Technical Skills" palette={palette} />
           {skillGroups.length > 0 ? (
-            skillGroups.map(([label, items], i) => (
-              <p key={i} style={{ margin: "0 0 2px 0" }}>
-                <strong>{esc(label)}: </strong>
-                {esc(items.join(", "))}
-              </p>
-            ))
+            <div style={{ margin: 0 }}>
+              {skillGroups.map(([grp, items], i) => (
+                <div key={i} style={{ margin: "2px 0" }}>
+                  <strong>{grp}:</strong> {items.join(", ")}
+                </div>
+              ))}
+              {plainSkills.length > 0 && (
+                <div style={{ margin: "2px 0" }}>
+                  <strong>Other:</strong> {plainSkills.join(" • ")}
+                </div>
+              )}
+            </div>
           ) : (
-            <p style={{ margin: 0 }}>{esc(skillNames.join(" • "))}</p>
+            <p style={{ margin: 0 }}>{plainSkills.join(" • ")}</p>
           )}
-        </>
+        </div>
       )}
 
       {/* ---------- Experience ---------- */}
       {jobs.length > 0 && (
-        <>
+        <div data-section="work-experience">
           <SectionTitle text="Experience" palette={palette} />
           {jobs.map((w, i) => (
-            <div key={i} style={{ marginBottom: 8 }}>
+            <div key={i} style={{ marginBottom: 9 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
                 <span>
                   <strong>{w.role}</strong>
@@ -199,15 +225,15 @@ const TemplateATS = ({ resumeData = {}, colorPalette, containerWidth }) => {
                 </span>
                 <Dates start={w.startDate} end={w.endDate} />
               </div>
-              <Bullets text={w.description} />
+              <Bullets text={w.description} color={lineColor(palette)} />
             </div>
           ))}
-        </>
+        </div>
       )}
 
       {/* ---------- Projects ---------- */}
       {projs.length > 0 && (
-        <>
+        <div data-section="projects">
           <SectionTitle text="Projects" palette={palette} />
           {projs.map((pr, i) => (
             <div key={i} style={{ marginBottom: 8 }}>
@@ -217,15 +243,15 @@ const TemplateATS = ({ resumeData = {}, colorPalette, containerWidth }) => {
                   {pr.github && <span style={{ color: "#666666" }}> | {pr.github}</span>}
                 </span>
               </div>
-              <Bullets text={pr.description} />
+              <Bullets text={pr.description} color={lineColor(palette)} />
             </div>
           ))}
-        </>
+        </div>
       )}
 
       {/* ---------- Certifications ---------- */}
       {certs.length > 0 && (
-        <>
+        <div data-section="certifications">
           <SectionTitle text="Certifications & Achievements" palette={palette} />
           {certs.map((ct, i) => (
             <div key={i} style={{ marginBottom: 6 }}>
@@ -235,12 +261,12 @@ const TemplateATS = ({ resumeData = {}, colorPalette, containerWidth }) => {
               </div>
             </div>
           ))}
-        </>
+        </div>
       )}
 
       {/* ---------- Education ---------- */}
       {edus.length > 0 && (
-        <>
+        <div data-section="education-info">
           <SectionTitle text="Education" palette={palette} />
           {edus.map((e, i) => (
             <div key={i} style={{ marginBottom: 5 }}>
@@ -253,12 +279,12 @@ const TemplateATS = ({ resumeData = {}, colorPalette, containerWidth }) => {
               </div>
             </div>
           ))}
-        </>
+        </div>
       )}
 
       {/* ---------- Languages & Interests ---------- */}
       {(languageNames.length > 0 || interestNames.length > 0) && (
-        <>
+        <div data-section="additionalInfo">
           <SectionTitle text="Languages & Interests" palette={palette} />
           {languageNames.length > 0 && (
             <p style={{ margin: "0 0 3px 0" }}>
@@ -270,7 +296,7 @@ const TemplateATS = ({ resumeData = {}, colorPalette, containerWidth }) => {
               <strong>Interests: </strong>{interestNames.join(" • ")}
             </p>
           )}
-        </>
+        </div>
       )}
     </div>
   );

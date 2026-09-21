@@ -71,7 +71,7 @@ export const cardStyles = {
   deleteButton: "flex h-11 w-11 items-center justify-center rounded-full bg-white text-red-500 shadow-[var(--shadow-lift)] transition-transform hover:scale-110",
   buttonIcon: "text-current",
 
-  progressBar: "relative h-1.5 w-full overflow-hidden rounded-full bg-line",
+  progressBar: "relative mt-3 h-1.5 w-full overflow-hidden rounded-full bg-line",
   progressFill: "h-full rounded-full bg-brand-600 transition-all duration-700",
   progressGlow: "hidden",
   progressIndicator: "hidden",
@@ -239,7 +239,7 @@ export const photoSelectorStyles = {
   previewImageContainer: hovered => `h-32 w-32 overflow-hidden rounded-full border-4 border-white shadow-[var(--shadow-lift)] transition-all duration-200 ${hovered ? 'group-hover:border-brand-200' : ''}`,
   previewImage: "h-full w-full cursor-pointer object-cover transition-transform duration-300 group-hover:scale-110",
   overlay: "absolute inset-0 flex items-center justify-center rounded-full bg-ink/30 opacity-0 transition-opacity duration-200 group-hover:opacity-100",
-  actionButton: (bg, hoverBg, textColor) => `flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-red-500 transition-all hover:bg-white`,
+  actionButton: () => `flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-red-500 transition-all hover:bg-white`,
 };
 
 export const titleInputStyles = {
@@ -264,7 +264,7 @@ export const modalStyles = {
 export const infoStyles = {
   // Progress
   progressWrapper: "h-1.5 w-20 rounded-full bg-line",
-  progressBar: color => `h-full rounded-full transition-all`,
+  progressBar: () => `h-full rounded-full transition-all`,
 
   // ActionLink
   actionWrapper: "flex items-center gap-2.5",
@@ -275,7 +275,7 @@ export const infoStyles = {
   certContainer: "mb-4",
   certTitle: "text-base font-semibold text-ink",
   certRow: "mt-1 flex items-center gap-2",
-  certYear: bgColor => `rounded-lg bg-brand-50 px-2.5 py-0.5 text-xs font-bold text-brand-700`,
+  certYear: () => `rounded-lg bg-brand-50 px-2.5 py-0.5 text-xs font-bold text-brand-700`,
   certIssuer: "text-sm font-medium text-slate-500",
 
   // ContactInfo
@@ -314,6 +314,6 @@ export const infoStyles = {
   workHeader: "mb-1.5 flex items-start justify-between",
   workCompany: "pb-1 text-base font-semibold text-ink",
   workRole: "text-base font-medium text-slate-500",
-  workDuration: color => `text-sm font-bold italic text-brand-600`,
+  workDuration: () => `text-sm font-bold italic text-brand-600`,
   workDesc: "text-sm font-medium leading-relaxed text-slate-500"
 };

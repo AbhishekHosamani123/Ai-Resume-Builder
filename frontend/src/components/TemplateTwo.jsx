@@ -1,11 +1,20 @@
-"use client";
 import React, { useEffect, useRef, useState } from "react";
 import { LuExternalLink, LuGithub } from "react-icons/lu";
 import { formatYearMonth } from "../utils/helper";
+import { parseBullets } from "./templates/TemplateHelpers";
 
-const sectionTitleClass = "text-base font-bold uppercase tracking-wide mb-1 pb-1 text-[#0b282e] border-b-2 border-[#1e7280]/50";
+const DEFAULT_THEME = ["#ffffff", "#0b282e", "#1e7280", "#2563eb"];
 
-const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
+const TemplateTwo = ({ resumeData = {}, colorPalette, containerWidth }) => {
+  const palette = Array.isArray(colorPalette) && colorPalette.length
+    ? colorPalette
+    : (resumeData?.template?.colorPalette && resumeData.template.colorPalette.length
+      ? resumeData.template.colorPalette
+      : DEFAULT_THEME);
+  const primaryHeadingColor = palette[1] || "#0b282e";
+  const accentBorderColor = palette[2] || "#1e7280";
+  const linkColor = palette[3] || "#2563eb";
+
   const {
     profileInfo = {},
     contactInfo = {},
@@ -19,7 +28,7 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
   } = resumeData;
 
   const resumeRef = useRef(null);
-  const [baseWidth, setBaseWidth] = useState(800);
+  const [baseWidth, setBaseWidth] = useState(794);
   const [scale, setScale] = useState(1);
 
   useEffect(() => {
@@ -30,68 +39,86 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
     }
   }, [containerWidth]);
 
+  const SectionTitle = ({ text }) => (
+    <h2
+      className="text-base font-bold uppercase tracking-wide mb-1 pb-1"
+      style={{
+        color: primaryHeadingColor,
+        borderBottom: `2px solid ${accentBorderColor}70`,
+      }}
+    >
+      {text}
+    </h2>
+  );
+
   return (
     <div
       ref={resumeRef}
-      className="resume-section p-4 bg-white font-sans text-black max-w-4xl mx-auto"
+      className="resume-section a4-wrapper p-5 bg-white text-black max-w-4xl mx-auto"
       style={{
+        fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
         transform: containerWidth > 0 ? `scale(${scale})` : undefined,
         transformOrigin: "top left",
-        width: containerWidth > 0 ? `${baseWidth}px` : undefined,
-        height: "1123px",
-        overflow: "hidden",
+        width: "100%",
+        maxWidth: containerWidth > 0 ? `${baseWidth}px` : "100%",
+        boxSizing: "border-box",
+        minHeight: "100%",
       }}
     >
       {/* Header Section */}
-      <div className="text-center mb-2">
-        <h1 className="text-2xl font-bold tracking-tight mb-2">{profileInfo.fullName}</h1>
+      <div className="text-center mb-2" data-section="profile-info">
+        <h1 className="text-2xl font-bold tracking-tight mb-1 text-slate-900">{profileInfo.fullName}</h1>
         <p className="text-sm text-gray-600 font-medium mb-2">{profileInfo.designation}</p>
-        <div className="flex flex-wrap justify-center gap-1 text-[11px] text-gray-700">
-          {contactInfo.phone && <span>{contactInfo.phone}</span>}
+        <div className="flex flex-wrap justify-center items-center gap-x-2 gap-y-1 text-[11px] text-gray-700" data-section="contact-info">
+          {contactInfo.phone && <span className="whitespace-nowrap">{contactInfo.phone}</span>}
+          {contactInfo.phone && contactInfo.email && <span className="text-gray-400">•</span>}
           {contactInfo.email && (
-            <a href={`mailto:${contactInfo.email}`} className="hover:underline text-blue-600">
+            <a href={`mailto:${contactInfo.email}`} className="hover:underline whitespace-nowrap" style={{ color: linkColor }}>
               {contactInfo.email}
             </a>
           )}
+          {(contactInfo.phone || contactInfo.email) && contactInfo.linkedin && <span className="text-gray-400">•</span>}
           {contactInfo.linkedin && (
-            <a href={contactInfo.linkedin} className="hover:underline text-blue-600">
+            <a href={contactInfo.linkedin} target="_blank" rel="noopener noreferrer" className="hover:underline whitespace-nowrap inline-flex items-center gap-1" style={{ color: linkColor }}>
               LinkedIn
             </a>
           )}
+          {contactInfo.github && <span className="text-gray-400">•</span>}
           {contactInfo.github && (
-            <a href={contactInfo.github} className="hover:underline text-blue-600">
+            <a href={contactInfo.github} target="_blank" rel="noopener noreferrer" className="hover:underline whitespace-nowrap inline-flex items-center gap-1" style={{ color: linkColor }}>
               GitHub
             </a>
           )}
+          {contactInfo.website && <span className="text-gray-400">•</span>}
           {contactInfo.website && (
-            <a href={contactInfo.website} className="hover:underline text-blue-600">
+            <a href={contactInfo.website} target="_blank" rel="noopener noreferrer" className="hover:underline whitespace-nowrap inline-flex items-center gap-1" style={{ color: linkColor }}>
               Portfolio
             </a>
           )}
         </div>
       </div>
 
-      <hr className="border-gray-300 mb-2" />
+      <hr className="border-gray-200 mb-2" />
 
       {/* Summary */}
       {profileInfo.summary && (
-        <section className="mb-2">
-          <h2 className={sectionTitleClass}>Summary</h2>
+        <section className="mb-2" data-section="profile-info">
+          <SectionTitle text="Summary" />
           <p className="text-[11px] text-gray-800 leading-tight">{profileInfo.summary}</p>
         </section>
       )}
 
       {/* Experience */}
       {workExperience.length > 0 && (
-        <section className="mb-2">
-          <h2 className={sectionTitleClass}>Experience</h2>
+        <section className="mb-2" data-section="work-experience">
+          <SectionTitle text="Experience" />
           <div className="space-y-2">
             {workExperience.map((exp, idx) => (
               <div key={idx} className="space-y-0.5">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-semibold text-[12px] pb-2 text-gray-800">{exp.role}</h3>
-                    <p className="italic text-[11px] pb-2 text-gray-600">{exp.company}</p>
+                    <h3 className="font-semibold text-[12px] text-gray-800">{exp.role}</h3>
+                    <p className="italic text-[11px] text-gray-600">{exp.company}</p>
                   </div>
                   <div className="text-[11px] text-right text-gray-600">
                     <p className="italic">
@@ -105,11 +132,27 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
                     {exp.technologies}
                   </p>
                 )}
-                <ul className=" mt-0.5 text-[12px] text-gray-700">
-                  {exp.description?.split("\n").map((line, i) => (
-                    <li key={i} className="pb-1">{line}</li>
-                  ))}
-                </ul>
+                {parseBullets(exp.description).length > 0 ? (
+                  <div className="mt-1 space-y-1 pl-1 text-[12px] text-gray-700">
+                    {parseBullets(exp.description).map((line, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <span
+                          className="shrink-0 mt-1.5"
+                          style={{
+                            display: "inline-block",
+                            width: "4px",
+                            height: "4px",
+                            borderRadius: "50%",
+                            backgroundColor: accentBorderColor,
+                          }}
+                        />
+                        <span className="flex-1 leading-relaxed">{line}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : exp.description ? (
+                  <p className="mt-0.5 text-[12px] text-gray-700">{exp.description}</p>
+                ) : null}
               </div>
             ))}
           </div>
@@ -118,15 +161,15 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
 
       {/* Projects */}
       {projects.length > 0 && (
-        <section className="mb-2">
-          <h2 className={sectionTitleClass}>Projects</h2>
+        <section className="mb-2" data-section="projects">
+          <SectionTitle text="Projects" />
           <div className="space-y-2">
             {projects.map((proj, idx) => (
               <div key={idx} className="space-y-0.5">
                 <div className="flex justify-between items-start">
                   <h3 className="font-semibold text-[12px] text-gray-800">{proj.title}</h3>
                   {proj.link && (
-                    <a href={proj.link} className="text-blue-600 text-[11px] hover:underline">
+                    <a href={proj.link} className="text-[11px] hover:underline" style={{ color: linkColor }}>
                       {proj.linkType || "Link"}
                     </a>
                   )}
@@ -136,16 +179,36 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
                     {proj.technologies}
                   </p>
                 )}
-                <p className="text-[11px] pb-2 text-gray-700 ">{proj.description}</p>
-                <div className="flex gap-1 mt-0.5 pt-2 text-[11px]">
+                {parseBullets(proj.description).length > 0 ? (
+                  <div className="mt-1 space-y-1 pl-1 text-[11px] text-gray-700">
+                    {parseBullets(proj.description).map((line, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <span
+                          className="shrink-0 mt-1.5"
+                          style={{
+                            display: "inline-block",
+                            width: "4px",
+                            height: "4px",
+                            borderRadius: "50%",
+                            backgroundColor: accentBorderColor,
+                          }}
+                        />
+                        <span className="flex-1 leading-relaxed">{line}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : proj.description ? (
+                  <p className="text-[11px] text-gray-700">{proj.description}</p>
+                ) : null}
+                <div className="flex gap-3 mt-1 text-[11px]">
                   {proj.github && (
-                    <a href={proj.github} className="flex items-center gap-0.5 hover:underline text-blue-600">
-                      <LuGithub size={10} /> GitHub
+                    <a href={proj.github} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 hover:underline whitespace-nowrap" style={{ color: linkColor }}>
+                      <LuGithub size={12} className="shrink-0" /> GitHub
                     </a>
                   )}
                   {proj.liveDemo && (
-                    <a href={proj.liveDemo} className="flex items-center gap-0.5 hover:underline text-blue-600">
-                      <LuExternalLink size={10} /> Demo
+                    <a href={proj.liveDemo} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 hover:underline whitespace-nowrap" style={{ color: linkColor }}>
+                      <LuExternalLink size={12} className="shrink-0" /> Demo
                     </a>
                   )}
                 </div>
@@ -157,14 +220,14 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
 
       {/* Education */}
       {education.length > 0 && (
-        <section className="mb-2">
-          <h2 className={sectionTitleClass}>Education</h2>
+        <section className="mb-2" data-section="education-info">
+          <SectionTitle text="Education" />
           <div className="space-y-1">
             {education.map((edu, idx) => (
               <div key={idx} className="space-y-0.25">
                 <div className="flex justify-between items-center">
-                  <h3 className="font-semibold text-[12px] pb-2 text-gray-800">{edu.degree}</h3>
-                  <p className="italic text-[11px] pb-2 text-gray-600">
+                  <h3 className="font-semibold text-[12px] text-gray-800">{edu.degree}</h3>
+                  <p className="italic text-[11px] text-gray-600">
                     {formatYearMonth(edu.startDate)} - {formatYearMonth(edu.endDate)}
                   </p>
                 </div>
@@ -182,8 +245,8 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
 
       {/* Skills */}
       {skills.length > 0 && (
-        <section className="mb-2">
-          <h2 className={sectionTitleClass}>Skills</h2>
+        <section className="mb-2" data-section="skills">
+          <SectionTitle text="Skills" />
           <ul className="text-[11px] text-gray-800 flex flex-wrap gap-1">
             {skills.map((skill, idx) => (
               <li key={idx} className="w-fit">{skill.name}</li>
@@ -194,25 +257,37 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
 
       {/* Certifications */}
       {certifications.length > 0 && (
-        <section className="mb-2">
-          <h2 className={sectionTitleClass}>Certifications</h2>
-          <ul className="list-disc list-inside text-[11px] text-gray-700">
+        <section className="mb-2" data-section="certifications">
+          <SectionTitle text="Certifications" />
+          <div className="space-y-1 pl-1 text-[11px] text-gray-700">
             {certifications.map((cert, idx) => (
-              <li key={idx} className="leading-tight">
-                {cert.title} — {cert.issuer} ({cert.year})
-              </li>
+              <div key={idx} className="flex items-start gap-2">
+                <span
+                  className="shrink-0 mt-1.5"
+                  style={{
+                    display: "inline-block",
+                    width: "4px",
+                    height: "4px",
+                    borderRadius: "50%",
+                    backgroundColor: accentBorderColor,
+                  }}
+                />
+                <span className="flex-1 leading-tight">
+                  {cert.title} — {cert.issuer} {cert.year ? `(${cert.year})` : ""}
+                </span>
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
       )}
 
       {/* Languages & Interests */}
       {(languages.length > 0 || interests.length > 0) && (
-        <section className="mb-0">
+        <section className="mb-0" data-section="additionalInfo">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {languages.length > 0 && (
               <div>
-                <h2 className={sectionTitleClass}>Languages</h2>
+                <SectionTitle text="Languages" />
                 <ul className="flex flex-wrap gap-1 text-[11px] text-gray-700">
                   {languages.map((lang, idx) => (
                     <li key={idx} className="bg-gray-100 px-1.5 py-0.5 rounded-full">
@@ -224,7 +299,7 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
             )}
             {interests.length > 0 && interests.some(Boolean) && (
               <div>
-                <h2 className={sectionTitleClass}>Interests</h2>
+                <SectionTitle text="Interests" />
                 <ul className="flex flex-wrap gap-1 text-[11px] text-gray-700">
                   {interests.filter(Boolean).map((int, idx) => (
                     <li key={idx} className="bg-gray-100 px-1.5 py-0.5 rounded-full">
@@ -242,3 +317,4 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
 };
 
 export default TemplateTwo;
+

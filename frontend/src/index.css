@@ -65,6 +65,34 @@
     letter-spacing: -0.02em;
   }
 
+  /* Resume typography isolation: ensure resume templates use their own fonts and standard letter-spacing */
+  .a4-wrapper,
+  .a4-wrapper * {
+    box-sizing: border-box;
+  }
+
+  .a4-wrapper h1,
+  .a4-wrapper h2,
+  .a4-wrapper h3,
+  .a4-wrapper h4,
+  .a4-wrapper h5,
+  .a4-wrapper h6 {
+    font-family: inherit;
+    letter-spacing: normal;
+  }
+
+  /* Interactive section double-click hover affordance in preview */
+  .preview-container [data-section] {
+    cursor: pointer;
+    transition: outline 0.15s ease, background-color 0.15s ease, border-radius 0.15s ease;
+  }
+
+  .preview-container [data-section]:hover {
+    outline: 2px dashed rgba(124, 58, 237, 0.45);
+    background-color: rgba(124, 58, 237, 0.02);
+    border-radius: 4px;
+  }
+
   ::selection {
     background: var(--color-brand-100);
     color: var(--color-deep);
@@ -193,17 +221,35 @@
 }
 
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
   body * {
-    visibility: hidden;
+    visibility: hidden !important;
   }
-  .resume-container,
-  .resume-container * {
-    visibility: visible;
+  .print-resume-target,
+  .print-resume-target * {
+    visibility: visible !important;
   }
-  .resume-container {
-    position: absolute;
-    left: 0;
-    top: 0;
+  .print-resume-target {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
     width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }

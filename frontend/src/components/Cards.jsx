@@ -1,7 +1,5 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { cardStyles as styles } from "../assets/dummystyle"
-import { Award, TrendingUp, Zap, Edit, Trash2, Check } from "lucide-react"
+import { Edit, Trash2, Check, Download } from "lucide-react"
 
 const formatDate = (value) =>
   value
@@ -10,21 +8,15 @@ const formatDate = (value) =>
 
 // Resume summary card shown on the dashboard
 export const ResumeSummaryCard = ({
-  id,
   title = "Untitled Resume",
   createdAt = null,
   updatedAt = null,
   onSelect,
   onDelete,
+  onDownload,
   completion = 85,
   atsScore = null,
 }) => {
-  const getCompletionIcon = () => {
-    if (completion >= 90) return <Award size={12} />;
-    if (completion >= 70) return <TrendingUp size={12} />;
-    return <Zap size={12} />;
-  };
-
   const handleDeleteClick = (e) => {
     e.stopPropagation();
     if (onDelete) onDelete();
@@ -105,6 +97,17 @@ export const ResumeSummaryCard = ({
             <Edit size={16} className={styles.buttonIcon} />
           </button>
           <button
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-slate-700 shadow-md transition-all hover:scale-110 hover:bg-brand-50 hover:text-brand-600"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onDownload) onDownload();
+              else if (onSelect) onSelect();
+            }}
+            title="Download resume"
+          >
+            <Download size={16} className={styles.buttonIcon} />
+          </button>
+          <button
             className={styles.deleteButton}
             onClick={handleDeleteClick}
             title="Delete resume"
@@ -118,11 +121,18 @@ export const ResumeSummaryCard = ({
 }
 
 // Template picker card (used inside the theme selector)
-export const TemplateCard = ({ thumbnailImg, isSelected, onSelect }) => {
-  const navigate = useNavigate();
+export const TemplateCard = ({
+  thumbnailImg,
+  isSelected,
+  onSelect,
+  name,
+  category,
+  atsScore,
+  layoutType,
+}) => {
   return (
     <div
-      className={`${styles.templateCard} ${isSelected ? styles.templateCardSelected : styles.templateCardDefault}`}
+      className={`${styles.templateCard} ${isSelected ? styles.templateCardSelected : styles.templateCardDefault} flex flex-col relative group`}
       onClick={() => onSelect && onSelect()}
     >
       {isSelected && (
@@ -132,9 +142,19 @@ export const TemplateCard = ({ thumbnailImg, isSelected, onSelect }) => {
           </div>
         </div>
       )}
+
+      {/* Floating ATS rating pill */}
+      {atsScore && (
+        <div className="absolute top-2 right-2 z-10">
+          <span className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-600/90 text-white shadow-xs backdrop-blur-xs">
+            <Check size={9} /> ATS {atsScore}
+          </span>
+        </div>
+      )}
+
       {thumbnailImg ? (
         <div className={styles.templateDesign}>
-          <img src={thumbnailImg} alt="Template preview" className="h-full w-full object-cover object-top" />
+          <img src={thumbnailImg} alt={name || "Template preview"} className="h-full w-full object-cover object-top" />
           <div className={styles.templateHoverEffect} />
         </div>
       ) : (
@@ -145,6 +165,29 @@ export const TemplateCard = ({ thumbnailImg, isSelected, onSelect }) => {
               <div className={styles.emptyTemplateText}>No template</div>
             </div>
           </div>
+        </div>
+      )}
+      {name && (
+        <div className="p-2.5 bg-white border-t border-slate-100 flex flex-col gap-1">
+          <div className="flex items-center justify-between gap-1.5">
+            <span className="text-xs font-bold text-slate-800 truncate">{name}</span>
+            {category && (
+              <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full shrink-0 ${
+                category === "Shanidhya" 
+                  ? "bg-teal-50 text-teal-700 border border-teal-200"
+                  : category === "Reactive Resume"
+                  ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
+                  : "bg-slate-100 text-slate-600"
+              }`}>
+                {category === "Reactive Resume" ? "Reactive" : category}
+              </span>
+            )}
+          </div>
+          {layoutType && (
+            <span className="text-[10px] text-slate-400 font-medium">
+              {layoutType}
+            </span>
+          )}
         </div>
       )}
     </div>

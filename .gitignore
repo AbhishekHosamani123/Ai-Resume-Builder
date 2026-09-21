@@ -23,3 +23,7 @@ npm-debug.log*
 Thumbs.db
 resume-exports/
 output resume/
+scripts/shots/
+scripts/diag_out/
+.utim_tmp/
+.agents/

@@ -1,6 +1,7 @@
 // src/utils/helper.js
 import html2canvas from "html2canvas";
-import moment from "moment"
+import moment from "moment";
+import { convertModernColorCall } from "../lib/colors";
 
 /**
  * Validate email format.
@@ -109,25 +110,28 @@ export function formatYearMonth(yearMonth) {
  */
 export const fixTailwindColors = (rootElement) => {
   if (!rootElement) return
+  const modernColor = /oklch|oklab|color-mix|color\(/i
   const elements = rootElement.querySelectorAll("*")
   elements.forEach((el) => {
     const style = window.getComputedStyle(el)
-      ;["color", "backgroundColor", "borderColor"].forEach((prop) => {
+      ;["color", "backgroundColor", "borderTopColor", "borderRightColor", "borderBottomColor", "borderLeftColor"].forEach((prop) => {
         const val = style[prop] || ""
-        if (val.includes("oklch")) {
-          el.style[prop] = "#000"
+        if (modernColor.test(val)) {
+          // convert to the closest rgb() while KEEPING the template's real
+          // color (the old approach forced everything to black)
+          el.style[prop] = convertModernColorCall(val)
         }
       })
 
     // If this is an SVG element, also override inline fill/stroke attributes
     if (el instanceof SVGElement) {
       const fill = el.getAttribute("fill")
-      if (fill && fill.includes("oklch")) {
-        el.setAttribute("fill", "#000")
+      if (fill && modernColor.test(fill)) {
+        el.setAttribute("fill", convertModernColorCall(fill))
       }
       const stroke = el.getAttribute("stroke")
-      if (stroke && stroke.includes("oklch")) {
-        el.setAttribute("stroke", "#000")
+      if (stroke && modernColor.test(stroke)) {
+        el.setAttribute("stroke", convertModernColorCall(stroke))
       }
     }
   })

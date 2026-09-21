@@ -231,6 +231,7 @@ const Dashboard = () => {
               <ResumeSummaryCard key={resume._id} id={resume._id}
                 title={resume.title} createdAt={resume.createdAt} updatedAt={resume.updatedAt}
                 onSelect={() => navigate(`/resume/${resume._id}`)}
+                onDownload={() => navigate(`/resume/${resume._id}?autoDownload=true`)}
                 onDelete={() => handleDeleteClick(resume._id)}
                 completion={resume.completion || 0}
                 atsScore={resume.ats}

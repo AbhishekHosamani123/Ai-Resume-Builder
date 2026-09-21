@@ -527,7 +527,7 @@ function Templates({ onNavigate }) {
             </button>
 
             <div className="grid flex-1 grid-cols-3 items-center gap-4 sm:gap-6">
-              {ordered.map((t, i) => (
+              {ordered.slice(0, 3).map((t, i) => (
                 <button
                   key={t.id}
                   className={`overflow-hidden rounded-2xl border border-deep/8 bg-white shadow-[var(--shadow-soft)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[var(--shadow-lift)] ${

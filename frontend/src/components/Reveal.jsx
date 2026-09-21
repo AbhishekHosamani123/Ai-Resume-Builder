@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 // Framer-style scroll reveal: children start slightly translated + blurred
 // and animate in with an expo-out ease when they enter the viewport.
@@ -11,7 +11,6 @@ const Reveal = ({
   blur = true,
   scale = 1,
   className = '',
-  as: Tag = 'div',
   id,
 }) => {
   const ref = useRef(null)
@@ -30,14 +29,14 @@ const Reveal = ({
           io.disconnect()
         }
       },
-      { threshold: 0.12, rootMargin: '0px 0px -6% 0px' }
+      { threshold: 0.01, rootMargin: '0px 0px 80px 0px' }
     )
     io.observe(el)
     return () => io.disconnect()
   }, [])
 
   return (
-    <Tag
+    <div
       ref={ref}
       id={id}
       className={`reveal ${className}`}
@@ -49,7 +48,7 @@ const Reveal = ({
       }}
     >
       {children}
-    </Tag>
+    </div>
   )
 }
 

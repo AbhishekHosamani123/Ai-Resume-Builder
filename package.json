@@ -11,5 +11,8 @@
     "dev": "cd frontend && npm run dev",
     "build": "cd frontend && npm run build",
     "preview": "cd frontend && npm run preview"
+  },
+  "dependencies": {
+    "playwright-core": "^1.55.0"
   }
 }

@@ -132,15 +132,22 @@ export function buildResumeWordHtml(resume) {
 }
 
 export function downloadResumeWord(resume, filenameBase) {
-  const html = buildResumeWordHtml(resume)
-  const safeName = (filenameBase || 'Resume').replace(/[^a-z0-9]/gi, '_')
-  const blob = new Blob(['\ufeff', html], { type: 'application/msword' })
+  const { blob, filename } = buildWordBlob(resume, filenameBase)
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `${safeName}.doc`
+  a.download = filename
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)
   setTimeout(() => URL.revokeObjectURL(url), 1500)
+}
+
+// Build the Word blob without triggering a download — callers that use the
+// auto-save folder flow (lib/saveLocation) need the blob itself.
+export function buildWordBlob(resume, filenameBase) {
+  const html = buildResumeWordHtml(resume)
+  const safeName = (filenameBase || 'Resume').replace(/[^a-z0-9]/gi, '_')
+  const blob = new Blob(['\ufeff', html], { type: 'application/msword' })
+  return { blob, filename: `${safeName}.doc` }
 }

@@ -37,7 +37,7 @@ const DashboardLayout = ({ children }) => {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-mist/60">
+    <div className="relative z-0 min-h-screen bg-[#f8fafc] isolate">
       <header className="sticky top-0 z-40 border-b border-line/70 bg-white/85 backdrop-blur-xl">
         <div className="container-x flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
