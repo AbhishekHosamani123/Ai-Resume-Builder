@@ -1,6 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
+/**
+ * CustomCursor
+ * Displays animated follower cursor only on the Landing Page.
+ * Automatically disabled on resume editor and form-filling pages.
+ */
 const CustomCursor = () => {
+  const location = useLocation()
+  const isLandingPage = location.pathname === '/'
+
   const dotRef = useRef(null)
   const ringRef = useRef(null)
   const [isVisible, setIsVisible] = useState(false)
@@ -13,6 +22,9 @@ const CustomCursor = () => {
   const rafId = useRef(null)
 
   useEffect(() => {
+    // Only run on the landing page
+    if (!isLandingPage) return
+
     // Check if the device has a coarse pointer (mobile / tablet touch)
     if (typeof window !== 'undefined') {
       const touchQuery = window.matchMedia('(pointer: coarse)')
@@ -47,7 +59,6 @@ const CustomCursor = () => {
 
     // Smooth lerp loop for the ring and dot
     const render = () => {
-      // Ring follows with slight lag (lerp factor 0.2)
       ringPos.current.x += (mousePos.current.x - ringPos.current.x) * 0.22
       ringPos.current.y += (mousePos.current.y - ringPos.current.y) * 0.22
 
@@ -72,9 +83,9 @@ const CustomCursor = () => {
       document.removeEventListener('mouseenter', onMouseEnter)
       if (rafId.current) cancelAnimationFrame(rafId.current)
     }
-  }, [isVisible])
+  }, [isLandingPage, isVisible])
 
-  if (isTouchDevice) return null
+  if (!isLandingPage || isTouchDevice) return null
 
   return (
     <>
