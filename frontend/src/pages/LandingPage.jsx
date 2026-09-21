@@ -1094,23 +1094,19 @@ const SOCIALS = [
 function Footer({ onNavigate }) {
   const navSections = [
     {
-      title: 'PRODUCT',
+      title: 'RESUME',
       links: [
-        { label: 'Create Resume', action: () => onNavigate('/dashboard') },
-        { label: 'ATS Checker', action: () => onNavigate('/ats', true) },
-        { label: 'Resume Templates', action: () => onNavigate('/dashboard') },
-        { label: 'Resume Examples', action: () => onNavigate('/dashboard') },
-        { label: 'How it Works', action: () => onNavigate('#how-it-works') },
+        { label: 'Create Resume', action: () => onNavigate('/builder') },
+        { label: 'Resume Templates', action: () => onNavigate('#templates') },
+        { label: 'Resume Examples', action: () => onNavigate('#templates') },
       ],
     },
     {
       title: 'RESOURCES',
       links: [
-        { label: 'Resume Help', action: () => onNavigate('/dashboard') },
-        { label: 'Job Interview', action: () => onNavigate('/dashboard') },
-        { label: 'Cover Letter', action: () => onNavigate('/dashboard') },
-        { label: 'Career Tips', action: () => onNavigate('/dashboard') },
-        { label: 'Blog', action: () => onNavigate('/') },
+        { label: 'Resume Help', action: () => onNavigate('#tips') },
+        { label: 'Job Interview', action: () => onNavigate('#tips') },
+        { label: 'Cover Letter', action: () => onNavigate('#tips') },
       ],
     },
     {
@@ -1119,8 +1115,6 @@ function Footer({ onNavigate }) {
         { label: 'About Us', action: () => onNavigate('/') },
         { label: 'Pricing', action: () => onNavigate('/') },
         { label: 'Sitemap', action: () => onNavigate('/') },
-        { label: 'Changelog', action: () => onNavigate('/') },
-        { label: 'Contact Us', action: () => { window.location.href = 'mailto:abhishekhosamani522@gmail.com' } },
       ],
     },
     {
@@ -1128,9 +1122,7 @@ function Footer({ onNavigate }) {
       links: [
         { label: 'Help Center', action: () => onNavigate('#faq') },
         { label: 'FAQ', action: () => onNavigate('#faq') },
-        { label: 'Terms of Service', action: () => onNavigate('/') },
-        { label: 'Privacy Policy', action: () => onNavigate('/') },
-        { label: 'Cookie Settings', action: () => onNavigate('/') },
+        { label: 'Contact Us', action: () => { window.location.href = 'mailto:abhishekhosamani522@gmail.com' } },
       ],
     },
   ]
@@ -1140,24 +1132,23 @@ function Footer({ onNavigate }) {
       {/* Very subtle ambient gradient glow on the right */}
       <div className="pointer-events-none absolute right-0 bottom-0 h-96 w-96 rounded-full bg-gradient-to-tl from-sky-100/50 via-blue-50/30 to-transparent blur-3xl -z-10" />
 
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 pt-14 sm:pt-16 pb-0">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.1fr_2.4fr_1.25fr] xl:grid-cols-[1.15fr_2.5fr_1.25fr] items-start">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 pt-10 sm:pt-12 pb-0">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_2fr_1.65fr] xl:grid-cols-[1.05fr_2.1fr_1.65fr] items-end">
           
-          {/* LEFT: ResumeXpert Brand, Description, Socials & Trust Badge */}
-          <div className="flex flex-col justify-start">
+          {/* LEFT: ResumeXpert Brand & Socials (Clean & Minimal) */}
+          <div className="flex flex-col justify-start self-start pt-3">
             <button className="flex items-center gap-2.5 text-left group w-fit" onClick={() => onNavigate('/')}>
               {LOGO}
               <span className="font-display text-xl font-bold tracking-tight text-ink group-hover:opacity-90 transition-opacity">
                 Resume<span className="text-[#0284c7]">Xpert</span>
               </span>
             </button>
-            <p className="mt-3.5 max-w-xs text-sm leading-relaxed text-slate-500">
-              The free resume builder with a built-in ATS score checker. Private by design — your
-              data never leaves your browser.
+            <p className="mt-3 max-w-xs text-sm leading-relaxed text-slate-500 font-normal">
+              Free, private & ATS-friendly resume builder.
             </p>
 
             {/* 4 Social Icons: LinkedIn, Instagram, GitHub, Email */}
-            <div className="mt-6 flex items-center gap-2.5">
+            <div className="mt-5 flex items-center gap-2.5">
               {SOCIALS.map((s) => (
                 <a
                   key={s.label}
@@ -1172,22 +1163,16 @@ function Footer({ onNavigate }) {
                 </a>
               ))}
             </div>
-
-            {/* Subtle trust badge */}
-            <div className="mt-6 flex items-center gap-2 text-xs text-slate-400 font-medium">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
-              <span>Free Forever · Private · ATS-Optimized</span>
-            </div>
           </div>
 
-          {/* CENTER: 4 Navigation Columns */}
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4 lg:gap-6 xl:gap-8">
+          {/* CENTER: 4 Navigation Columns (Streamlined & Minimal) */}
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 lg:gap-5 xl:gap-7 self-start pt-3">
             {navSections.map((sec) => (
               <div key={sec.title}>
-                <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400 mb-4">
+                <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400 mb-3.5">
                   {sec.title}
                 </div>
-                <ul className="space-y-3">
+                <ul className="space-y-2.5">
                   {sec.links.map((link) => (
                     <li key={link.label}>
                       <button
@@ -1203,10 +1188,10 @@ function Footer({ onNavigate }) {
             ))}
           </div>
 
-          {/* RIGHT: Developer Visual (Docked & Touching Bottom Line) */}
-          <div className="relative flex flex-col items-center lg:items-end justify-end self-end w-full max-w-[340px] mx-auto lg:ml-auto lg:h-full mt-10 lg:mt-0 pt-6 select-none">
+          {/* RIGHT: Developer Visual (Enlarged to Full Footer Height & Card Matching Image Width) */}
+          <div className="relative flex flex-col items-center lg:items-end justify-end self-end w-full max-w-[440px] mx-auto lg:ml-auto lg:h-full mt-8 lg:mt-0 select-none">
             {/* Top-Left Handwritten Element: Built with ♥ by me + curved arrow */}
-            <div className="absolute top-2 left-0 sm:left-2 z-20 pointer-events-none select-none">
+            <div className="absolute top-1 -left-2 sm:-left-6 z-20 pointer-events-none select-none">
               <div className="font-['Caveat',cursive] -rotate-6 text-[#0284c7] text-lg sm:text-xl font-bold leading-[1.08] text-center drop-shadow-2xs">
                 <div>Built</div>
                 <div className="flex items-center justify-center gap-1">
@@ -1231,7 +1216,7 @@ function Footer({ onNavigate }) {
             </div>
 
             {/* Top-Right 3 Radiating Rays */}
-            <div className="absolute top-4 right-8 sm:right-6 z-20 pointer-events-none select-none">
+            <div className="absolute top-1 right-2 sm:right-0 z-20 pointer-events-none select-none">
               <svg
                 className="w-9 h-9 text-[#38bdf8]"
                 viewBox="0 0 36 36"
@@ -1246,8 +1231,8 @@ function Footer({ onNavigate }) {
               </svg>
             </div>
 
-            {/* Organic Sky-Blue Wave/Blob Background */}
-            <div className="absolute bottom-0 -right-8 z-0 overflow-hidden pointer-events-none w-[320px] sm:w-[360px] h-[300px] sm:h-[340px]">
+            {/* Organic Sky-Blue Wave/Blob Background spanning full height */}
+            <div className="absolute bottom-0 -right-6 z-0 overflow-hidden pointer-events-none w-[380px] sm:w-[440px] h-[350px] sm:h-[390px]">
               <svg
                 className="w-full h-full"
                 viewBox="0 0 360 340"
@@ -1266,40 +1251,43 @@ function Footer({ onNavigate }) {
               </svg>
             </div>
 
-            {/* Developer Portrait - Prominent & Crisp */}
-            <div className="relative z-10 w-60 sm:w-64 overflow-hidden flex items-end justify-center pt-2">
-              <img
-                src={abhishekImg}
-                alt="Abhishek Hosamani"
-                className="w-full object-contain object-bottom drop-shadow-sm -mb-2"
-              />
-            </div>
+            {/* Shared Container: Developer Image and Card share the EXACT SAME WIDTH */}
+            <div className="relative z-10 w-[310px] sm:w-[380px] lg:w-[420px] flex flex-col items-center">
+              {/* Developer Portrait - Prominently sized to reach the top of footer */}
+              <div className="w-full flex items-end justify-center overflow-hidden">
+                <img
+                  src={abhishekImg}
+                  alt="Abhishek Hosamani"
+                  className="w-full h-auto object-contain object-bottom drop-shadow-md"
+                />
+              </div>
 
-            {/* Floating Card: Abhishek Hosamani • green dot / Full Stack Developer (Touches the bottom divider line) */}
-            <a
-              href="https://www.linkedin.com/in/abhishek-hosamani/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="relative z-20 -mt-6 mb-0 translate-y-[1px] w-full max-w-[225px] rounded-2xl border border-slate-200/80 bg-white/95 backdrop-blur-md px-4 py-2.5 shadow-[0_10px_25px_-5px_rgba(15,23,42,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-[#0284c7]/40 block"
-              title="Connect with Abhishek Hosamani on LinkedIn"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-bold text-slate-900 tracking-tight">Abhishek Hosamani</span>
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                </span>
-              </div>
-              <div className="mt-0.5 text-[11px] text-slate-500 font-medium">
-                Full Stack Developer
-              </div>
-            </a>
+              {/* Floating Card: Abhishek Hosamani • green dot / Full Stack Developer (Exact same width as image, touches bottom divider) */}
+              <a
+                href="https://www.linkedin.com/in/abhishek-hosamani/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative z-20 -mt-6 mb-0 translate-y-[1px] w-full rounded-2xl border border-slate-200/90 bg-white/95 backdrop-blur-md px-4 sm:px-5 py-2.5 shadow-[0_10px_25px_-5px_rgba(15,23,42,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-[#0284c7]/40 block text-left"
+                title="Connect with Abhishek Hosamani on LinkedIn"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs sm:text-[13px] font-bold text-slate-900 tracking-tight">Abhishek Hosamani</span>
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                  </span>
+                </div>
+                <div className="mt-0.5 text-[11px] text-slate-500 font-medium">
+                  Full Stack Developer
+                </div>
+              </a>
+            </div>
           </div>
 
         </div>
 
-        {/* Bottom Legal / Navigation Bar */}
-        <div className="mt-0 border-t border-slate-200/80 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        {/* Bottom Legal / Navigation Bar - Clean & Minimal */}
+        <div className="mt-0 border-t border-slate-200/80 py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
             © {new Date().getFullYear()} ResumeXpert. Crafted with care by{' '}
             <a
@@ -1312,31 +1300,17 @@ function Footer({ onNavigate }) {
             </a>
           </div>
 
-          <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
-            <button onClick={() => onNavigate('/')} className="hover:text-slate-900 transition-colors">
-              Privacy Policy
-            </button>
-            <span className="text-slate-300">|</span>
-            <button onClick={() => onNavigate('/')} className="hover:text-slate-900 transition-colors">
-              Terms of Service
-            </button>
-            <span className="text-slate-300">|</span>
-            <button onClick={() => onNavigate('/')} className="hover:text-slate-900 transition-colors">
-              Cookie Settings
-            </button>
-            <span className="text-slate-300 mx-1 hidden sm:inline">|</span>
-            <button
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="flex items-center gap-2 font-medium text-slate-700 hover:text-[#0284c7] transition-colors group"
-            >
-              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-[#0284c7] shadow-2xs group-hover:bg-slate-50 group-hover:border-[#0284c7] transition-colors">
-                <ArrowUp size={13} strokeWidth={2.5} />
-              </span>
-              <span className="font-semibold text-xs text-slate-800 group-hover:text-[#0284c7] transition-colors">
-                Back to top
-              </span>
-            </button>
-          </div>
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="flex items-center gap-2 font-medium text-slate-700 hover:text-[#0284c7] transition-colors group"
+          >
+            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-[#0284c7] shadow-2xs group-hover:bg-slate-50 group-hover:border-[#0284c7] transition-colors">
+              <ArrowUp size={13} strokeWidth={2.5} />
+            </span>
+            <span className="font-semibold text-xs text-slate-800 group-hover:text-[#0284c7] transition-colors">
+              Back to top
+            </span>
+          </button>
         </div>
       </div>
     </footer>
