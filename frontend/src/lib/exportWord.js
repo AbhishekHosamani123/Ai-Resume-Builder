@@ -158,7 +158,8 @@ export function downloadResumeWord(resume, filenameBase) {
 // auto-save folder flow (lib/saveLocation) need the blob itself.
 export function buildWordBlob(resume, filenameBase) {
   const html = buildResumeWordHtml(resume)
-  const safeName = (filenameBase || 'Resume').replace(/[^a-z0-9]/gi, '_')
+  const rawTitle = (filenameBase || resume?.title || resume?.profileInfo?.fullName || 'Resume').trim()
+  const cleanTitle = rawTitle.replace(/[\/\\:*?"<>|]/g, '_').trim() || 'Resume'
   const blob = new Blob(['\ufeff', html], { type: 'application/msword' })
-  return { blob, filename: `${safeName}.doc` }
+  return { blob, filename: `${cleanTitle}.doc` }
 }

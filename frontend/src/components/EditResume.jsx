@@ -8,7 +8,7 @@ import { Eye, Palette, Trash2, ArrowLeft, Loader2, Save, Download, AlertCircle, 
 import { getResume, updateResume as persistResume, deleteResume as removeResume, setRecentResumeId } from '../lib/resumeStore'
 import { buildWordBlob } from '../lib/exportWord'
 import { convertOklchInTree, convertOklchVarsInDocument } from '../lib/colors'
-import { saveWithChosenFolder } from '../lib/saveLocation'
+import { saveWithChosenFolder, triggerAnchorDownload } from '../lib/saveLocation'
 import { addSearchableTextLayer } from '../lib/textLayer'
 import mascotVideo from '../assets/mascot.mp4'
 
@@ -922,7 +922,11 @@ const EditResume = () => {
       // Invisible searchable ATS text layer on top for ATS parsers and selection
       addSearchableTextLayer(pdf, element, { imgX: x, imgY: y, imgW, imgH });
 
-      const pdfFilename = `${(resumeData.title || "Resume").replace(/[^a-z0-9]/gi, "_")}.pdf`;
+      const rawTitle = (resumeData.title || "").trim();
+      const cleanTitle = rawTitle
+        ? rawTitle.replace(/[\/\\:*?"<>|]/g, "_").trim()
+        : (resumeData.profileInfo?.fullName ? `${resumeData.profileInfo.fullName.trim()} Resume` : "Resume");
+      const pdfFilename = `${cleanTitle}.pdf`;
       return { blob: pdf.output("blob"), filename: pdfFilename, appliedScale };
     } finally {
       if (inner) {
@@ -944,9 +948,8 @@ const EditResume = () => {
     }
   };
 
-  // Actual save: auto-saves into the user's chosen folder (set up on first
-  // download — no "Save As" dialog on any download after that), with a
-  // classic browser download as fallback.
+  // Direct download: downloads the PDF directly with the user's resume title,
+  // without asking for folder location.
   const performDownload = async () => {
     const toastId = toast.loading("Generating PDF...");
     try {
@@ -955,12 +958,8 @@ const EditResume = () => {
       // keep the generated PDF accessible (debugging / tests)
       window.__lastResumePdf = blob;
 
-      const result = await saveWithChosenFolder(blob, filename);
-      if (result.method === "folder") {
-        toast.success(`Saved automatically to "${result.dirName}" — 1 page A4`, { id: toastId });
-      } else {
-        toast.success("PDF downloaded successfully — 1 page A4!", { id: toastId });
-      }
+      triggerAnchorDownload(blob, filename);
+      toast.success(`Downloaded "${filename}" — 1 page A4!`, { id: toastId });
       if (appliedScale < 1) {
         toast.error(
           `Your content was long, so it was scaled to ${Math.round(appliedScale * 100)}% to fit one page. Tip: shorten older roles or descriptions — most ATS reject 2-page resumes.`,
@@ -1385,12 +1384,8 @@ const EditResume = () => {
               onClick: async () => {
                 try {
                   const { blob, filename } = buildWordBlob(resumeData, resumeData.title || 'Resume')
-                  const result = await saveWithChosenFolder(blob, filename)
-                  if (result.method === 'folder') {
-                    toast.success(`Word file saved automatically to "${result.dirName}"`)
-                  } else {
-                    toast.success('Word file downloaded')
-                  }
+                  triggerAnchorDownload(blob, filename)
+                  toast.success(`Downloaded "${filename}"!`)
                 } catch (err) {
                   console.error('Word export failed:', err)
                   toast.error('Failed to generate Word file')

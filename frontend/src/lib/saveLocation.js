@@ -87,8 +87,8 @@ export async function saveBlobAuto(blob, filename) {
   return { ok: true, method: 'download' }
 }
 
-// Classic download — goes to the browser's download folder (may show "Save As"
-// if the user has "ask where to save" enabled in the BROWSER settings).
+// Classic download — directly downloads into browser's default download folder
+// with the exact filename given by the user, without prompting for a folder location.
 export function triggerAnchorDownload(blob, filename) {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -100,38 +100,9 @@ export function triggerAnchorDownload(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 3000)
 }
 
-// Full user-facing flow used by the Download button:
-//  1. If a folder is already saved & permitted → silent save.
-//  2. Else (first download ever) ask ONCE to pick a folder, e.g.
-//     "output_resume" — user gesture is active inside click handlers.
-//  3. If the user declines, remember it and use the classic anchor download
-//     from then on (browser's default download folder) — never nag again.
+// Direct download handler: downloads directly with zero folder picker prompts
 export async function saveWithChosenFolder(blob, filename) {
-  if (!supported) return saveBlobAuto(blob, filename)
-
-  let declined = false
-  try { declined = (await kv.get(DECLINED_KEY)) === true } catch { declined = false }
-
-  let handle = declined ? null : await getSavedDir()
-  if (handle && !(await hasGrantedPermission(handle))) {
-    // Chrome requires a fresh user activation to re-grant — try silently first
-    try {
-      if ((await handle.requestPermission({ mode: 'readwrite' })) !== 'granted') handle = null
-    } catch {
-      handle = null
-    }
-  }
-  if (!handle && !declined) {
-    // One-time setup: let the user choose where resumes are saved (e.g. an
-    // "output_resume" folder). Afterwards every download is fully automatic.
-    toast('Pick a folder to auto-save resumes into (one time only)', { icon: '📁', duration: 6000 })
-    handle = await pickSaveFolder()
-    if (!handle) {
-      // user cancelled — stop asking in the future, just download normally
-      try { await kv.set(DECLINED_KEY, true) } catch { /* ignore */ }
-      return saveBlobAuto(blob, filename)
-    }
-    toast.success(`Resumes will now save automatically to "${handle.name}"`, { duration: 5000 })
-  }
-  return saveBlobAuto(blob, filename)
+  triggerAnchorDownload(blob, filename)
+  return { ok: true, method: 'download' }
 }
+
