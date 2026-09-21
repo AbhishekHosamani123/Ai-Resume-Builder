@@ -8,6 +8,7 @@ import { resumeTemplates } from '../utils/data'
 import { scrollToTarget } from '../lib/smoothScroll'
 import Reveal from '../components/Reveal'
 import mascotVideo from '../assets/mascot.mp4'
+import abhishekImg from '../assets/Abhishek.png'
 
 const LOGO = (
   <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink text-white">
@@ -1101,6 +1102,38 @@ function Footer({ onNavigate }) {
             The free resume builder with a built-in ATS score checker. Private by design — your
             data never leaves your browser.
           </p>
+          <div className="mt-5">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">Developer</div>
+            <a
+              href="https://www.linkedin.com/in/abhishek-hosamani/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group mt-2 inline-flex items-center gap-3 rounded-2xl border border-deep/10 bg-white p-2 pr-4 shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-400 hover:shadow-md"
+              title="Connect with Abhishek Hosamani on LinkedIn"
+            >
+              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-brand-200/80 bg-gradient-to-tr from-brand-100 to-teal-50 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                <img
+                  src={abhishekImg}
+                  alt="Abhishek Hosamani - Developer"
+                  className="h-full w-full object-cover object-top"
+                />
+                <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-emerald-500" title="Active" />
+              </div>
+              <div className="text-left">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-ink group-hover:text-brand-600 transition-colors">
+                    Abhishek Hosamani
+                  </span>
+                  <Linkedin size={13} className="text-[#0a66c2]" />
+                </div>
+                <div className="flex items-center gap-1 text-[11px] text-ink-mute">
+                  <span>Full Stack Developer</span>
+                  <span className="text-brand-500 font-semibold group-hover:translate-x-0.5 transition-transform">↗</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
           <div className="mt-5 flex items-center gap-2.5">
             {SOCIALS.map((s) => (
               <a
@@ -1148,7 +1181,22 @@ function Footer({ onNavigate }) {
       </div>
       <div className="border-t border-deep/8">
         <div className="container-x flex flex-col items-center justify-between gap-3 py-5 text-xs text-ink-faint sm:flex-row">
-          <span>© {new Date().getFullYear()} ResumeXpert. Crafted with care by Abhishek.</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span>© {new Date().getFullYear()} ResumeXpert. Crafted with care by</span>
+            <a
+              href="https://www.linkedin.com/in/abhishek-hosamani/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 font-medium text-ink hover:text-brand-600 transition-colors group"
+            >
+              <img
+                src={abhishekImg}
+                alt="Abhishek Hosamani"
+                className="h-5 w-5 rounded-full object-cover object-top border border-brand-300 shadow-2xs group-hover:scale-110 transition-transform"
+              />
+              <span className="underline decoration-deep/20 underline-offset-2 group-hover:decoration-brand-500">Abhishek Hosamani</span>
+            </a>
+          </div>
           <div className="flex gap-5">
             <button className="hover:text-teal-500">Privacy Policy</button>
             <button className="hover:text-teal-500">Terms of Service</button>
