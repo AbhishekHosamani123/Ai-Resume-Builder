@@ -41,6 +41,12 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
     interests = [],
   } = resumeData;
 
+  const jobs = workExperience.filter((w) => (w.company || "").trim() || (w.role || "").trim());
+  const projs = projects.filter((pr) => (pr.title || "").trim());
+  const certs = certifications.filter((ct) => (ct.title || "").trim());
+  const edus = education.filter((e) => (e.degree || "").trim() || (e.institution || "").trim());
+  const skillList = skills.filter((s) => (s.name || "").trim());
+
   const resumeRef = useRef(null);
   const [baseWidth, setBaseWidth] = useState(794);
   const [scale, setScale] = useState(1);
@@ -137,11 +143,11 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
       <div className="grid grid-cols-3 gap-8">
         {/* Left Column */}
         <div className="col-span-2 space-y-4">
-          {workExperience.length > 0 && (
+          {jobs.length > 0 && (
             <div className="resume-section" data-section="work-experience">
               <Title text="Work Experience" color={primaryColor} />
               <div className="space-y-6">
-                {workExperience.map((exp, i) => (
+                {jobs.map((exp, i) => (
                   <WorkExperience
                     key={i}
                     company={exp.company}
@@ -157,11 +163,11 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
             </div>
           )}
 
-          {projects.length > 0 && (
+          {projs.length > 0 && (
             <div className="resume-section" data-section="projects">
               <Title text="Projects" color={primaryColor} />
               <div className="space-y-4">
-                {projects.map((proj, i) => (
+                {projs.map((proj, i) => (
                   <ProjectInfo
                     key={i}
                     title={proj.title}
@@ -179,11 +185,11 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
 
         {/* Right Column */}
         <div className="col-span-1 space-y-6">
-          {skills.length > 0 && (
+          {skillList.length > 0 && (
             <div className="resume-section" data-section="skills">
               <Title text="Skills" color={primaryColor} />
               <div className="flex flex-wrap gap-2">
-                {skills.map((skill, i) => (
+                {skillList.map((skill, i) => (
                   <span
                     key={i}
                     className="text-xs font-medium px-2 py-1 rounded"
@@ -196,11 +202,11 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
             </div>
           )}
 
-          {education.length > 0 && (
+          {edus.length > 0 && (
             <div className="resume-section" data-section="education-info">
               <Title text="Education" color={primaryColor} />
               <div className="space-y-4 pb-2">
-                {education.map((edu, i) => (
+                {edus.map((edu, i) => (
                   <EducationInfo
                     key={i}
                     degree={edu.degree}
@@ -214,11 +220,11 @@ const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
             </div>
           )}
 
-          {certifications.length > 0 && (
+          {certs.length > 0 && (
             <div className="resume-section" data-section="certifications">
               <Title text="Certifications" color={primaryColor} />
               <div className="space-y-2">
-                {certifications.map((cert, i) => (
+                {certs.map((cert, i) => (
                   <CertificationInfo
                     key={i}
                     title={cert.title}

@@ -4,7 +4,7 @@ import './A4.css'
 import { buttonStyles, containerStyles, statusStyles, iconStyles } from '../assets/dummystyle'
 import { TitleInput } from './Inputs'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Eye, Palette, Trash2, ArrowLeft, Loader2, Save, Download, AlertCircle, Check, Gauge, FileText, Printer, MousePointerClick, Sparkles, User, Mail, Briefcase, GraduationCap, Code, FolderGit2, Award, Globe } from 'lucide-react'
+import { Eye, Palette, Trash2, ArrowLeft, Loader2, Save, Download, AlertCircle, Check, Gauge, FileText, Printer, MousePointerClick, Sparkles, User, Mail, Briefcase, GraduationCap, Code, FolderGit2, Award, Globe, SkipForward } from 'lucide-react'
 import { getResume, updateResume as persistResume, deleteResume as removeResume, setRecentResumeId } from '../lib/resumeStore'
 import { buildWordBlob } from '../lib/exportWord'
 import { convertOklchInTree, convertOklchVarsInDocument } from '../lib/colors'
@@ -15,12 +15,12 @@ import mascotVideo from '../assets/mascot.mp4'
 const FORM_SECTIONS = [
   { id: "profile-info", label: "Profile", icon: User },
   { id: "contact-info", label: "Contact", icon: Mail },
-  { id: "work-experience", label: "Experience", icon: Briefcase },
+  { id: "work-experience", label: "Experience", icon: Briefcase, optional: true },
   { id: "education-info", label: "Education", icon: GraduationCap },
   { id: "skills", label: "Skills", icon: Code },
-  { id: "projects", label: "Projects", icon: FolderGit2 },
-  { id: "certifications", label: "Certifications", icon: Award },
-  { id: "additionalInfo", label: "More", icon: Globe },
+  { id: "projects", label: "Projects", icon: FolderGit2, optional: true },
+  { id: "certifications", label: "Certifications", icon: Award, optional: true },
+  { id: "additionalInfo", label: "More", icon: Globe, optional: true },
 ];
 
 const SECTION_MESSAGES = {
@@ -197,18 +197,21 @@ const EditResume = () => {
     if (resumeData.contactInfo.email) completedFields++;
     if (resumeData.contactInfo.phone) completedFields++;
 
-    // Work Experience
-    resumeData.workExperience.forEach(exp => {
-      totalFields += 5;
-      if (exp.company) completedFields++;
-      if (exp.role) completedFields++;
-      if (exp.startDate) completedFields++;
-      if (exp.endDate) completedFields++;
-      if (exp.description) completedFields++;
+    // Work Experience (Optional)
+    (resumeData.workExperience || []).forEach(exp => {
+      const hasAny = (exp.company || "").trim() || (exp.role || "").trim() || (exp.startDate || "").trim() || (exp.endDate || "").trim() || (exp.description || "").trim();
+      if (hasAny) {
+        totalFields += 5;
+        if (exp.company) completedFields++;
+        if (exp.role) completedFields++;
+        if (exp.startDate) completedFields++;
+        if (exp.endDate) completedFields++;
+        if (exp.description) completedFields++;
+      }
     });
 
     // Education
-    resumeData.education.forEach(edu => {
+    (resumeData.education || []).forEach(edu => {
       totalFields += 4;
       if (edu.degree) completedFields++;
       if (edu.institution) completedFields++;
@@ -217,41 +220,47 @@ const EditResume = () => {
     });
 
     // Skills
-    resumeData.skills.forEach(skill => {
+    (resumeData.skills || []).forEach(skill => {
       totalFields += 2;
       if (skill.name) completedFields++;
       if (skill.progress > 0) completedFields++;
     });
 
-    // Projects
-    resumeData.projects.forEach(project => {
-      totalFields += 4;
-      if (project.title) completedFields++;
-      if (project.description) completedFields++;
-      if (project.github) completedFields++;
-      if (project.liveDemo) completedFields++;
+    // Projects (Optional)
+    (resumeData.projects || []).forEach(project => {
+      const hasAny = (project.title || "").trim() || (project.description || "").trim() || (project.github || "").trim() || (project.liveDemo || "").trim();
+      if (hasAny) {
+        totalFields += 4;
+        if (project.title) completedFields++;
+        if (project.description) completedFields++;
+        if (project.github) completedFields++;
+        if (project.liveDemo) completedFields++;
+      }
     });
 
-    // Certifications
-    resumeData.certifications.forEach(cert => {
-      totalFields += 3;
-      if (cert.title) completedFields++;
-      if (cert.issuer) completedFields++;
-      if (cert.year) completedFields++;
+    // Certifications (Optional)
+    (resumeData.certifications || []).forEach(cert => {
+      const hasAny = (cert.title || "").trim() || (cert.issuer || "").trim() || (cert.year || "").trim();
+      if (hasAny) {
+        totalFields += 3;
+        if (cert.title) completedFields++;
+        if (cert.issuer) completedFields++;
+        if (cert.year) completedFields++;
+      }
     });
 
     // Languages
-    resumeData.languages.forEach(lang => {
+    (resumeData.languages || []).forEach(lang => {
       totalFields += 2;
       if (lang.name) completedFields++;
       if (lang.progress > 0) completedFields++;
     });
 
     // Interests
-    totalFields += resumeData.interests.length;
-    completedFields += resumeData.interests.filter(i => i.trim() !== "").length;
+    totalFields += (resumeData.interests || []).length;
+    completedFields += (resumeData.interests || []).filter(i => (i || "").trim() !== "").length;
 
-    const percentage = Math.round((completedFields / totalFields) * 100);
+    const percentage = Math.round((completedFields / Math.max(totalFields, 1)) * 100);
     setCompletionPercentage(percentage);
     return percentage;
   };
@@ -281,46 +290,58 @@ const EditResume = () => {
         break
       }
 
-      case "work-experience":
-        resumeData.workExperience.forEach(({ company, role, startDate, endDate }, index) => {
+      case "work-experience": {
+        // Experience is optional: ignore completely blank entries
+        const filledEntries = (resumeData.workExperience || []).filter(
+          (exp) => (exp.company || "").trim() || (exp.role || "").trim() || (exp.description || "").trim() || exp.startDate || exp.endDate
+        )
+        filledEntries.forEach(({ company, role }, index) => {
           if (!company || !company.trim()) errors.push(`Company is required in experience ${index + 1}`)
           if (!role || !role.trim()) errors.push(`Role is required in experience ${index + 1}`)
-          if (!startDate || !endDate) errors.push(`Start and End dates are required in experience ${index + 1}`)
         })
         break
+      }
 
       case "education-info":
-        resumeData.education.forEach(({ degree, institution, startDate, endDate }, index) => {
-          if (!degree.trim()) errors.push(`Degree is required in education ${index + 1}`)
-          if (!institution.trim()) errors.push(`Institution is required in education ${index + 1}`)
+        (resumeData.education || []).forEach(({ degree, institution, startDate, endDate }, index) => {
+          if (!degree || !degree.trim()) errors.push(`Degree is required in education ${index + 1}`)
+          if (!institution || !institution.trim()) errors.push(`Institution is required in education ${index + 1}`)
           if (!startDate || !endDate) errors.push(`Start and End dates are required in education ${index + 1}`)
         })
         break
 
       case "skills":
-        resumeData.skills.forEach(({ name, progress }, index) => {
-          if (!name.trim()) errors.push(`Skill name is required in skill ${index + 1}`)
+        (resumeData.skills || []).forEach(({ name, progress }, index) => {
+          if (!name || !name.trim()) errors.push(`Skill name is required in skill ${index + 1}`)
           if (progress < 1 || progress > 100)
             errors.push(`Skill progress must be between 1 and 100 in skill ${index + 1}`)
         })
         break
 
-      case "projects":
-        resumeData.projects.forEach(({ title, description }, index) => {
-          if (!title.trim()) errors.push(`Project Title is required in project ${index + 1}`)
-          if (!description.trim()) errors.push(`Project description is required in project ${index + 1}`)
+      case "projects": {
+        // Projects is optional: ignore completely blank entries
+        const filledProjects = (resumeData.projects || []).filter(
+          (proj) => (proj.title || "").trim() || (proj.description || "").trim() || (proj.github || "").trim() || (proj.liveDemo || "").trim()
+        )
+        filledProjects.forEach(({ title }, index) => {
+          if (!title || !title.trim()) errors.push(`Project Title is required in project ${index + 1}`)
         })
         break
+      }
 
-      case "certifications":
-        resumeData.certifications.forEach(({ title, issuer }, index) => {
-          if (!title.trim()) errors.push(`Certification Title is required in certification ${index + 1}`)
-          if (!issuer.trim()) errors.push(`Issuer is required in certification ${index + 1}`)
+      case "certifications": {
+        // Certifications is optional: ignore completely blank entries
+        const filledCerts = (resumeData.certifications || []).filter(
+          (cert) => (cert.title || "").trim() || (cert.issuer || "").trim() || (cert.year || "").trim()
+        )
+        filledCerts.forEach(({ title }, index) => {
+          if (!title || !title.trim()) errors.push(`Certification Title is required in certification ${index + 1}`)
         })
         break
+      }
 
       case "additionalInfo":
-        if (resumeData.languages.length === 0 || !resumeData.languages[0].name?.trim()) {
+        if (!resumeData.languages || resumeData.languages.length === 0 || !resumeData.languages[0].name?.trim()) {
           errors.push("At least one language is required")
         }
         break
@@ -335,6 +356,15 @@ const EditResume = () => {
     }
 
     setErrorMsg("")
+    goToNextStep()
+  }
+
+  // Skip optional section
+  const skipSection = () => {
+    setErrorMsg("")
+    const currentSection = FORM_SECTIONS.find((s) => s.id === currentPage)
+    const label = currentSection?.label || "Section"
+    toast.success(`${label} skipped`)
     goToNextStep()
   }
 
@@ -492,6 +522,7 @@ const EditResume = () => {
             }}
             addArrayItem={(newItem) => addArrayItem("workExperience", newItem)}
             removeArrayItem={(index) => removeArrayItem("workExperience", index)}
+            onSkip={skipSection}
             onEnhanceDescription={(idx) => {
               const exp = resumeData?.workExperience?.[idx] || {}
               const company = (exp.company || '').trim()
@@ -563,6 +594,7 @@ const EditResume = () => {
             }}
             addArrayItem={(newItem) => addArrayItem("projects", newItem)}
             removeArrayItem={(index) => removeArrayItem("projects", index)}
+            onSkip={skipSection}
             onEnhanceProjectDescription={(idx) => {
               const proj = resumeData?.projects?.[idx] || {}
               const title = (proj.title || '').trim()
@@ -608,6 +640,7 @@ const EditResume = () => {
             }}
             addArrayItem={(newItem) => addArrayItem("certifications", newItem)}
             removeArrayItem={(index) => removeArrayItem("certifications", index)}
+            onSkip={skipSection}
           />
         )
 
@@ -1195,10 +1228,17 @@ const EditResume = () => {
                       ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold shadow-xs"
                       : "bg-slate-50 text-slate-600 hover:bg-violet-50 hover:text-violet-700 border border-slate-200/60"
                   }`}
-                  title={`Jump directly to ${sec.label}`}
+                  title={`Jump directly to ${sec.label}${sec.optional ? " (Optional)" : ""}`}
                 >
                   <Icon size={13} />
                   <span>{sec.label}</span>
+                  {sec.optional && (
+                    <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-semibold ${
+                      isActive ? "bg-white/25 text-white" : "bg-slate-200/70 text-slate-500"
+                    }`}>
+                      Optional
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -1276,6 +1316,19 @@ const EditResume = () => {
                 : <Save size={16} />}
             {isLoading ? "Saving..." : "Save & Exit"}
             </button>
+
+            {["work-experience", "projects", "certifications"].includes(currentPage) && (
+              <button
+                type="button"
+                className={buttonStyles.skip}
+                onClick={skipSection}
+                disabled={isLoading}
+                title="Skip this section"
+              >
+                <SkipForward size={16} />
+                Skip Section
+              </button>
+            )}
 
             {currentPage === "additionalInfo" && (
               <button className={buttonStyles.ats} onClick={() => navigate(`/ats?resume=${resumeId}`)} disabled={isLoading}>

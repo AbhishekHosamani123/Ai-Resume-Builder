@@ -27,6 +27,12 @@ const TemplateTwo = ({ resumeData = {}, colorPalette, containerWidth }) => {
     interests = [],
   } = resumeData;
 
+  const jobs = workExperience.filter((w) => (w.company || "").trim() || (w.role || "").trim());
+  const projs = projects.filter((pr) => (pr.title || "").trim());
+  const certs = certifications.filter((ct) => (ct.title || "").trim());
+  const edus = education.filter((e) => (e.degree || "").trim() || (e.institution || "").trim());
+  const skillList = skills.filter((s) => (s.name || "").trim());
+
   const resumeRef = useRef(null);
   const [baseWidth, setBaseWidth] = useState(794);
   const [scale, setScale] = useState(1);
@@ -109,11 +115,11 @@ const TemplateTwo = ({ resumeData = {}, colorPalette, containerWidth }) => {
       )}
 
       {/* Experience */}
-      {workExperience.length > 0 && (
+      {jobs.length > 0 && (
         <section className="mb-2" data-section="work-experience">
           <SectionTitle text="Experience" />
           <div className="space-y-2">
-            {workExperience.map((exp, idx) => (
+            {jobs.map((exp, idx) => (
               <div key={idx} className="space-y-0.5">
                 <div className="flex justify-between items-start">
                   <div>
@@ -160,11 +166,11 @@ const TemplateTwo = ({ resumeData = {}, colorPalette, containerWidth }) => {
       )}
 
       {/* Projects */}
-      {projects.length > 0 && (
+      {projs.length > 0 && (
         <section className="mb-2" data-section="projects">
           <SectionTitle text="Projects" />
           <div className="space-y-2">
-            {projects.map((proj, idx) => (
+            {projs.map((proj, idx) => (
               <div key={idx} className="space-y-0.5">
                 <div className="flex justify-between items-start">
                   <h3 className="font-semibold text-[12px] text-gray-800">{proj.title}</h3>
@@ -219,11 +225,11 @@ const TemplateTwo = ({ resumeData = {}, colorPalette, containerWidth }) => {
       )}
 
       {/* Education */}
-      {education.length > 0 && (
+      {edus.length > 0 && (
         <section className="mb-2" data-section="education-info">
           <SectionTitle text="Education" />
           <div className="space-y-1">
-            {education.map((edu, idx) => (
+            {edus.map((edu, idx) => (
               <div key={idx} className="space-y-0.25">
                 <div className="flex justify-between items-center">
                   <h3 className="font-semibold text-[12px] text-gray-800">{edu.degree}</h3>
@@ -244,11 +250,11 @@ const TemplateTwo = ({ resumeData = {}, colorPalette, containerWidth }) => {
       )}
 
       {/* Skills */}
-      {skills.length > 0 && (
+      {skillList.length > 0 && (
         <section className="mb-2" data-section="skills">
           <SectionTitle text="Skills" />
           <ul className="text-[11px] text-gray-800 flex flex-wrap gap-1">
-            {skills.map((skill, idx) => (
+            {skillList.map((skill, idx) => (
               <li key={idx} className="w-fit">{skill.name}</li>
             ))}
           </ul>
@@ -256,11 +262,11 @@ const TemplateTwo = ({ resumeData = {}, colorPalette, containerWidth }) => {
       )}
 
       {/* Certifications */}
-      {certifications.length > 0 && (
+      {certs.length > 0 && (
         <section className="mb-2" data-section="certifications">
           <SectionTitle text="Certifications" />
           <div className="space-y-1 pl-1 text-[11px] text-gray-700">
-            {certifications.map((cert, idx) => (
+            {certs.map((cert, idx) => (
               <div key={idx} className="flex items-start gap-2">
                 <span
                   className="shrink-0 mt-1.5"

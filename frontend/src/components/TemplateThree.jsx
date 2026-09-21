@@ -25,6 +25,11 @@ const TemplateThree = ({ resumeData = {}, colorPalette, containerWidth }) => {
     interests = [],
   } = resumeData;
 
+  const jobs = workExperience.filter((w) => (w.company || "").trim() || (w.role || "").trim());
+  const projs = projects.filter((pr) => (pr.title || "").trim());
+  const certs = certifications.filter((ct) => (ct.title || "").trim());
+  const edus = education.filter((e) => (e.degree || "").trim() || (e.institution || "").trim());
+
   const resumeRef = useRef(null);
   const [baseWidth, setBaseWidth] = useState(794);
   const [scale, setScale] = useState(1);
@@ -175,11 +180,11 @@ const TemplateThree = ({ resumeData = {}, colorPalette, containerWidth }) => {
           </section>
 
           {/* Education */}
-          {education.length > 0 && (
+          {edus.length > 0 && (
             <section data-section="education-info">
               <h2 className="text-sm font-bold uppercase text-gray-800 mb-3 tracking-wider">EDUCATION</h2>
               <div className="space-y-3">
-                {education.map((edu, idx) => (
+                {edus.map((edu, idx) => (
                   <div key={idx} className="text-xs">
                     <h3 className="font-bold pb-2">{edu.institution}</h3>
                     <p className=" pb-2 ">{edu.degree}</p>
@@ -190,7 +195,7 @@ const TemplateThree = ({ resumeData = {}, colorPalette, containerWidth }) => {
           )}
 
           {/* Certifications */}
-          {certifications.length > 0 && (
+          {certs.length > 0 && (
             <section data-section="certifications">
               <h2
                 className="text-sm font-bold uppercase mb-2 tracking-wider pb-1"
@@ -199,7 +204,7 @@ const TemplateThree = ({ resumeData = {}, colorPalette, containerWidth }) => {
                 CERTIFICATIONS
               </h2>
               <ul className="text-xs text-gray-700 space-y-1">
-                {certifications.map((cert, idx) => (
+                {certs.map((cert, idx) => (
                   <li key={idx}>{cert.title} ({cert.year})</li>
                 ))}
               </ul>
@@ -227,11 +232,11 @@ const TemplateThree = ({ resumeData = {}, colorPalette, containerWidth }) => {
         {/* MAIN CONTENT - 7 columns */}
         <main className="col-span-7 space-y-5 pl-4">
           {/* Work Experience */}
-          {workExperience.length > 0 && (
+          {jobs.length > 0 && (
             <section data-section="work-experience">
               <h2 className="text-sm font-bold uppercase text-gray-800 mb-3 tracking-wider border-b border-gray-400 pb-1">WORK EXPERIENCE</h2>
               <div className="space-y-5">
-                {workExperience.map((exp, idx) => (
+                {jobs.map((exp, idx) => (
                   <div key={idx} className="text-xs">
                     <div className="flex justify-between items-start mb-1">
                       <div>
@@ -272,7 +277,7 @@ const TemplateThree = ({ resumeData = {}, colorPalette, containerWidth }) => {
           )}
 
           {/* Projects Section */}
-          {projects.length > 0 && (
+          {projs.length > 0 && (
             <section data-section="projects">
               <h2
                 className="text-sm font-bold uppercase mb-3 tracking-wider pb-1"
@@ -281,7 +286,7 @@ const TemplateThree = ({ resumeData = {}, colorPalette, containerWidth }) => {
                 PROJECTS
               </h2>
               <div className="space-y-4">
-                {projects.map((proj, idx) => (
+                {projs.map((proj, idx) => (
                   <div key={idx} className="text-xs">
                     <div className="flex justify-between items-start">
                       <h3 className="font-bold">{proj.title}</h3>
