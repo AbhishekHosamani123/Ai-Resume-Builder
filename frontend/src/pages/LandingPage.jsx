@@ -1132,64 +1132,70 @@ function Footer({ onNavigate }) {
       {/* Very subtle ambient gradient glow on the right */}
       <div className="pointer-events-none absolute right-0 bottom-0 h-96 w-96 rounded-full bg-gradient-to-tl from-sky-100/50 via-blue-50/30 to-transparent blur-3xl -z-10" />
 
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 pt-10 sm:pt-12 pb-0">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_2fr_1.65fr] xl:grid-cols-[1.05fr_2.1fr_1.65fr] items-end">
+      {/* Expanded Full-Width Footer Container */}
+      <div className="w-full pl-6 sm:pl-10 lg:pl-12 xl:pl-16 pr-0 pt-10 sm:pt-12 pb-0">
+        <div className="flex flex-col lg:flex-row items-end justify-between gap-10 xl:gap-14">
           
-          {/* LEFT: ResumeXpert Brand & Socials (Clean & Minimal) */}
-          <div className="flex flex-col justify-start self-start pt-3">
-            <button className="flex items-center gap-2.5 text-left group w-fit" onClick={() => onNavigate('/')}>
-              {LOGO}
-              <span className="font-display text-xl font-bold tracking-tight text-ink group-hover:opacity-90 transition-opacity">
-                Resume<span className="text-[#0284c7]">Xpert</span>
-              </span>
-            </button>
-            <p className="mt-3 max-w-xs text-sm leading-relaxed text-slate-500 font-normal">
-              Free, private & ATS-friendly resume builder.
-            </p>
+          {/* LEFT & CENTER: Brand, Tagline, Socials & Navigation Columns */}
+          <div className="w-full lg:flex-1 grid grid-cols-1 md:grid-cols-[1.1fr_2.2fr] xl:grid-cols-[1.15fr_2.4fr] gap-8 xl:gap-12 items-start self-start pt-3 pr-6 sm:pr-10 lg:pr-6">
+            
+            {/* Brand & Socials */}
+            <div className="flex flex-col justify-start">
+              <button className="flex items-center gap-2.5 text-left group w-fit" onClick={() => onNavigate('/')}>
+                {LOGO}
+                <span className="font-display text-xl font-bold tracking-tight text-ink group-hover:opacity-90 transition-opacity">
+                  Resume<span className="text-[#0284c7]">Xpert</span>
+                </span>
+              </button>
+              <p className="mt-3 max-w-xs text-sm leading-relaxed text-slate-500 font-normal">
+                Free, private & ATS-friendly resume builder.
+              </p>
 
-            {/* 4 Social Icons: LinkedIn, Instagram, GitHub, Email */}
-            <div className="mt-5 flex items-center gap-2.5">
-              {SOCIALS.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  target={s.href.startsWith('mailto:') ? undefined : '_blank'}
-                  rel={s.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
-                  title={s.label}
-                  aria-label={s.label}
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-all duration-200 hover:bg-[#0284c7] hover:text-white hover:-translate-y-0.5 hover:shadow-sm"
-                >
-                  {s.icon}
-                </a>
+              {/* 4 Social Icons: LinkedIn, Instagram, GitHub, Email */}
+              <div className="mt-5 flex items-center gap-2.5">
+                {SOCIALS.map((s) => (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target={s.href.startsWith('mailto:') ? undefined : '_blank'}
+                    rel={s.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
+                    title={s.label}
+                    aria-label={s.label}
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-all duration-200 hover:bg-[#0284c7] hover:text-white hover:-translate-y-0.5 hover:shadow-sm"
+                  >
+                    {s.icon}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* 4 Navigation Columns */}
+            <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 lg:gap-5 xl:gap-8">
+              {navSections.map((sec) => (
+                <div key={sec.title}>
+                  <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400 mb-3.5">
+                    {sec.title}
+                  </div>
+                  <ul className="space-y-2.5">
+                    {sec.links.map((link) => (
+                      <li key={link.label}>
+                        <button
+                          className="text-left text-xs sm:text-[13px] text-slate-600 transition-all duration-150 hover:text-[#0284c7] hover:translate-x-0.5"
+                          onClick={link.action}
+                        >
+                          {link.label}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
             </div>
+
           </div>
 
-          {/* CENTER: 4 Navigation Columns (Streamlined & Minimal) */}
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 lg:gap-5 xl:gap-7 self-start pt-3">
-            {navSections.map((sec) => (
-              <div key={sec.title}>
-                <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400 mb-3.5">
-                  {sec.title}
-                </div>
-                <ul className="space-y-2.5">
-                  {sec.links.map((link) => (
-                    <li key={link.label}>
-                      <button
-                        className="text-left text-xs sm:text-[13px] text-slate-600 transition-all duration-150 hover:text-[#0284c7] hover:translate-x-0.5"
-                        onClick={link.action}
-                      >
-                        {link.label}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-
-          {/* RIGHT: Developer Visual (Enlarged to Full Footer Height & Card Matching Image Width) */}
-          <div className="relative flex flex-col items-center lg:items-end justify-end self-end w-full max-w-[440px] mx-auto lg:ml-auto lg:h-full mt-8 lg:mt-0 select-none">
+          {/* RIGHT CORNER: Developer Visual docked at the far right of the website */}
+          <div className="relative flex flex-col items-center lg:items-end justify-end self-end shrink-0 w-full sm:w-auto lg:pr-6 xl:pr-10 select-none mt-8 lg:mt-0">
             {/* Top-Left Handwritten Element: Built with ♥ by me + curved arrow */}
             <div className="absolute top-1 -left-2 sm:-left-6 z-20 pointer-events-none select-none">
               <div className="font-['Caveat',cursive] -rotate-6 text-[#0284c7] text-lg sm:text-xl font-bold leading-[1.08] text-center drop-shadow-2xs">
@@ -1286,8 +1292,8 @@ function Footer({ onNavigate }) {
 
         </div>
 
-        {/* Bottom Legal / Navigation Bar - Clean & Minimal */}
-        <div className="mt-0 border-t border-slate-200/80 py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        {/* Bottom Legal / Navigation Bar - Clean & Minimal Spanning Full Width */}
+        <div className="mt-0 border-t border-slate-200/80 py-5 pr-6 sm:pr-10 lg:pr-12 xl:pr-16 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
             © {new Date().getFullYear()} ResumeXpert. Crafted with care by{' '}
             <a
