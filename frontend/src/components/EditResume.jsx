@@ -4,12 +4,13 @@ import './A4.css'
 import { buttonStyles, containerStyles, statusStyles, iconStyles } from '../assets/dummystyle'
 import { TitleInput } from './Inputs'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Eye, Palette, Trash2, ArrowLeft, Loader2, Save, Download, AlertCircle, Check, Gauge, FileText, Printer, MousePointerClick, User, Mail, Briefcase, GraduationCap, Code, FolderGit2, Award, Globe } from 'lucide-react'
+import { Eye, Palette, Trash2, ArrowLeft, Loader2, Save, Download, AlertCircle, Check, Gauge, FileText, Printer, MousePointerClick, Sparkles, User, Mail, Briefcase, GraduationCap, Code, FolderGit2, Award, Globe } from 'lucide-react'
 import { getResume, updateResume as persistResume, deleteResume as removeResume, setRecentResumeId } from '../lib/resumeStore'
 import { buildWordBlob } from '../lib/exportWord'
 import { convertOklchInTree, convertOklchVarsInDocument } from '../lib/colors'
 import { saveWithChosenFolder } from '../lib/saveLocation'
 import { addSearchableTextLayer } from '../lib/textLayer'
+import mascotVideo from '../assets/mascot.mp4'
 
 const FORM_SECTIONS = [
   { id: "profile-info", label: "Profile", icon: User },
@@ -21,6 +22,17 @@ const FORM_SECTIONS = [
   { id: "certifications", label: "Certifications", icon: Award },
   { id: "additionalInfo", label: "More", icon: Globe },
 ];
+
+const SECTION_MESSAGES = {
+  "profile-info": "Crafting your professional bio & summary...",
+  "contact-info": "Structuring your contact channels & links...",
+  "work-experience": "Optimizing bullet points & career achievements...",
+  "education-info": "Formatting degrees & academic background...",
+  "skills": "Categorizing technical & soft skills...",
+  "projects": "Highlighting impactful projects & repositories...",
+  "certifications": "Verifying certifications & credentials...",
+  "additionalInfo": "Polishing languages & final resume touches...",
+};
 import toast from 'react-hot-toast'
 import StepProgress from './StepProgress'
 import RenderResume from './RenderResume'
@@ -1126,15 +1138,56 @@ const EditResume = () => {
           </div>
         )}
 
-        {/* Quick Jump Section Bar */}
-        <div className="mb-4 bg-white border border-violet-100 rounded-2xl p-2.5 shadow-xs">
-          <div className="flex items-center justify-between px-2 pb-2 border-b border-slate-100 mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-              <MousePointerClick size={14} className="text-violet-600" />
-              Quick Section Jump
-            </span>
-            <span className="text-[11px] text-slate-400 hidden sm:inline">Jump directly to any section to edit</span>
+        {/* Quick Jump Section Bar with AI Mascot */}
+        <div className="mb-4 bg-white border border-violet-100 rounded-2xl p-3 shadow-xs relative overflow-hidden">
+          <div className="flex items-center justify-between px-1 pb-2.5 border-b border-slate-100 mb-2.5 gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              {/* 3D AI Mascot Video */}
+              <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden bg-white shrink-0 border border-violet-100 shadow-xs ring-2 ring-violet-500/10 flex items-center justify-center">
+                <video
+                  src={mascotVideo}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-contain"
+                  aria-label="AI Assistant actively working on your resume"
+                />
+                <span className="absolute bottom-1 right-1 flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 border border-white"></span>
+                </span>
+              </div>
+
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                    <Sparkles size={14} className="text-violet-600 animate-pulse" />
+                    AI Resume Co-Pilot
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Working on Resume
+                  </span>
+                </div>
+                <p className="text-xs font-medium text-violet-600 truncate mt-0.5">
+                  {SECTION_MESSAGES[currentPage] || "Formatting & optimizing resume in real-time..."}
+                </p>
+                <p className="text-[11px] text-slate-400 hidden sm:block">
+                  Jump directly to any section to edit & preview changes
+                </p>
+              </div>
+            </div>
+
+            <div className="hidden md:flex flex-col items-end shrink-0">
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                <MousePointerClick size={12} className="text-violet-600" />
+                Quick Section Jump
+              </span>
+              <span className="text-[10px] text-slate-400 mt-0.5">8 editable sections</span>
+            </div>
           </div>
+
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
             {FORM_SECTIONS.map((sec) => {
               const Icon = sec.icon;
@@ -1145,8 +1198,8 @@ const EditResume = () => {
                   onClick={() => jumpToSection(sec.id)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
                     isActive
-                      ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold shadow-xs"
-                      : "bg-slate-50 text-slate-600 hover:bg-violet-50 hover:text-violet-700 border border-slate-200/60"
+                      ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold shadow-xs scale-[1.02]"
+                      : "bg-slate-50 text-slate-600 hover:bg-violet-50 hover:text-violet-700 border border-slate-200/60 hover:scale-[1.01]"
                   }`}
                   title={`Jump directly to ${sec.label}`}
                 >
