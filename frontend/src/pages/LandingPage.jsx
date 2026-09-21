@@ -1090,7 +1090,8 @@ function Footer({ onNavigate }) {
   ]
   return (
     <footer className="border-t border-deep/8 bg-mist">
-      <div className="container-x grid grid-cols-1 gap-10 py-14 lg:grid-cols-[1.2fr_2fr]">
+      <div className="container-x grid grid-cols-1 gap-10 py-14 lg:grid-cols-[290px_230px_1fr] items-start">
+        {/* Brand & Newsletter Column */}
         <div>
           <button className="flex items-center gap-2.5" onClick={() => onNavigate('/')}>
             {LOGO}
@@ -1102,37 +1103,6 @@ function Footer({ onNavigate }) {
             The free resume builder with a built-in ATS score checker. Private by design — your
             data never leaves your browser.
           </p>
-          <div className="mt-5">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">Developer</div>
-            <a
-              href="https://www.linkedin.com/in/abhishek-hosamani/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group mt-2 inline-flex items-center gap-3 rounded-2xl border border-deep/10 bg-white p-2 pr-4 shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-400 hover:shadow-md"
-              title="Connect with Abhishek Hosamani on LinkedIn"
-            >
-              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-brand-200/80 bg-gradient-to-tr from-brand-100 to-teal-50 shadow-inner group-hover:scale-105 transition-transform duration-300">
-                <img
-                  src={abhishekImg}
-                  alt="Abhishek Hosamani - Developer"
-                  className="h-full w-full object-cover object-top"
-                />
-                <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-emerald-500" title="Active" />
-              </div>
-              <div className="text-left">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold text-ink group-hover:text-brand-600 transition-colors">
-                    Abhishek Hosamani
-                  </span>
-                  <Linkedin size={13} className="text-[#0a66c2]" />
-                </div>
-                <div className="flex items-center gap-1 text-[11px] text-ink-mute">
-                  <span>Full Stack Developer</span>
-                  <span className="text-brand-500 font-semibold group-hover:translate-x-0.5 transition-transform">↗</span>
-                </div>
-              </div>
-            </a>
-          </div>
 
           <div className="mt-5 flex items-center gap-2.5">
             {SOCIALS.map((s) => (
@@ -1159,6 +1129,48 @@ function Footer({ onNavigate }) {
           </div>
         </div>
 
+        {/* Developer Spotlight Card - Positioned directly before Resume / Resources / Company / Support */}
+        <div>
+          <div className="text-xs font-bold uppercase tracking-wider text-ink-faint">Developer</div>
+          <a
+            href="https://www.linkedin.com/in/abhishek-hosamani/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group mt-3 flex flex-col overflow-hidden rounded-2xl border border-deep/10 bg-white p-3 shadow-2xs transition-all duration-300 hover:-translate-y-1 hover:border-brand-400 hover:shadow-xl w-full max-w-[230px]"
+            title="Connect with Abhishek Hosamani on LinkedIn"
+          >
+            {/* Photo container focusing on Abhishek's portrait */}
+            <div className="relative w-full h-64 overflow-hidden rounded-xl bg-gradient-to-b from-brand-50/80 via-ice to-white border border-deep/6 flex items-center justify-center">
+              <img
+                src={abhishekImg}
+                alt="Abhishek Hosamani - Developer"
+                className="h-full w-full object-cover object-[center_20%] transition-transform duration-500 group-hover:scale-105"
+              />
+              <span className="absolute top-2.5 right-2.5 flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur-xs px-2.5 py-0.5 text-[10px] font-semibold text-emerald-600 border border-emerald-200/60 shadow-2xs">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Developer
+              </span>
+            </div>
+
+            {/* Info below photo */}
+            <div className="mt-3 text-center px-1">
+              <div className="flex items-center justify-center gap-1.5">
+                <span className="text-sm font-bold text-ink group-hover:text-brand-600 transition-colors">
+                  Abhishek Hosamani
+                </span>
+                <Linkedin size={14} className="text-[#0a66c2]" />
+              </div>
+              <p className="mt-0.5 text-[11px] text-ink-mute">Full Stack Developer</p>
+
+              <div className="mt-2.5 flex items-center justify-center gap-1.5 rounded-xl bg-mist border border-deep/6 px-3 py-1.5 text-xs font-medium text-ink transition-colors group-hover:bg-[#0a66c2] group-hover:border-[#0a66c2] group-hover:text-white">
+                <span>Connect on LinkedIn</span>
+                <span className="text-xs transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        {/* Link Columns: Resume, Resources, Company, Support */}
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
           {cols.map((col) => (
             <div key={col.title}>
