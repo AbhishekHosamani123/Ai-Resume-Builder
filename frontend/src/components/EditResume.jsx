@@ -1138,56 +1138,15 @@ const EditResume = () => {
           </div>
         )}
 
-        {/* Quick Jump Section Bar with AI Mascot */}
-        <div className="mb-4 bg-white border border-violet-100 rounded-2xl p-3 shadow-xs relative overflow-hidden">
-          <div className="flex items-center justify-between px-1 pb-2.5 border-b border-slate-100 mb-2.5 gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              {/* 3D AI Mascot Video */}
-              <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden bg-white shrink-0 border border-violet-100 shadow-xs ring-2 ring-violet-500/10 flex items-center justify-center">
-                <video
-                  src={mascotVideo}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="w-full h-full object-contain"
-                  aria-label="AI Assistant actively working on your resume"
-                />
-                <span className="absolute bottom-1 right-1 flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 border border-white"></span>
-                </span>
-              </div>
-
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                    <Sparkles size={14} className="text-violet-600 animate-pulse" />
-                    AI Resume Co-Pilot
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Working on Resume
-                  </span>
-                </div>
-                <p className="text-xs font-medium text-violet-600 truncate mt-0.5">
-                  {SECTION_MESSAGES[currentPage] || "Formatting & optimizing resume in real-time..."}
-                </p>
-                <p className="text-[11px] text-slate-400 hidden sm:block">
-                  Jump directly to any section to edit & preview changes
-                </p>
-              </div>
-            </div>
-
-            <div className="hidden md:flex flex-col items-end shrink-0">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                <MousePointerClick size={12} className="text-violet-600" />
-                Quick Section Jump
-              </span>
-              <span className="text-[10px] text-slate-400 mt-0.5">8 editable sections</span>
-            </div>
+        {/* Quick Jump Section Bar */}
+        <div className="mb-4 bg-white border border-violet-100 rounded-2xl p-2.5 shadow-xs">
+          <div className="flex items-center justify-between px-2 pb-2 border-b border-slate-100 mb-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+              <MousePointerClick size={14} className="text-violet-600" />
+              Quick Section Jump
+            </span>
+            <span className="text-[11px] text-slate-400 hidden sm:inline">Jump directly to any section to edit</span>
           </div>
-
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
             {FORM_SECTIONS.map((sec) => {
               const Icon = sec.icon;
@@ -1198,8 +1157,8 @@ const EditResume = () => {
                   onClick={() => jumpToSection(sec.id)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
                     isActive
-                      ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold shadow-xs scale-[1.02]"
-                      : "bg-slate-50 text-slate-600 hover:bg-violet-50 hover:text-violet-700 border border-slate-200/60 hover:scale-[1.01]"
+                      ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold shadow-xs"
+                      : "bg-slate-50 text-slate-600 hover:bg-violet-50 hover:text-violet-700 border border-slate-200/60"
                   }`}
                   title={`Jump directly to ${sec.label}`}
                 >
@@ -1229,6 +1188,21 @@ const EditResume = () => {
                 <ArrowLeft size={16}/>
                 Back
             </button>
+            <button
+              onClick={downloadPDF}
+              disabled={isLoading || isDownloading}
+              className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-sm font-semibold rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
+              title="Download PDF"
+            >
+              {isDownloading ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : downloadSuccess ? (
+                <Check size={16} className="text-white" />
+              ) : (
+                <Download size={16} />
+              )}
+              <span>{isDownloading ? "Generating..." : downloadSuccess ? "Downloaded!" : "Download PDF"}</span>
+            </button>
             <button className={buttonStyles.save} onClick={uploadResumeImages} disabled={isLoading}>
             {isLoading ? <Loader2 size={16} className="animate-spin" />
                 : <Save size={16} />}
@@ -1254,25 +1228,49 @@ const EditResume = () => {
 
         <div className="hidden lg:block">
         <div className={containerStyles.previewContainer}>
-            <div className="text-center mb-3">
-              <div className="flex items-center justify-between mb-2">
-                <div className={statusStyles.completionBadge}>
-                    <div className={iconStyles.pulseDot}></div>
-                    <span> Preview - {completionPercentage}% Complete</span>
+            <div className="mb-3">
+              <div className="flex items-start justify-between gap-3 mb-2">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <div className={statusStyles.completionBadge}>
+                        <div className={iconStyles.pulseDot}></div>
+                        <span> Preview - {completionPercentage}% Complete</span>
+                    </div>
+                    <button
+                      onClick={downloadPDF}
+                      disabled={isLoading || isDownloading}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                      title="Download PDF"
+                    >
+                      {isDownloading ? (
+                        <Loader2 size={13} className="animate-spin" />
+                      ) : downloadSuccess ? (
+                        <Check size={13} className="text-white" />
+                      ) : (
+                        <Download size={13} />
+                      )}
+                      <span>{isDownloading ? "Generating..." : downloadSuccess ? "Downloaded!" : "Download PDF"}</span>
+                    </button>
+                  </div>
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-violet-50 border border-violet-200/80 rounded-full text-[11px] font-medium text-violet-700 w-fit">
+                    <MousePointerClick size={12} className="text-violet-600 animate-pulse" />
+                    <span>Double-click any section to edit it directly</span>
+                  </div>
                 </div>
-                <button
-                  onClick={downloadPDF}
-                  disabled={isLoading || isDownloading}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
-                  title="Download PDF"
-                >
-                  <Download size={13} />
-                  <span>Download PDF</span>
-                </button>
-              </div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-violet-50 border border-violet-200/80 rounded-full text-[11px] font-medium text-violet-700">
-                <MousePointerClick size={12} className="text-violet-600 animate-pulse" />
-                <span>Double-click any section to edit it directly</span>
+
+                {/* 3D AI Mascot Video — shown in corner with NO border, matching the card height */}
+                <div className="shrink-0 -my-3 -mr-2">
+                  <video
+                    src={mascotVideo}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-24 h-24 sm:w-28 sm:h-28 object-contain pointer-events-none select-none border-0 shadow-none outline-none ring-0 bg-transparent"
+                    title="AI Mascot crafting your resume"
+                    aria-label="AI Mascot crafting your resume"
+                  />
+                </div>
               </div>
             </div>
 
