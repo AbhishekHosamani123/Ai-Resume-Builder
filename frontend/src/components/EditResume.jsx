@@ -1231,26 +1231,9 @@ const EditResume = () => {
             <div className="mb-3">
               <div className="flex items-start justify-between gap-3 mb-2">
                 <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2.5 flex-wrap">
-                    <div className={statusStyles.completionBadge}>
-                        <div className={iconStyles.pulseDot}></div>
-                        <span> Preview - {completionPercentage}% Complete</span>
-                    </div>
-                    <button
-                      onClick={downloadPDF}
-                      disabled={isLoading || isDownloading}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
-                      title="Download PDF"
-                    >
-                      {isDownloading ? (
-                        <Loader2 size={13} className="animate-spin" />
-                      ) : downloadSuccess ? (
-                        <Check size={13} className="text-white" />
-                      ) : (
-                        <Download size={13} />
-                      )}
-                      <span>{isDownloading ? "Generating..." : downloadSuccess ? "Downloaded!" : "Download PDF"}</span>
-                    </button>
+                  <div className={statusStyles.completionBadge}>
+                      <div className={iconStyles.pulseDot}></div>
+                      <span> Preview - {completionPercentage}% Complete</span>
                   </div>
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-violet-50 border border-violet-200/80 rounded-full text-[11px] font-medium text-violet-700 w-fit">
                     <MousePointerClick size={12} className="text-violet-600 animate-pulse" />
@@ -1258,15 +1241,15 @@ const EditResume = () => {
                   </div>
                 </div>
 
-                {/* 3D AI Mascot Video — shown in corner with NO border, matching the card height */}
-                <div className="shrink-0 -my-3 -mr-2">
+                {/* 3D AI Mascot Video — shown in corner with NO border, prominent size */}
+                <div className="shrink-0 -mt-5 -mr-3 -mb-3">
                   <video
                     src={mascotVideo}
                     autoPlay
                     loop
                     muted
                     playsInline
-                    className="w-24 h-24 sm:w-28 sm:h-28 object-contain pointer-events-none select-none border-0 shadow-none outline-none ring-0 bg-transparent"
+                    className="w-32 h-32 sm:w-36 sm:h-36 object-contain pointer-events-none select-none border-0 shadow-none outline-none ring-0 bg-transparent"
                     title="AI Mascot crafting your resume"
                     aria-label="AI Mascot crafting your resume"
                   />
