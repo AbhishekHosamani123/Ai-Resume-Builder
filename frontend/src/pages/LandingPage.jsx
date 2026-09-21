@@ -1136,19 +1136,22 @@ function Footer({ onNavigate }) {
   ]
 
   return (
-    <footer className="relative border-t border-slate-200 bg-white overflow-hidden">
+    <footer className="relative border-t border-slate-200/80 bg-white overflow-hidden">
+      {/* Very subtle ambient gradient glow on the right */}
+      <div className="pointer-events-none absolute right-0 bottom-0 h-96 w-96 rounded-full bg-gradient-to-tl from-sky-100/50 via-blue-50/30 to-transparent blur-3xl -z-10" />
+
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 pt-14 sm:pt-16 pb-0">
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.1fr_2.4fr_1.2fr] xl:grid-cols-[1.15fr_2.5fr_1.2fr] items-end">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.1fr_2.4fr_1.25fr] xl:grid-cols-[1.15fr_2.5fr_1.25fr] items-start">
           
-          {/* LEFT: ResumeXpert Brand, Description & Socials */}
-          <div className="pb-6">
-            <button className="flex items-center gap-2.5 text-left" onClick={() => onNavigate('/')}>
+          {/* LEFT: ResumeXpert Brand, Description, Socials & Trust Badge */}
+          <div className="flex flex-col justify-start">
+            <button className="flex items-center gap-2.5 text-left group w-fit" onClick={() => onNavigate('/')}>
               {LOGO}
-              <span className="font-display text-xl font-bold tracking-tight text-ink">
+              <span className="font-display text-xl font-bold tracking-tight text-ink group-hover:opacity-90 transition-opacity">
                 Resume<span className="text-[#0284c7]">Xpert</span>
               </span>
             </button>
-            <p className="mt-4 max-w-xs text-[13px] leading-relaxed text-slate-600">
+            <p className="mt-3.5 max-w-xs text-sm leading-relaxed text-slate-500">
               The free resume builder with a built-in ATS score checker. Private by design — your
               data never leaves your browser.
             </p>
@@ -1163,26 +1166,32 @@ function Footer({ onNavigate }) {
                   rel={s.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
                   title={s.label}
                   aria-label={s.label}
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition-all hover:bg-slate-200 hover:-translate-y-0.5 shadow-2xs"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-all duration-200 hover:bg-[#0284c7] hover:text-white hover:-translate-y-0.5 hover:shadow-sm"
                 >
                   {s.icon}
                 </a>
               ))}
             </div>
+
+            {/* Subtle trust badge */}
+            <div className="mt-6 flex items-center gap-2 text-xs text-slate-400 font-medium">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+              <span>Free Forever · Private · ATS-Optimized</span>
+            </div>
           </div>
 
           {/* CENTER: 4 Navigation Columns */}
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4 lg:gap-6 xl:gap-8 pb-6">
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4 lg:gap-6 xl:gap-8">
             {navSections.map((sec) => (
               <div key={sec.title}>
-                <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3.5">
+                <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400 mb-4">
                   {sec.title}
                 </div>
-                <ul className="space-y-2.5">
+                <ul className="space-y-3">
                   {sec.links.map((link) => (
                     <li key={link.label}>
                       <button
-                        className="text-left text-xs sm:text-[13px] text-slate-600 transition-colors hover:text-slate-900"
+                        className="text-left text-xs sm:text-[13px] text-slate-600 transition-all duration-150 hover:text-[#0284c7] hover:translate-x-0.5"
                         onClick={link.action}
                       >
                         {link.label}
@@ -1194,11 +1203,11 @@ function Footer({ onNavigate }) {
             ))}
           </div>
 
-          {/* RIGHT: Developer Abhishek Visual (Touches Bottom) */}
-          <div className="relative flex flex-col items-center lg:items-end justify-end self-end w-full max-w-[340px] mx-auto lg:ml-auto pt-6 select-none">
+          {/* RIGHT: Developer Visual (Docked & Touching Bottom Line) */}
+          <div className="relative flex flex-col items-center lg:items-end justify-end self-end w-full max-w-[340px] mx-auto lg:ml-auto lg:h-full mt-10 lg:mt-0 pt-6 select-none">
             {/* Top-Left Handwritten Element: Built with ♥ by me + curved arrow */}
             <div className="absolute top-2 left-0 sm:left-2 z-20 pointer-events-none select-none">
-              <div className="font-['Caveat',cursive] -rotate-6 text-[#0284c7] text-lg sm:text-xl font-bold leading-[1.1] text-center">
+              <div className="font-['Caveat',cursive] -rotate-6 text-[#0284c7] text-lg sm:text-xl font-bold leading-[1.08] text-center drop-shadow-2xs">
                 <div>Built</div>
                 <div className="flex items-center justify-center gap-1">
                   <span>with</span>
@@ -1238,21 +1247,26 @@ function Footer({ onNavigate }) {
             </div>
 
             {/* Organic Sky-Blue Wave/Blob Background */}
-            <div className="absolute bottom-0 -right-8 z-0 overflow-hidden pointer-events-none w-[360px] h-[340px]">
+            <div className="absolute bottom-0 -right-8 z-0 overflow-hidden pointer-events-none w-[320px] sm:w-[360px] h-[300px] sm:h-[340px]">
               <svg
                 className="w-full h-full"
                 viewBox="0 0 360 340"
                 fill="none"
               >
+                <defs>
+                  <linearGradient id="blobGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#bae6fd" stopOpacity="0.85" />
+                    <stop offset="100%" stopColor="#e0f2fe" stopOpacity="0.95" />
+                  </linearGradient>
+                </defs>
                 <path
                   d="M30 340 C 10 200, 50 90, 140 45 C 230 5, 310 25, 360 85 L 360 340 Z"
-                  fill="#e0f2fe"
-                  opacity="0.92"
+                  fill="url(#blobGrad)"
                 />
               </svg>
             </div>
 
-            {/* Developer Portrait - Increased Size */}
+            {/* Developer Portrait - Prominent & Crisp */}
             <div className="relative z-10 w-60 sm:w-64 overflow-hidden flex items-end justify-center pt-2">
               <img
                 src={abhishekImg}
@@ -1261,17 +1275,20 @@ function Footer({ onNavigate }) {
               />
             </div>
 
-            {/* Floating Card: Abhishek Hosamani • green dot / Full Stack Developer (Touches the bottom) */}
+            {/* Floating Card: Abhishek Hosamani • green dot / Full Stack Developer (Touches the bottom divider line) */}
             <a
               href="https://www.linkedin.com/in/abhishek-hosamani/"
               target="_blank"
               rel="noopener noreferrer"
-              className="relative z-20 -mt-6 mb-0 translate-y-3 w-full max-w-[225px] rounded-2xl border border-slate-100 bg-white px-4 py-2.5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md block"
+              className="relative z-20 -mt-6 mb-0 translate-y-[1px] w-full max-w-[225px] rounded-2xl border border-slate-200/80 bg-white/95 backdrop-blur-md px-4 py-2.5 shadow-[0_10px_25px_-5px_rgba(15,23,42,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-[#0284c7]/40 block"
               title="Connect with Abhishek Hosamani on LinkedIn"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-bold text-slate-900">Abhishek Hosamani</span>
-                <span className="h-2.5 w-2.5 rounded-full bg-[#10b981] shrink-0" />
+                <span className="text-xs font-bold text-slate-900 tracking-tight">Abhishek Hosamani</span>
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                </span>
               </div>
               <div className="mt-0.5 text-[11px] text-slate-500 font-medium">
                 Full Stack Developer
@@ -1282,14 +1299,14 @@ function Footer({ onNavigate }) {
         </div>
 
         {/* Bottom Legal / Navigation Bar */}
-        <div className="mt-4 border-t border-slate-200 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <div className="mt-0 border-t border-slate-200/80 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
             © {new Date().getFullYear()} ResumeXpert. Crafted with care by{' '}
             <a
               href="https://www.linkedin.com/in/abhishek-hosamani/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#0284c7] font-semibold hover:underline"
+              className="text-[#0284c7] font-semibold hover:underline decoration-[#0284c7]/40 underline-offset-2"
             >
               Abhishek Hosamani.
             </a>
@@ -1312,10 +1329,10 @@ function Footer({ onNavigate }) {
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="flex items-center gap-2 font-medium text-slate-700 hover:text-[#0284c7] transition-colors group"
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-[#0284c7] shadow-2xs group-hover:bg-slate-50 group-hover:border-[#0284c7]">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-[#0284c7] shadow-2xs group-hover:bg-slate-50 group-hover:border-[#0284c7] transition-colors">
                 <ArrowUp size={13} strokeWidth={2.5} />
               </span>
-              <span className="font-semibold text-xs text-slate-800 group-hover:text-[#0284c7]">
+              <span className="font-semibold text-xs text-slate-800 group-hover:text-[#0284c7] transition-colors">
                 Back to top
               </span>
             </button>
