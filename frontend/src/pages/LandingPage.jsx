@@ -1130,13 +1130,13 @@ function Footer({ onNavigate }) {
   ]
 
   return (
-    <footer className="relative border-t border-slate-200/80 bg-white overflow-hidden">
-      {/* Expanded Full-Width Footer Container */}
-      <div className="w-full pl-6 sm:pl-10 lg:pl-12 xl:pl-16 pr-0 pt-10 sm:pt-12 pb-0">
-        <div className="flex flex-col lg:flex-row items-end justify-between gap-8 xl:gap-12">
+    <footer className="relative border-t border-slate-200/80 bg-white overflow-hidden w-full">
+      {/* Expanded Full-Width Footer Container with Responsive Symmetrical Padding */}
+      <div className="w-full px-5 sm:px-8 lg:pl-12 lg:pr-6 xl:pl-16 xl:pr-10 pt-10 sm:pt-12 pb-0 overflow-hidden">
+        <div className="flex flex-col lg:flex-row items-center lg:items-end justify-between gap-10 xl:gap-14">
           
           {/* LEFT & CENTER: Brand, Tagline, Socials & Navigation Columns */}
-          <div className="w-full lg:flex-1 grid grid-cols-1 md:grid-cols-[1.1fr_2.2fr] xl:grid-cols-[1.15fr_2.4fr] gap-8 xl:gap-12 items-start self-start pt-3 pr-6 sm:pr-10 lg:pr-6">
+          <div className="w-full lg:flex-1 grid grid-cols-1 md:grid-cols-[1.1fr_2.2fr] xl:grid-cols-[1.15fr_2.4fr] gap-8 xl:gap-12 items-start self-start pt-3">
             
             {/* Brand & Socials */}
             <div className="flex flex-col justify-start">
@@ -1193,15 +1193,15 @@ function Footer({ onNavigate }) {
 
           </div>
 
-          {/* RIGHT CORNER: Decorative Developer-Photo Composition (Matching Reference Exactly) */}
-          <div className="relative flex flex-col items-center lg:items-end justify-end self-end shrink-0 w-full sm:w-auto lg:pr-6 xl:pr-10 select-none mt-10 lg:mt-0">
+          {/* RIGHT CORNER: Decorative Developer-Photo Composition (Clean Cutout, No Card, Fully Responsive) */}
+          <div className="relative flex flex-col items-center lg:items-end justify-end self-center lg:self-end shrink-0 w-full max-w-[340px] sm:max-w-[380px] lg:max-w-[420px] mx-auto lg:mr-0 select-none mt-8 lg:mt-0">
             
             {/* Visual Wrapper */}
-            <div className="relative flex items-end justify-center w-[320px] sm:w-[380px] lg:w-[420px] pb-2">
+            <div className="relative flex items-end justify-center w-full max-w-[300px] sm:max-w-[350px] lg:max-w-[390px] mx-auto lg:mr-0 pb-1">
               
-              {/* Soft Abstract Light-Blue Organic/Blob Background */}
-              <div className="absolute bottom-0 right-0 z-0 w-[420px] sm:w-[480px] lg:w-[500px] h-[330px] sm:h-[370px] pointer-events-none overflow-hidden">
-                <svg className="w-full h-full" viewBox="0 0 500 370" fill="none">
+              {/* Soft Abstract Light-Blue Organic/Blob Background (Contained & Responsive) */}
+              <div className="absolute bottom-0 -right-4 sm:-right-8 lg:-right-10 z-0 w-[125%] h-[105%] pointer-events-none overflow-hidden">
+                <svg className="w-full h-full" viewBox="0 0 500 370" fill="none" preserveAspectRatio="none">
                   <defs>
                     <linearGradient id="refOrganicBlob" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" stopColor="#e0f2fe" stopOpacity="0.95" />
@@ -1218,7 +1218,7 @@ function Footer({ onNavigate }) {
               </div>
 
               {/* Above and slightly left of the photo: Handwritten text + curved arrow */}
-              <div className="absolute top-8 left-1 sm:left-4 lg:left-6 z-20 pointer-events-none select-none">
+              <div className="absolute top-6 -left-2 sm:left-2 lg:left-4 z-20 pointer-events-none select-none">
                 <div className="font-['Caveat',cursive] -rotate-[8deg] text-[#0284c7] text-2xl sm:text-[27px] font-bold leading-[1.08] text-left drop-shadow-2xs">
                   <div>Built</div>
                   <div className="flex items-center gap-1">
@@ -1230,7 +1230,7 @@ function Footer({ onNavigate }) {
                 
                 {/* Thin curved blue hand-drawn arrow underneath text, curving down and right towards Abhishek */}
                 <svg
-                  className="w-12 h-10 text-[#38bdf8] translate-x-3 translate-y-1"
+                  className="w-11 h-9 sm:w-12 sm:h-10 text-[#38bdf8] translate-x-2 sm:translate-x-3 translate-y-1"
                   viewBox="0 0 54 42"
                   fill="none"
                   stroke="currentColor"
@@ -1244,9 +1244,9 @@ function Footer({ onNavigate }) {
               </div>
 
               {/* Near top-right of head: Exactly 3 short blue hand-drawn accent lines angled outward like small rays */}
-              <div className="absolute top-6 right-8 sm:right-12 lg:right-14 z-20 pointer-events-none select-none">
+              <div className="absolute top-5 right-5 sm:right-10 lg:right-12 z-20 pointer-events-none select-none">
                 <svg
-                  className="w-10 h-10 text-[#38bdf8]"
+                  className="w-9 h-9 sm:w-10 sm:h-10 text-[#38bdf8]"
                   viewBox="0 0 40 40"
                   fill="none"
                   stroke="currentColor"
@@ -1262,30 +1262,19 @@ function Footer({ onNavigate }) {
                 </svg>
               </div>
 
-              {/* Clean Cutout Developer Photo - Partially overlapping the organic background */}
-              <div className="relative z-10 w-full flex items-end justify-center">
-                <img
-                  src={abhishekImg}
-                  alt="Abhishek Hosamani"
-                  className="w-full h-auto object-contain object-bottom drop-shadow-sm"
-                />
-              </div>
-
-              {/* Compact Name Badge (as shown in reference screenshot) */}
+              {/* Clean Cutout Developer Photo - Clickable to LinkedIn, Touching Bottom Line, No Card */}
               <a
                 href="https://www.linkedin.com/in/abhishek-hosamani/"
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Connect with Abhishek Hosamani on LinkedIn"
-                className="absolute -bottom-1 right-2 sm:right-6 lg:right-8 z-20 rounded-2xl border border-slate-200/90 bg-white/95 backdrop-blur-md px-4 py-2.5 shadow-[0_10px_25px_-5px_rgba(15,23,42,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-[#0284c7]/40 block text-left"
+                className="relative z-10 w-full flex items-end justify-center group cursor-pointer block"
               >
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs sm:text-[13px] font-bold text-slate-900 tracking-tight">Abhishek Hosamani</span>
-                  <span className="h-2.5 w-2.5 rounded-full bg-[#10b981] shrink-0" />
-                </div>
-                <div className="mt-0.5 text-[11px] text-slate-500 font-medium">
-                  Full Stack Developer
-                </div>
+                <img
+                  src={abhishekImg}
+                  alt="Abhishek Hosamani - Full Stack Developer"
+                  className="w-full h-auto object-contain object-bottom drop-shadow-sm transition-transform duration-300 group-hover:scale-[1.02]"
+                />
               </a>
 
             </div>
@@ -1293,8 +1282,8 @@ function Footer({ onNavigate }) {
 
         </div>
 
-        {/* Bottom Legal / Navigation Bar - Clean & Minimal Spanning Full Width */}
-        <div className="mt-0 border-t border-slate-200/80 py-5 pr-6 sm:pr-10 lg:pr-12 xl:pr-16 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        {/* Bottom Legal / Navigation Bar - Clean, Symmetrical & Fully Responsive */}
+        <div className="mt-0 border-t border-slate-200/80 py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
             © {new Date().getFullYear()} ResumeXpert. Crafted with care by{' '}
             <a
@@ -1332,7 +1321,7 @@ export default function LandingPage() {
   const onNavigate = (href, isRoute) => handleNav(navigate, href, isRoute)
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-x-hidden w-full">
       <Navbar onNavigate={onNavigate} />
       <main>
         <Hero onNavigate={onNavigate} />
