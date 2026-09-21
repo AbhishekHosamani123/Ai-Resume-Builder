@@ -532,12 +532,14 @@ function Templates({ onNavigate }) {
         </Reveal>
 
         <Reveal delay={240}>
-          <div className="mt-9 inline-flex flex-wrap justify-center gap-1.5 rounded-full border border-deep/8 bg-white p-1.5 shadow-[var(--shadow-soft)]">
+          <div className="mt-8 sm:mt-9 flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 max-w-2xl mx-auto px-2">
             {tabs.map((t, i) => (
               <button
                 key={t}
-                className={`rounded-full px-4 py-2 text-xs font-semibold transition-all cursor-pointer ${
-                  i === activeTab ? 'bg-deep text-white shadow-xs' : 'text-ink-mute hover:bg-ice'
+                className={`rounded-full px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                  i === activeTab
+                    ? 'bg-deep text-white shadow-sm ring-1 ring-deep/20'
+                    : 'bg-white text-ink-mute border border-slate-200/90 shadow-xs hover:border-slate-300 hover:text-ink hover:bg-slate-50'
                 }`}
                 onClick={() => setActiveTab(i)}
               >
@@ -548,7 +550,7 @@ function Templates({ onNavigate }) {
         </Reveal>
 
         <Reveal delay={140} y={38}>
-          <div className="mt-12" style={{ height: '500px', position: 'relative' }}>
+          <div className="mt-8 sm:mt-12 relative w-full h-[470px] sm:h-[510px]">
             <DepthCarousel
               items={items}
               depth={180}

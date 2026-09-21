@@ -19,8 +19,9 @@ const EASING_MAP = {
 
 /**
  * DepthCarousel - Bilateral 3D Depth Carousel
- * Displays the active card in the center with sharp, clearly readable
+ * Displays the active card prominently in the center with sharp, clearly readable
  * template cards visible on both the left and right sides.
+ * Fully responsive: maintains large card size on mobile screens while adjusting lateral spread.
  */
 export default function DepthCarousel({
   items = [],
@@ -68,21 +69,34 @@ export default function DepthCarousel({
     return () => resizeObserver.disconnect()
   }, [])
 
-  // Responsive scale down on small viewports so 3D fanning never overflows
+  // Keep card large and prominent on mobile screens (not tiny/shrunken)
   const responsiveScale = useMemo(() => {
-    if (containerWidth < 380) return 0.62
-    if (containerWidth < 480) return 0.72
-    if (containerWidth < 640) return 0.82
-    if (containerWidth < 768) return 0.9
-    return 1
+    if (containerWidth < 360) return 0.88 // 264px width on small screens
+    if (containerWidth < 480) return 0.92 // 276px width on standard phones
+    if (containerWidth < 768) return 0.96 // 288px width on large phones/tablets
+    return 1 // Full 300px width on desktop
   }, [containerWidth])
 
   const effectiveCardWidth = Math.round(cardWidth * responsiveScale)
   const effectiveCardHeight = Math.round(cardHeight * responsiveScale)
-  const effectiveSpread = Math.round(spread * responsiveScale)
-  const effectiveDepth = Math.round(depth * responsiveScale)
 
-  // Clamp visible cards on very narrow mobile screens
+  // Adjust lateral spread so side cards peek out elegantly without overflowing
+  const effectiveSpread = useMemo(() => {
+    if (containerWidth < 360) return 46
+    if (containerWidth < 480) return 56
+    if (containerWidth < 640) return 78
+    if (containerWidth < 768) return 110
+    return spread // 150 on desktop
+  }, [containerWidth, spread])
+
+  // Reduced depth on mobile so side cards stay close and readable
+  const effectiveDepth = useMemo(() => {
+    if (containerWidth < 640) return Math.round(depth * 0.65)
+    if (containerWidth < 768) return Math.round(depth * 0.8)
+    return depth
+  }, [containerWidth, depth])
+
+  // Clamp visible cards on mobile to avoid crowded stacks
   const effectiveVisibleCards = useMemo(() => {
     if (containerWidth < 480) return Math.min(visibleCards, 1)
     if (containerWidth < 768) return Math.min(visibleCards, 2)
@@ -136,7 +150,7 @@ export default function DepthCarousel({
   const handlePointerUp = (clientX) => {
     if (!isDragging.current || dragStartX.current === null) return
     const deltaX = clientX - dragStartX.current
-    if (Math.abs(deltaX) > 40) {
+    if (Math.abs(deltaX) > 35) {
       if (deltaX < 0) {
         goToNext()
       } else {
@@ -227,7 +241,7 @@ export default function DepthCarousel({
             translateY = 0
             translateZ = -absDiff * effectiveDepth
             rotateYDeg = -sign * tilt
-            opacity = Math.max(0.35, 1 - absDiff * falloff)
+            opacity = Math.max(0.4, 1 - absDiff * falloff)
             // Zero blur so template designs and text are completely sharp and readable!
             blurPx = blur > 0 ? Math.min(absDiff * blur, 4) : 0
             tintOpacity = Math.min(0.18, absDiff * (falloff * 0.4))
@@ -352,7 +366,7 @@ export default function DepthCarousel({
       </div>
 
       {/* Controls & Indicators Bottom Row */}
-      <div className="relative z-30 mt-4 flex items-center justify-between px-4 sm:px-8 pointer-events-auto">
+      <div className="relative z-30 mt-3 sm:mt-4 flex items-center justify-between px-3 sm:px-8 pointer-events-auto">
         {/* Left Control Button */}
         {showControls && (
           <button
@@ -374,8 +388,8 @@ export default function DepthCarousel({
 
         {/* Dots Indicators */}
         {showIndicators && total > 1 && (
-          <div className="mx-auto flex items-center justify-center gap-1.5 py-2">
-            {items.slice(0, Math.min(16, total)).map((_, i) => (
+          <div className="mx-auto flex items-center justify-center gap-1.5 py-2 max-w-[200px] sm:max-w-none overflow-hidden">
+            {items.slice(0, Math.min(containerWidth < 480 ? 9 : 16, total)).map((_, i) => (
               <button
                 key={i}
                 type="button"
@@ -385,8 +399,8 @@ export default function DepthCarousel({
                 }}
                 className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
                   i === activeIndex
-                    ? 'w-6 bg-brand-600 shadow-xs'
-                    : 'w-2 bg-slate-300/80 hover:bg-slate-400'
+                    ? 'w-5 sm:w-6 bg-brand-600 shadow-xs'
+                    : 'w-1.5 sm:w-2 bg-slate-300/80 hover:bg-slate-400'
                 }`}
                 aria-label={`Jump to template ${i + 1}`}
                 title={`Template ${i + 1}`}
