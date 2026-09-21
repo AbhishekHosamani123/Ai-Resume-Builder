@@ -1195,98 +1195,70 @@ function Footer({ onNavigate }) {
           </div>
 
           {/* RIGHT CORNER: Developer Visual docked at the far right of the website */}
-          <div className="relative flex flex-col items-center lg:items-end justify-end self-end shrink-0 w-full sm:w-auto lg:pr-6 xl:pr-10 select-none mt-8 lg:mt-0">
-            {/* Top-Left Handwritten Element: Built with ♥ by me + curved arrow */}
-            <div className="absolute top-1 -left-2 sm:-left-6 z-20 pointer-events-none select-none">
-              <div className="font-['Caveat',cursive] -rotate-6 text-[#0284c7] text-lg sm:text-xl font-bold leading-[1.08] text-center drop-shadow-2xs">
-                <div>Built</div>
-                <div className="flex items-center justify-center gap-1">
-                  <span>with</span>
-                  <span className="text-[#0284c7] text-sm">♥</span>
+          <div className="relative flex flex-col items-center lg:items-end justify-end self-end shrink-0 w-full sm:w-auto lg:pr-6 xl:pr-10 select-none mt-10 lg:mt-0">
+            
+            {/* Unified Visual Container */}
+            <div className="relative flex items-end justify-center w-[300px] sm:w-[360px] lg:w-[410px]">
+              
+              {/* Perfectly Centered Symmetrical Sky-Blue Dome Backdrop */}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[330px] sm:w-[400px] lg:w-[450px] h-[265px] sm:h-[310px] lg:h-[345px] rounded-t-[165px] sm:rounded-t-[200px] lg:rounded-t-[225px] bg-gradient-to-b from-[#bae6fd]/90 via-[#e0f2fe]/70 to-[#f0f9ff]/30 pointer-events-none z-0" />
+
+              {/* Top-Left Handwritten Element: Built with ♥ by me + curved arrow pointing to Abhishek */}
+              <div className="absolute top-5 -left-10 sm:-left-14 lg:-left-16 z-20 pointer-events-none select-none">
+                <div className="font-['Caveat',cursive] -rotate-6 text-[#0284c7] text-lg sm:text-xl font-bold leading-[1.08] text-center drop-shadow-2xs">
+                  <div>Built</div>
+                  <div className="flex items-center justify-center gap-1">
+                    <span>with</span>
+                    <span className="text-[#0284c7] text-sm">♥</span>
+                  </div>
+                  <div>by me</div>
                 </div>
-                <div>by me</div>
-              </div>
-              {/* Hand-drawn curved arrow pointing to Abhishek */}
-              <svg
-                className="w-8 h-8 text-[#38bdf8] -rotate-12 translate-x-4 translate-y-0.5"
-                viewBox="0 0 36 36"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M10 6 C 8 20, 14 26, 28 26" />
-                <path d="M22 22 L 28 26 L 22 30" />
-              </svg>
-            </div>
-
-            {/* Top-Right 3 Radiating Rays */}
-            <div className="absolute top-1 right-2 sm:right-0 z-20 pointer-events-none select-none">
-              <svg
-                className="w-9 h-9 text-[#38bdf8]"
-                viewBox="0 0 36 36"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-              >
-                <line x1="8" y1="28" x2="2" y2="18" />
-                <line x1="18" y1="24" x2="18" y2="10" />
-                <line x1="28" y1="28" x2="34" y2="20" />
-              </svg>
-            </div>
-
-            {/* Organic Sky-Blue Wave/Blob Background spanning full height */}
-            <div className="absolute bottom-0 -right-6 z-0 overflow-hidden pointer-events-none w-[380px] sm:w-[440px] h-[350px] sm:h-[390px]">
-              <svg
-                className="w-full h-full"
-                viewBox="0 0 360 340"
-                fill="none"
-              >
-                <defs>
-                  <linearGradient id="blobGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#bae6fd" stopOpacity="0.85" />
-                    <stop offset="100%" stopColor="#e0f2fe" stopOpacity="0.95" />
-                  </linearGradient>
-                </defs>
-                <path
-                  d="M30 340 C 10 200, 50 90, 140 45 C 230 5, 310 25, 360 85 L 360 340 Z"
-                  fill="url(#blobGrad)"
-                />
-              </svg>
-            </div>
-
-            {/* Shared Container: Developer Image and Card share the EXACT SAME WIDTH */}
-            <div className="relative z-10 w-[310px] sm:w-[380px] lg:w-[420px] flex flex-col items-center">
-              {/* Developer Portrait - Prominently sized to reach the top of footer */}
-              <div className="w-full flex items-end justify-center overflow-hidden">
-                <img
-                  src={abhishekImg}
-                  alt="Abhishek Hosamani"
-                  className="w-full h-auto object-contain object-bottom drop-shadow-md"
-                />
+                {/* Curved arrow pointing down & right toward Abhishek */}
+                <svg
+                  className="w-9 h-9 text-[#0284c7] -rotate-12 translate-x-5 translate-y-0.5"
+                  viewBox="0 0 36 36"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M8 8 C 6 22, 14 26, 28 24" />
+                  <path d="M22 20 L 28 24 L 22 28" />
+                </svg>
               </div>
 
-              {/* Floating Card: Abhishek Hosamani • green dot / Full Stack Developer (Exact same width as image, touches bottom divider) */}
+              {/* Top-Right 3 Radiating Rays (Radiating outward from top-right of head) */}
+              <div className="absolute top-5 right-8 sm:right-12 lg:right-14 z-20 pointer-events-none select-none">
+                <svg
+                  className="w-9 h-9 text-[#38bdf8]"
+                  viewBox="0 0 36 36"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                >
+                  <line x1="8" y1="28" x2="2" y2="18" />
+                  <line x1="18" y1="24" x2="18" y2="10" />
+                  <line x1="28" y1="28" x2="34" y2="20" />
+                </svg>
+              </div>
+
+              {/* Developer Portrait - Clickable to LinkedIn, Touching Bottom Divider Line */}
               <a
                 href="https://www.linkedin.com/in/abhishek-hosamani/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="relative z-20 -mt-6 mb-0 translate-y-[1px] w-full rounded-2xl border border-slate-200/90 bg-white/95 backdrop-blur-md px-4 sm:px-5 py-2.5 shadow-[0_10px_25px_-5px_rgba(15,23,42,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-[#0284c7]/40 block text-left"
                 title="Connect with Abhishek Hosamani on LinkedIn"
+                className="relative z-10 w-full flex items-end justify-center group cursor-pointer block"
               >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs sm:text-[13px] font-bold text-slate-900 tracking-tight">Abhishek Hosamani</span>
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                  </span>
-                </div>
-                <div className="mt-0.5 text-[11px] text-slate-500 font-medium">
-                  Full Stack Developer
-                </div>
+                <img
+                  src={abhishekImg}
+                  alt="Abhishek Hosamani"
+                  className="w-full h-auto object-contain object-bottom drop-shadow-md transition-all duration-300 group-hover:scale-[1.02] group-hover:drop-shadow-lg"
+                />
               </a>
+
             </div>
           </div>
 
