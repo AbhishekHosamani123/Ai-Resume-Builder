@@ -1082,137 +1082,219 @@ const SOCIALS = [
 ]
 
 function Footer({ onNavigate }) {
-  const cols = [
-    { title: 'Resume', links: ['Create Resume', 'Resume Templates', 'Resume Examples'] },
-    { title: 'Resources', links: ['Resume Help', 'Job Interview', 'Cover Letter'] },
-    { title: 'Company', links: ['About Us', 'Pricing', 'Sitemap'] },
-    { title: 'Support', links: ['Help Center', 'FAQ', 'Contact Us'] },
+  const navSections = [
+    {
+      title: 'Product',
+      links: [
+        { label: 'Create Resume', action: () => onNavigate('/dashboard') },
+        { label: 'ATS Checker', action: () => onNavigate('/ats', true) },
+        { label: 'Resume Templates', action: () => onNavigate('/dashboard') },
+        { label: 'Resume Examples', action: () => onNavigate('/dashboard') },
+        { label: 'How it Works', action: () => onNavigate('#how-it-works') },
+      ],
+    },
+    {
+      title: 'Resources',
+      links: [
+        { label: 'Resume Help', action: () => onNavigate('/dashboard') },
+        { label: 'Job Interview', action: () => onNavigate('/dashboard') },
+        { label: 'Cover Letter', action: () => onNavigate('/dashboard') },
+        { label: 'Career Tips', action: () => onNavigate('/dashboard') },
+        { label: 'Blog', action: () => onNavigate('/') },
+      ],
+    },
+    {
+      title: 'Company',
+      links: [
+        { label: 'About Us', action: () => onNavigate('/') },
+        { label: 'Pricing', action: () => onNavigate('/') },
+        { label: 'Sitemap', action: () => onNavigate('/') },
+        { label: 'Changelog', action: () => onNavigate('/') },
+        { label: 'Contact Us', action: () => { window.location.href = 'mailto:abhishekhosamani01@gmail.com' } },
+      ],
+    },
+    {
+      title: 'Support',
+      links: [
+        { label: 'Help Center', action: () => onNavigate('#faq') },
+        { label: 'FAQ', action: () => onNavigate('#faq') },
+        { label: 'Terms of Service', action: () => onNavigate('/') },
+        { label: 'Privacy Policy', action: () => onNavigate('/') },
+        { label: 'Cookie Settings', action: () => onNavigate('/') },
+      ],
+    },
   ]
+
   return (
-    <footer className="border-t border-deep/8 bg-mist">
-      <div className="container-x grid grid-cols-1 gap-10 py-14 lg:grid-cols-[290px_230px_1fr] items-start">
-        {/* Brand & Newsletter Column */}
-        <div>
-          <button className="flex items-center gap-2.5" onClick={() => onNavigate('/')}>
-            {LOGO}
-            <span className="font-display text-base font-bold tracking-tight text-ink">
-              Resume<span className="text-brand-500">Xpert</span>
-            </span>
-          </button>
-          <p className="mt-4 max-w-xs text-sm leading-relaxed text-ink-mute">
-            The free resume builder with a built-in ATS score checker. Private by design — your
-            data never leaves your browser.
-          </p>
+    <footer className="relative border-t border-deep/8 bg-gradient-to-b from-white via-brand-50/10 to-slate-50/70 overflow-hidden">
+      {/* Subtle ambient light-blue glow at top right */}
+      <div className="pointer-events-none absolute right-6 top-0 h-80 w-80 -translate-y-1/2 rounded-full bg-brand-100/20 blur-3xl" />
 
-          <div className="mt-5 flex items-center gap-2.5">
-            {SOCIALS.map((s) => (
-              <a
-                key={s.label}
-                href={s.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={s.label}
-                aria-label={s.label}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-deep/10 bg-white text-ink-soft transition-all hover:-translate-y-0.5 hover:border-brand-400 hover:bg-brand-500 hover:text-white"
-              >
-                {s.icon}
-              </a>
-            ))}
-            <span className="ml-1 text-[11px] text-ink-faint">Follow the builder</span>
-          </div>
-          <div className="mt-6">
-            <div className="text-xs font-bold uppercase tracking-wider text-ink-faint">Stay updated</div>
-            <div className="mt-2 flex max-w-xs gap-2">
-              <input className="input-base !py-2.5 text-xs" placeholder="Enter your email" />
-              <button className="btn-primary shrink-0 !px-4 !py-2.5 text-xs">Subscribe</button>
-            </div>
-          </div>
-        </div>
-
-        {/* Developer Spotlight Card - Positioned directly before Resume / Resources / Company / Support */}
-        <div>
-          <div className="text-xs font-bold uppercase tracking-wider text-ink-faint">Developer</div>
-          <a
-            href="https://www.linkedin.com/in/abhishek-hosamani/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group mt-3 flex flex-col overflow-hidden rounded-2xl border border-deep/10 bg-white p-3 shadow-2xs transition-all duration-300 hover:-translate-y-1 hover:border-brand-400 hover:shadow-xl w-full max-w-[230px]"
-            title="Connect with Abhishek Hosamani on LinkedIn"
-          >
-            {/* Photo container focusing on Abhishek's portrait */}
-            <div className="relative w-full h-64 overflow-hidden rounded-xl bg-gradient-to-b from-brand-50/80 via-ice to-white border border-deep/6 flex items-center justify-center">
-              <img
-                src={abhishekImg}
-                alt="Abhishek Hosamani - Developer"
-                className="h-full w-full object-cover object-[center_20%] transition-transform duration-500 group-hover:scale-105"
-              />
-              <span className="absolute top-2.5 right-2.5 flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur-xs px-2.5 py-0.5 text-[10px] font-semibold text-emerald-600 border border-emerald-200/60 shadow-2xs">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Developer
+      {/* Main Footer Content */}
+      <div className="container-x py-14 sm:py-16">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.1fr_2.4fr_1fr] xl:grid-cols-[1.15fr_2.5fr_1.1fr] items-start">
+          {/* LEFT: ResumeXpert Brand & Newsletter */}
+          <div>
+            <button className="flex items-center gap-2.5" onClick={() => onNavigate('/')}>
+              {LOGO}
+              <span className="font-display text-base font-bold tracking-tight text-ink">
+                Resume<span className="text-brand-500">Xpert</span>
               </span>
+            </button>
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-ink-mute">
+              The free resume builder with a built-in ATS score checker. Private by design — your
+              data never leaves your browser.
+            </p>
+
+            <div className="mt-5 flex items-center gap-2.5">
+              {SOCIALS.map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={s.label}
+                  aria-label={s.label}
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-deep/10 bg-white text-ink-soft transition-all hover:-translate-y-0.5 hover:border-brand-400 hover:bg-brand-500 hover:text-white shadow-2xs"
+                >
+                  {s.icon}
+                </a>
+              ))}
+              <span className="ml-1 text-[11px] text-ink-faint">Follow the builder</span>
             </div>
 
-            {/* Info below photo */}
-            <div className="mt-3 text-center px-1">
-              <div className="flex items-center justify-center gap-1.5">
-                <span className="text-sm font-bold text-ink group-hover:text-brand-600 transition-colors">
-                  Abhishek Hosamani
-                </span>
-                <Linkedin size={14} className="text-[#0a66c2]" />
+            <div className="mt-7">
+              <div className="text-xs font-bold uppercase tracking-wider text-ink-faint">Stay updated</div>
+              <form onSubmit={(e) => e.preventDefault()} className="mt-2.5 flex max-w-xs gap-2">
+                <input
+                  type="email"
+                  className="input-base !py-2.5 text-xs"
+                  placeholder="Enter your email"
+                />
+                <button type="submit" className="btn-primary shrink-0 !px-4 !py-2.5 text-xs">
+                  Subscribe
+                </button>
+              </form>
+            </div>
+          </div>
+
+          {/* CENTER: Navigation Columns */}
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4 lg:gap-6 xl:gap-8">
+            {navSections.map((sec) => (
+              <div key={sec.title}>
+                <div className="text-xs font-bold uppercase tracking-wider text-ink-faint">
+                  {sec.title}
+                </div>
+                <ul className="mt-3.5 space-y-2.5">
+                  {sec.links.map((link) => (
+                    <li key={link.label}>
+                      <button
+                        className="text-left text-sm text-ink-mute transition-colors hover:text-brand-600"
+                        onClick={link.action}
+                      >
+                        {link.label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <p className="mt-0.5 text-[11px] text-ink-mute">Full Stack Developer</p>
+            ))}
+          </div>
 
-              <div className="mt-2.5 flex items-center justify-center gap-1.5 rounded-xl bg-mist border border-deep/6 px-3 py-1.5 text-xs font-medium text-ink transition-colors group-hover:bg-[#0a66c2] group-hover:border-[#0a66c2] group-hover:text-white">
-                <span>Connect on LinkedIn</span>
-                <span className="text-xs transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
+          {/* RIGHT: Developer Visual (Anchored in Far-Right Corner) */}
+          <div className="flex flex-col items-center lg:items-end justify-start">
+            {/* Handwritten decorative note */}
+            <div className="mb-2 flex items-center gap-1.5 self-center lg:self-end lg:pr-2">
+              <span className="font-serif italic text-xs font-semibold tracking-tight text-ink-soft select-none">
+                Built with <span className="text-rose-500 text-sm">♥</span> by me
+              </span>
+              <svg
+                className="h-3.5 w-3.5 text-brand-500 -rotate-12 translate-y-0.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M19 12c-4 2-8 6-8 9m0 0l-3-3m3 3l3-3" />
+              </svg>
+            </div>
+
+            {/* Developer Portrait Area */}
+            <a
+              href="https://www.linkedin.com/in/abhishek-hosamani/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative block transition-all duration-300 hover:-translate-y-1 focus:outline-none"
+              title="Connect with Abhishek Hosamani on LinkedIn"
+            >
+              {/* Subtle ambient light-blue blob behind person */}
+              <div className="absolute -inset-2 rounded-full bg-gradient-to-tr from-brand-200/40 via-blue-100/30 to-teal-100/20 blur-xl opacity-70 group-hover:opacity-100 transition-opacity" />
+
+              {/* Portrait container with soft organic rounded bottom */}
+              <div className="relative h-48 w-44 sm:h-52 sm:w-48 overflow-hidden rounded-[2rem] rounded-b-[2.4rem] bg-gradient-to-b from-brand-50/90 via-blue-50/40 to-slate-100/60 border border-brand-200/60 shadow-sm transition-all duration-300 group-hover:border-brand-400 group-hover:shadow-md">
+                <img
+                  src={abhishekImg}
+                  alt="Abhishek Hosamani - Full Stack Developer"
+                  className="h-full w-full object-cover object-[center_20%] drop-shadow-xs transition-transform duration-500 group-hover:scale-105"
+                />
+                {/* Soft gradient bottom blend so it dissolves smoothly into the card base */}
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-white/70 via-white/20 to-transparent" />
               </div>
-            </div>
-          </a>
-        </div>
 
-        {/* Link Columns: Resume, Resources, Company, Support */}
-        <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
-          {cols.map((col) => (
-            <div key={col.title}>
-              <div className="text-xs font-bold uppercase tracking-wider text-ink-faint">{col.title}</div>
-              <ul className="mt-3 space-y-2.5">
-                {col.links.map((l) => (
-                  <li key={l}>
-                    <button
-                      className="text-sm text-ink-mute transition-colors hover:text-teal-500"
-                      onClick={() => onNavigate(l === 'Create Resume' || l === 'Resume Templates' ? '/dashboard' : '/')}
-                    >
-                      {l}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+              {/* Small floating label near/below the photo */}
+              <div className="relative -mt-4 mx-auto w-[92%] rounded-xl border border-deep/8 bg-white/95 px-3 py-2 text-center shadow-md backdrop-blur-md transition-all duration-300 group-hover:border-brand-400 group-hover:shadow-lg">
+                <div className="flex items-center justify-center gap-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                  </span>
+                  <span className="text-xs font-bold text-ink group-hover:text-brand-600 transition-colors">
+                    Abhishek Hosamani
+                  </span>
+                  <Linkedin size={12} className="text-[#0a66c2]" />
+                </div>
+                <div className="mt-0.5 text-[10.5px] font-medium text-ink-mute">
+                  Full Stack Developer
+                </div>
+              </div>
+            </a>
+          </div>
         </div>
       </div>
+
+      {/* Bottom Legal / Navigation Bar */}
       <div className="border-t border-deep/8">
-        <div className="container-x flex flex-col items-center justify-between gap-3 py-5 text-xs text-ink-faint sm:flex-row">
-          <div className="flex items-center gap-2 flex-wrap">
+        <div className="container-x flex flex-col items-center justify-between gap-4 py-5 text-xs text-ink-faint sm:flex-row">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <span>© {new Date().getFullYear()} ResumeXpert. Crafted with care by</span>
             <a
               href="https://www.linkedin.com/in/abhishek-hosamani/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 font-medium text-ink hover:text-brand-600 transition-colors group"
+              className="font-medium text-ink hover:text-brand-600 transition-colors underline decoration-deep/20 underline-offset-2 hover:decoration-brand-500"
             >
-              <img
-                src={abhishekImg}
-                alt="Abhishek Hosamani"
-                className="h-5 w-5 rounded-full object-cover object-top border border-brand-300 shadow-2xs group-hover:scale-110 transition-transform"
-              />
-              <span className="underline decoration-deep/20 underline-offset-2 group-hover:decoration-brand-500">Abhishek Hosamani</span>
+              Abhishek Hosamani.
             </a>
           </div>
-          <div className="flex gap-5">
-            <button className="hover:text-teal-500">Privacy Policy</button>
-            <button className="hover:text-teal-500">Terms of Service</button>
-            <button className="hover:text-teal-500">Cookie Settings</button>
+          <div className="flex items-center gap-5 sm:gap-6 flex-wrap">
+            <button onClick={() => onNavigate('/')} className="hover:text-brand-600 transition-colors">
+              Privacy Policy
+            </button>
+            <button onClick={() => onNavigate('/')} className="hover:text-brand-600 transition-colors">
+              Terms of Service
+            </button>
+            <button onClick={() => onNavigate('/')} className="hover:text-brand-600 transition-colors">
+              Cookie Settings
+            </button>
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="flex items-center gap-1 font-medium text-ink-soft hover:text-brand-600 transition-colors"
+            >
+              <span>Back to top</span>
+              <span className="text-brand-500 font-bold">↑</span>
+            </button>
           </div>
         </div>
       </div>
