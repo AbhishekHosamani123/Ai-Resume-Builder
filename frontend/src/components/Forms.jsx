@@ -359,7 +359,7 @@ export const ProjectDetailForm = ({ projectInfo, updateArrayItem, addArrayItem, 
 
               <div className="md:col-span-2">
                 <BulletPointsField
-                  label="Description & Highlights"
+                  label="Description"
                   value={project.description || ""}
                   onChange={(val) => updateArrayItem(index, "description", val)}
                   onEnhance={typeof onEnhanceProjectDescription === 'function' ? () => onEnhanceProjectDescription(index) : null}
@@ -516,7 +516,7 @@ export const WorkExperienceForm = ({ workExperience, updateArrayItem, addArrayIt
 
             <div className="mt-6">
               <BulletPointsField
-                label="Job Description & Achievements"
+                label="Description"
                 value={experience.description || ""}
                 onChange={(val) => updateArrayItem(index, "description", val)}
                 onEnhance={typeof onEnhanceDescription === 'function' ? () => onEnhanceDescription(index) : null}
