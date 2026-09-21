@@ -1173,6 +1173,39 @@ const EditResume = () => {
         {/* STEP PROGRESS & FORM */}
         <div className={containerStyles.grid}>
         <div className={containerStyles.formContainer}>
+            {/* Mobile View Only: AI Mascot Companion working on the form */}
+            <div className="block lg:hidden bg-gradient-to-r from-violet-50/80 via-white to-transparent px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
+              <div className="flex items-center gap-2 min-w-0">
+                <Sparkles size={14} className="text-violet-600 animate-pulse shrink-0" />
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-xs font-bold text-slate-800">AI Resume Assistant</span>
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                      Active
+                    </span>
+                  </div>
+                  <p className="text-[10px] font-medium text-violet-600 truncate mt-0.5">
+                    {SECTION_MESSAGES[currentPage] || "Formatting & optimizing in real-time..."}
+                  </p>
+                </div>
+              </div>
+
+              {/* 3D AI Mascot Video — shown in form card only in mobile view */}
+              <div className="shrink-0 -my-2.5 -mr-1">
+                <video
+                  src={mascotVideo}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-20 h-20 object-contain pointer-events-none select-none border-0 shadow-none outline-none ring-0 bg-transparent"
+                  title="AI Mascot crafting your resume"
+                  aria-label="AI Mascot crafting your resume"
+                />
+              </div>
+            </div>
+
             <StepProgress progress={progress}/>
             {renderForm()}
             <div className="p-4 sm:p-6">
