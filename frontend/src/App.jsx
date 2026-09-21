@@ -5,6 +5,7 @@ import LandingPage from './pages/LandingPage'
 import Dashboard from './pages/Dashboard'
 import EditResume from './components/EditResume'
 import AtsChecker from './pages/AtsChecker'
+import CustomCursor from './components/CustomCursor'
 import { initSmoothScroll } from './lib/smoothScroll'
 
 const App = () => {
@@ -12,6 +13,7 @@ const App = () => {
 
   return (
     <>
+      <CustomCursor />
       <Routes>
         <Route path='/' element={<LandingPage />} />
         <Route path='/dashboard' element={<Dashboard />} />

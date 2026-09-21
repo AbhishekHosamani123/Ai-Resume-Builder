@@ -280,3 +280,19 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
+/* Custom Cursor */
+@media print {
+  .custom-cursor-dot,
+  .custom-cursor-ring {
+    display: none !important;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .custom-cursor-dot,
+  .custom-cursor-ring {
+    display: none !important;
+  }
+}
+
+
