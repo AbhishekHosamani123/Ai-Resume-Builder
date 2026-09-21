@@ -9,6 +9,7 @@ import { scrollToTarget } from '../lib/smoothScroll'
 import Reveal from '../components/Reveal'
 import mascotVideo from '../assets/mascot.mp4'
 import abhishekImg from '../assets/Abhishek.png'
+import DepthCarousel from './DepthCarousel'
 
 const LOGO = (
   <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink text-white">
@@ -492,8 +493,6 @@ function LivePreview({ onNavigate }) {
 function Templates({ onNavigate }) {
   const tabs = ['All', 'ATS & Clean', 'Reactive Resume', 'Shanidhya', 'Modern & Creative']
   const [activeTab, setActiveTab] = useState(0)
-  const [offset, setOffset] = useState(0)
-  const [isPaused, setIsPaused] = useState(false)
 
   const currentList = useMemo(() => {
     if (activeTab === 0) return resumeTemplates
@@ -501,113 +500,23 @@ function Templates({ onNavigate }) {
     return resumeTemplates.filter((t) => t.category === cat)
   }, [activeTab])
 
-  // Reset offset when tab changes
-  useEffect(() => {
-    setOffset(0)
-  }, [activeTab])
-
-  // Auto-play moving carousel with smooth animation
-  useEffect(() => {
-    if (isPaused || currentList.length <= 1) return
-    const timer = setInterval(() => {
-      setOffset((o) => (o + 1) % currentList.length)
-    }, 3500)
-    return () => clearInterval(timer)
-  }, [isPaused, currentList.length])
-
-  // Mobile Touch Swipe Handling
-  const touchStartX = useRef(null)
-  const touchStartY = useRef(null)
-  const isSwipingRef = useRef(false)
-
-  const handleTouchStart = (e) => {
-    setIsPaused(true)
-    isSwipingRef.current = false
-    touchStartX.current = e.touches[0].clientX
-    touchStartY.current = e.touches[0].clientY
-  }
-
-  const handleTouchMove = (e) => {
-    if (touchStartX.current === null) return
-    const diffX = touchStartX.current - e.touches[0].clientX
-    const diffY = touchStartY.current - e.touches[0].clientY
-    if (Math.abs(diffX) > 10 || Math.abs(diffY) > 10) {
-      isSwipingRef.current = true
-    }
-  }
-
-  const handleTouchEnd = (e) => {
-    setIsPaused(false)
-    if (touchStartX.current === null) return
-    const diffX = touchStartX.current - e.changedTouches[0].clientX
-    const diffY = touchStartY.current - e.changedTouches[0].clientY
-    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 35) {
-      if (diffX > 0) {
-        // Swipe left -> advance
-        setOffset((o) => (o + 1) % total)
-      } else {
-        // Swipe right -> back
-        setOffset((o) => (o - 1 + total) % total)
-      }
-    }
-    touchStartX.current = null
-    touchStartY.current = null
-    setTimeout(() => {
-      isSwipingRef.current = false
-    }, 150)
-  }
-
-  // Mouse drag support
-  const handleMouseDown = (e) => {
-    touchStartX.current = e.clientX
-    touchStartY.current = e.clientY
-    isSwipingRef.current = false
-  }
-
-  const handleMouseMove = (e) => {
-    if (touchStartX.current === null) return
-    const diffX = touchStartX.current - e.clientX
-    if (Math.abs(diffX) > 10) {
-      isSwipingRef.current = true
-    }
-  }
-
-  const handleMouseUp = (e) => {
-    if (touchStartX.current === null) return
-    const diffX = touchStartX.current - e.clientX
-    if (Math.abs(diffX) > 40) {
-      if (diffX > 0) {
-        setOffset((o) => (o + 1) % total)
-      } else {
-        setOffset((o) => (o - 1 + total) % total)
-      }
-    }
-    touchStartX.current = null
-    touchStartY.current = null
-    setTimeout(() => {
-      isSwipingRef.current = false
-    }, 150)
-  }
-
-  const total = currentList.length
-  const activeIdx = total > 0 ? ((offset % total) + total) % total : 0
-  const prevIdx = total > 0 ? (activeIdx - 1 + total) % total : 0
-  const nextIdx = total > 0 ? (activeIdx + 1) % total : 0
-
-  const desktopTemplates = total > 0 ? [
-    { item: currentList[prevIdx], role: 'prev' },
-    { item: currentList[activeIdx], role: 'active' },
-    { item: currentList[nextIdx], role: 'next' },
-  ] : []
-
-  const currentActiveTemplate = currentList[activeIdx] || resumeTemplates[0]
+  const items = useMemo(() => {
+    return currentList.map((t) => ({
+      image: t.thumbnailImg,
+      alt: t.name,
+      title: t.name,
+      category: t.category,
+      atsScore: t.atsScore,
+      layoutType: t.layoutType,
+      id: t.id,
+      template: t
+    }))
+  }, [currentList])
 
   return (
     <section
       id="templates"
       className="bg-ice-2 py-20 sm:py-28 overflow-hidden select-none"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
     >
       <div className="container-x text-center">
         <Reveal><span className="eyebrow">Optimized designs</span></Reveal>
@@ -639,139 +548,37 @@ function Templates({ onNavigate }) {
         </Reveal>
 
         <Reveal delay={140} y={38}>
-          <div
-            className="relative mx-auto mt-12 flex max-w-5xl items-center justify-center gap-3 sm:gap-6 px-2 cursor-grab active:cursor-grabbing"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-          >
-            {/* Left Arrow Button */}
-            <button
-              className="z-20 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-deep shadow-md border border-deep/10 transition-all hover:bg-deep hover:text-white hover:scale-110 active:scale-95 cursor-pointer"
-              onClick={() => setOffset((o) => (o - 1 + total) % total)}
-              aria-label="Previous template"
-              title="Previous template"
-            >
-              <ArrowLeft size={18} />
-            </button>
-
-            {/* Desktop View: 3-column smooth carousel */}
-            <div className="hidden sm:grid flex-1 grid-cols-3 items-center gap-5 sm:gap-6">
-              {desktopTemplates.map(({ item, role }) => {
-                if (!item) return null
-                const isActive = role === 'active'
-                return (
-                  <div
-                    key={`${item.id}-${role}`}
-                    className={`group relative overflow-hidden rounded-2xl border border-deep/10 bg-white shadow-[var(--shadow-soft)] transition-all duration-500 cursor-pointer ${
-                      isActive
-                        ? 'z-10 scale-105 shadow-[var(--shadow-lift)] ring-2 ring-brand-500'
-                        : 'opacity-70 hover:opacity-100 hover:scale-[1.02]'
-                    }`}
-                    onClick={() => {
-                      if (isActive) onNavigate('/dashboard')
-                      else if (role === 'prev') setOffset((o) => (o - 1 + total) % total)
-                      else setOffset((o) => (o + 1) % total)
-                    }}
-                  >
-                    {item.atsScore && (
-                      <div className="absolute top-2.5 right-2.5 z-10">
-                        <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-sm">
-                          <Check size={10} /> ATS {item.atsScore}
-                        </span>
-                      </div>
-                    )}
-                    <div className="relative aspect-[3/4] w-full bg-slate-50 p-2.5 sm:p-3 overflow-hidden flex items-center justify-center border-b border-slate-100">
-                      <img
-                        src={item.thumbnailImg}
-                        alt={item.name || `Template ${item.id}`}
-                        className="w-full h-full object-contain rounded-sm shadow-xs bg-white transition-transform duration-300 group-hover:scale-102"
-                      />
-                    </div>
-                    <div className="p-3 bg-white text-left flex items-center justify-between gap-2">
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-slate-800 truncate">{item.name}</p>
-                        <p className="text-[10px] text-slate-400 font-medium truncate">{item.layoutType || item.category}</p>
-                      </div>
-                      <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 shrink-0">
-                        {item.category}
-                      </span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* Mobile View: Single prominent card with touch sliding */}
-            <div className="sm:hidden flex-1 flex flex-col items-center">
-              {currentActiveTemplate && (
-                <div
-                  className="w-full max-w-[280px] overflow-hidden rounded-2xl border border-deep/10 bg-white shadow-[var(--shadow-lift)] ring-2 ring-brand-500 transition-all duration-300 cursor-pointer"
-                  onClick={() => {
-                    if (!isSwipingRef.current) onNavigate('/dashboard')
-                  }}
-                >
-                  <div className="relative aspect-[3/4] w-full bg-slate-50 p-2.5 overflow-hidden flex items-center justify-center border-b border-slate-100">
-                    <img
-                      src={currentActiveTemplate.thumbnailImg}
-                      alt={currentActiveTemplate.name || `Template ${currentActiveTemplate.id}`}
-                      className="w-full h-full object-contain rounded bg-white shadow-xs"
-                    />
-                    {currentActiveTemplate.atsScore && (
-                      <div className="absolute top-2 right-2 z-10">
-                        <span className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-600 text-white shadow-sm">
-                          <Check size={9} /> ATS {currentActiveTemplate.atsScore}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-3 bg-white text-left flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-bold text-slate-800">{currentActiveTemplate.name}</p>
-                      <p className="text-[10px] text-slate-400">{currentActiveTemplate.category}</p>
-                    </div>
-                    <span className="text-[10px] font-bold text-brand-600">Use Template →</span>
-                  </div>
-                </div>
-              )}
-              <p className="text-[11px] text-slate-400 mt-2">👈 Swipe to browse templates 👉</p>
-            </div>
-
-            {/* Right Arrow Button */}
-            <button
-              className="z-20 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-deep shadow-md border border-deep/10 transition-all hover:bg-deep hover:text-white hover:scale-110 active:scale-95 cursor-pointer"
-              onClick={() => setOffset((o) => (o + 1) % total)}
-              aria-label="Next template"
-              title="Next template"
-            >
-              <ArrowRight size={18} />
-            </button>
+          <div className="mt-12" style={{ height: '500px', position: 'relative' }}>
+            <DepthCarousel
+              items={items}
+              depth={220}
+              spread={90}
+              tilt={22}
+              tiltDirection="right"
+              perspective={1400}
+              visibleCards={4}
+              falloff={0.2}
+              blur={6}
+              autoplay={false}
+              loop
+              cardWidth={300}
+              cardHeight={380}
+              radius={18}
+              tint="#05060a"
+              duration={700}
+              ease="power3.out"
+              autoplayDelay={3200}
+              showControls
+              showIndicators
+              onCardClick={(item) => onNavigate('/dashboard')}
+            />
           </div>
-
-          {/* Dots Indicator */}
-          {total > 1 && (
-            <div className="mt-6 flex items-center justify-center gap-1.5">
-              {currentList.slice(0, Math.min(12, total)).map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setOffset(i)}
-                  className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                    i === activeIdx ? 'w-6 bg-brand-600' : 'w-2 bg-slate-300 hover:bg-slate-400'
-                  }`}
-                  aria-label={`Jump to template ${i + 1}`}
-                />
-              ))}
-            </div>
-          )}
         </Reveal>
 
         <Reveal delay={120}>
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <button className="btn-secondary" onClick={() => onNavigate('/dashboard')}>
-              Use "{currentActiveTemplate?.name || 'This'}" Template
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button className="btn-primary" onClick={() => onNavigate('/dashboard')}>
+              Create Resume With Templates <ArrowRight size={15} />
             </button>
             <button className="btn-ghost !text-xs text-slate-500 hover:text-slate-900" onClick={() => onNavigate('/dashboard')}>
               Browse All {resumeTemplates.length} Templates →
