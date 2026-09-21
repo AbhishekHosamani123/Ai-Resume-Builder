@@ -1072,22 +1072,22 @@ const SOCIALS = [
   {
     label: 'LinkedIn',
     href: 'https://www.linkedin.com/in/abhishek-hosamani/',
-    icon: <Linkedin size={15} />,
+    icon: <Linkedin size={16} />,
   },
   {
     label: 'Instagram',
     href: 'https://www.instagram.com/abhishek_hosamani___/?hl=en',
-    icon: <Instagram size={15} />,
+    icon: <Instagram size={16} />,
   },
   {
     label: 'GitHub',
     href: 'https://github.com/AbhishekHosamani123',
-    icon: <Github size={15} />,
+    icon: <Github size={16} />,
   },
   {
-    label: 'YouTube',
-    href: 'https://youtube.com',
-    icon: <Youtube size={15} />,
+    label: 'Email',
+    href: 'mailto:abhishekhosamani522@gmail.com',
+    icon: <Mail size={16} />,
   },
 ]
 
@@ -1120,7 +1120,7 @@ function Footer({ onNavigate }) {
         { label: 'Pricing', action: () => onNavigate('/') },
         { label: 'Sitemap', action: () => onNavigate('/') },
         { label: 'Changelog', action: () => onNavigate('/') },
-        { label: 'Contact Us', action: () => { window.location.href = 'mailto:abhishekhosamani01@gmail.com' } },
+        { label: 'Contact Us', action: () => { window.location.href = 'mailto:abhishekhosamani522@gmail.com' } },
       ],
     },
     {
@@ -1136,12 +1136,12 @@ function Footer({ onNavigate }) {
   ]
 
   return (
-    <footer className="px-4 py-8 sm:px-6 sm:py-12 lg:px-8 bg-slate-50/50">
-      <div className="mx-auto max-w-7xl rounded-[2.5rem] border border-slate-200/80 bg-white p-8 sm:p-12 shadow-[0_4px_30px_rgba(0,0,0,0.03)] relative overflow-hidden">
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.1fr_2.4fr_1.15fr] xl:grid-cols-[1.15fr_2.5fr_1.15fr] items-start">
+    <footer className="relative border-t border-slate-200 bg-white overflow-hidden">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 pt-14 sm:pt-16 pb-0">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.1fr_2.4fr_1.2fr] xl:grid-cols-[1.15fr_2.5fr_1.2fr] items-end">
           
-          {/* LEFT: ResumeXpert Brand, Description, Socials & Newsletter */}
-          <div>
+          {/* LEFT: ResumeXpert Brand, Description & Socials */}
+          <div className="pb-6">
             <button className="flex items-center gap-2.5 text-left" onClick={() => onNavigate('/')}>
               {LOGO}
               <span className="font-display text-xl font-bold tracking-tight text-ink">
@@ -1153,52 +1153,26 @@ function Footer({ onNavigate }) {
               data never leaves your browser.
             </p>
 
-            {/* 4 Social Icons */}
-            <div className="mt-5 flex items-center gap-2.5">
+            {/* 4 Social Icons: LinkedIn, Instagram, GitHub, Email */}
+            <div className="mt-6 flex items-center gap-2.5">
               {SOCIALS.map((s) => (
                 <a
                   key={s.label}
                   href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  target={s.href.startsWith('mailto:') ? undefined : '_blank'}
+                  rel={s.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
                   title={s.label}
                   aria-label={s.label}
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition-all hover:bg-slate-200 hover:-translate-y-0.5"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition-all hover:bg-slate-200 hover:-translate-y-0.5 shadow-2xs"
                 >
                   {s.icon}
                 </a>
               ))}
             </div>
-
-            {/* STAY UPDATED */}
-            <div className="mt-7">
-              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                STAY UPDATED
-              </div>
-              <form onSubmit={(e) => e.preventDefault()} className="mt-3 flex items-center gap-2 max-w-xs">
-                <div className="relative flex-1">
-                  <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                  <input
-                    type="email"
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs text-slate-800 placeholder:text-slate-400 focus:border-[#0284c7] focus:outline-none shadow-2xs"
-                    placeholder="Enter your email"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="rounded-xl bg-ink px-4 py-2 text-xs font-medium text-white hover:bg-slate-800 transition-colors shadow-2xs shrink-0"
-                >
-                  Subscribe
-                </button>
-              </form>
-              <p className="mt-2 text-[11px] text-slate-400">
-                Get product updates, new templates and career tips.
-              </p>
-            </div>
           </div>
 
           {/* CENTER: 4 Navigation Columns */}
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4 lg:gap-6 xl:gap-8">
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4 lg:gap-6 xl:gap-8 pb-6">
             {navSections.map((sec) => (
               <div key={sec.title}>
                 <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3.5">
@@ -1220,10 +1194,10 @@ function Footer({ onNavigate }) {
             ))}
           </div>
 
-          {/* RIGHT: Developer Abhishek Visual */}
-          <div className="relative flex flex-col items-center lg:items-end justify-end self-end w-full max-w-[320px] mx-auto lg:ml-auto pt-6 select-none">
+          {/* RIGHT: Developer Abhishek Visual (Touches Bottom) */}
+          <div className="relative flex flex-col items-center lg:items-end justify-end self-end w-full max-w-[340px] mx-auto lg:ml-auto pt-6 select-none">
             {/* Top-Left Handwritten Element: Built with ♥ by me + curved arrow */}
-            <div className="absolute top-4 left-0 sm:left-2 z-20 pointer-events-none select-none">
+            <div className="absolute top-2 left-0 sm:left-2 z-20 pointer-events-none select-none">
               <div className="font-['Caveat',cursive] -rotate-6 text-[#0284c7] text-lg sm:text-xl font-bold leading-[1.1] text-center">
                 <div>Built</div>
                 <div className="flex items-center justify-center gap-1">
@@ -1248,7 +1222,7 @@ function Footer({ onNavigate }) {
             </div>
 
             {/* Top-Right 3 Radiating Rays */}
-            <div className="absolute top-6 right-8 sm:right-6 z-20 pointer-events-none select-none">
+            <div className="absolute top-4 right-8 sm:right-6 z-20 pointer-events-none select-none">
               <svg
                 className="w-9 h-9 text-[#38bdf8]"
                 viewBox="0 0 36 36"
@@ -1264,22 +1238,22 @@ function Footer({ onNavigate }) {
             </div>
 
             {/* Organic Sky-Blue Wave/Blob Background */}
-            <div className="absolute -bottom-12 -right-12 z-0 overflow-hidden pointer-events-none w-[340px] h-[300px]">
+            <div className="absolute bottom-0 -right-8 z-0 overflow-hidden pointer-events-none w-[360px] h-[340px]">
               <svg
                 className="w-full h-full"
-                viewBox="0 0 340 300"
+                viewBox="0 0 360 340"
                 fill="none"
               >
                 <path
-                  d="M30 300 C 10 180, 50 80, 130 40 C 210 0, 290 20, 340 80 L 340 300 Z"
+                  d="M30 340 C 10 200, 50 90, 140 45 C 230 5, 310 25, 360 85 L 360 340 Z"
                   fill="#e0f2fe"
                   opacity="0.92"
                 />
               </svg>
             </div>
 
-            {/* Developer Portrait */}
-            <div className="relative z-10 w-52 sm:w-56 overflow-hidden flex items-end justify-center pt-2">
+            {/* Developer Portrait - Increased Size */}
+            <div className="relative z-10 w-60 sm:w-64 overflow-hidden flex items-end justify-center pt-2">
               <img
                 src={abhishekImg}
                 alt="Abhishek Hosamani"
@@ -1287,12 +1261,12 @@ function Footer({ onNavigate }) {
               />
             </div>
 
-            {/* Floating Card: Abhishek Hosamani • green dot / Full Stack Developer */}
+            {/* Floating Card: Abhishek Hosamani • green dot / Full Stack Developer (Touches the bottom) */}
             <a
               href="https://www.linkedin.com/in/abhishek-hosamani/"
               target="_blank"
               rel="noopener noreferrer"
-              className="relative z-20 -mt-5 w-full max-w-[215px] rounded-2xl border border-slate-100 bg-white px-4 py-2.5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md block"
+              className="relative z-20 -mt-6 mb-0 translate-y-3 w-full max-w-[225px] rounded-2xl border border-slate-100 bg-white px-4 py-2.5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md block"
               title="Connect with Abhishek Hosamani on LinkedIn"
             >
               <div className="flex items-center justify-between gap-2">
@@ -1308,7 +1282,7 @@ function Footer({ onNavigate }) {
         </div>
 
         {/* Bottom Legal / Navigation Bar */}
-        <div className="mt-12 pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <div className="mt-4 border-t border-slate-200 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
             © {new Date().getFullYear()} ResumeXpert. Crafted with care by{' '}
             <a
