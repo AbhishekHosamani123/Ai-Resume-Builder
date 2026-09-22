@@ -38,6 +38,7 @@ function Navbar({ onNavigate }) {
     { label: 'How it works', href: '#how-it-works' },
     { label: 'Templates', href: '#templates' },
     { label: 'ATS Checker', href: '/ats', to: true },
+    { label: 'Feedback', href: '#feedback' },
     { label: 'FAQ', href: '#faq' },
   ]
   return (
@@ -632,11 +633,29 @@ function Industries({ onNavigate }) {
 
 // The LinkedIn post that promotes the app — users leave feedback in its
 // comments (no accounts, no in-app review forms).
-const LINKEDIN_POST_URL = 'https://www.linkedin.com/in/abhishek-hosamani/'
+const LINKEDIN_POST_URL =
+  'https://www.linkedin.com/posts/abhishek-hosamani_ai-resumebuilder-ats-activity-7508054726823829506-Qdx_'
+
+const FEEDBACK_COMMENT_TEMPLATE =
+  'Loved using ResumeXpert! Clean ATS-friendly templates, instantaneous export, and no paywalls or sign-up hassle. Great tool by Abhishek Hosamani! 🚀'
 
 function Feedback() {
+  const [copied, setCopied] = useState(false)
+
+  const handleFeedbackClick = () => {
+    try {
+      if (navigator?.clipboard?.writeText) {
+        navigator.clipboard.writeText(FEEDBACK_COMMENT_TEMPLATE)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 5000)
+      }
+    } catch {
+      // ignore clipboard error
+    }
+  }
+
   return (
-    <section className="bg-white py-20 sm:py-28">
+    <section className="bg-white py-20 sm:py-28" id="feedback">
       <div className="container-x">
         <Reveal>
           <div className="relative mx-auto max-w-3xl overflow-hidden rounded-[28px] bg-ice px-6 py-12 text-center shadow-[var(--shadow-soft)] sm:px-12">
@@ -654,16 +673,28 @@ function Feedback() {
                 community is. Drop a comment on our LinkedIn post: what you loved, what broke,
                 and what you want next.
               </p>
-              <a
-                href={LINKEDIN_POST_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-blue mt-7 px-7 py-3.5 text-base"
-              >
-                <Linkedin size={17} /> Give Feedback on LinkedIn
-                <ArrowRight size={16} />
-              </a>
-              <p className="mt-3 text-[11px] text-ink-faint">Opens in a new tab — every comment shapes the next update.</p>
+              <div className="mt-7 flex flex-col items-center justify-center gap-3">
+                <a
+                  href={LINKEDIN_POST_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={handleFeedbackClick}
+                  className="btn-blue px-7 py-3.5 text-base shadow-md hover:shadow-lg transition-all"
+                >
+                  <Linkedin size={18} /> Give Feedback on LinkedIn
+                  <ArrowRight size={16} />
+                </a>
+
+                {copied && (
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3.5 py-1 text-xs font-semibold text-emerald-700 border border-emerald-200 animate-in fade-in duration-200">
+                    <Check size={13} className="stroke-[2.5]" />
+                    Feedback template copied to clipboard! Just paste (Ctrl+V) in the LinkedIn comments.
+                  </div>
+                )}
+              </div>
+              <p className="mt-3 text-[11px] text-ink-faint">
+                Opens post in a new tab — auto-copies a feedback template to your clipboard so you can easily paste and comment!
+              </p>
             </div>
           </div>
         </Reveal>
@@ -931,6 +962,7 @@ function Footer({ onNavigate }) {
       links: [
         { label: 'Help Center', action: () => onNavigate('#faq') },
         { label: 'FAQ', action: () => onNavigate('#faq') },
+        { label: 'Give Feedback', action: () => onNavigate('#feedback') },
         { label: 'Terms of Service', action: () => onNavigate('/') },
         { label: 'Privacy Policy', action: () => onNavigate('/') },
         { label: 'Cookie Settings', action: () => onNavigate('/') },
